@@ -45,6 +45,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           file: build/linux/Dockerfile
-          build-arg: TAG=${{ github.ref_name }}
-          build-arg: PORTAINER_IMAGE_NAME=${{ env.IMAGE_NAME }}
+          build-args: |
+            TAG=${{ github.ref_name }}
+            PORTAINER_IMAGE_NAME=${{ env.IMAGE_NAME }}
           platforms: linux/amd64
