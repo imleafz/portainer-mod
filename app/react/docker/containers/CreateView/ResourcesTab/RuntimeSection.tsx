@@ -1,4 +1,5 @@
 import { bool, object, SchemaOf, string } from 'yup';
+import { useTranslation } from 'react-i18next';
 
 import { FormControl } from '@@/form-components/FormControl';
 import { FormSection } from '@@/form-components/FormSection';
@@ -23,15 +24,17 @@ export function RuntimeSection({
   allowPrivilegedMode: boolean;
   isInitFieldVisible: boolean;
 }) {
+  const { t } = useTranslation();
+
   return (
-    <FormSection title="Runtime">
+    <FormSection title={t('docker.container.runtime')}>
       {allowPrivilegedMode && (
         <div className="form-group">
           <div className="col-sm-12">
             <SwitchField
               labelClass="col-sm-2"
               data-cy="docker-privileged-switch"
-              label="Privileged mode"
+              label={t('docker.container.privilegedMode')}
               checked={values.privileged}
               onChange={(privileged) => handleChange({ privileged })}
             />
@@ -45,7 +48,7 @@ export function RuntimeSection({
             <SwitchField
               labelClass="col-sm-2"
               data-cy="docker-init-switch"
-              label="Init"
+              label={t('docker.container.init')}
               checked={values.init}
               onChange={(init) => handleChange({ init })}
             />
@@ -53,7 +56,7 @@ export function RuntimeSection({
         </div>
       )}
 
-      <FormControl label="Type" inputId="container_runtime" size="xsmall">
+      <FormControl label={t('docker.container.type')} inputId="container_runtime" size="xsmall">
         <RuntimeSelector
           value={values.type}
           onChange={(type) => handleChange({ type })}

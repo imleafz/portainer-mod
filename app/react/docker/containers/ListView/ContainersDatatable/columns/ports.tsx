@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { useTranslation } from 'react-i18next';
 import { CellContext } from '@tanstack/react-table';
 
 import { PublishedPortLink } from '@/react/docker/components/ImageStatus/PublishedPortLink';
@@ -14,7 +15,11 @@ export const ports = columnHelper.accessor(
       .map((port) => `${port.public}:${port.private}`)
       .join(','),
   {
-    header: 'Published Ports',
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation();
+      return t('docker.container.publishedPorts');
+    },
     id: 'ports',
     cell: Cell,
   }

@@ -1,6 +1,7 @@
 import { useCurrentStateAndParams } from '@uirouter/react';
 import { Circle, Code as CodeIcon, File } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { trimContainerName } from '@/docker/filters/utils';
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
@@ -14,6 +15,7 @@ import { Code } from '@@/Code';
 import { useContainerInspect } from '../queries/useContainerInspect';
 
 export function InspectView() {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const {
     params: { id, nodeName },
@@ -30,22 +32,25 @@ export function InspectView() {
   return (
     <>
       <PageHeader
-        title="Container inspect"
+        title={t('docker.container.containerInspect')}
         breadcrumbs={[
-          { label: 'Containers', link: 'docker.containers' },
+          {
+            label: t('docker.container.containers'),
+            link: 'docker.containers',
+          },
           {
             label: trimContainerName(containerInfo.Name),
             link: '^',
             // linkParams: { id: containerInfo.Id },
           },
-          'Inspect',
+          t('docker.container.inspect'),
         ]}
       />
 
       <div className="row">
         <div className="col-lg-12 col-md-12 col-xs-12">
           <Widget>
-            <Widget.Title icon={Circle} title="Inspect">
+            <Widget.Title icon={Circle} title={t('docker.container.inspect')}>
               <ButtonSelector<'tree' | 'text'>
                 onChange={(value) => setViewType(value)}
                 value={viewType}

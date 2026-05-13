@@ -1,6 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import { CellContext } from '@tanstack/react-table';
 
-import { ImageUpToDateTooltip } from '@/react/docker/components/datatable/TableColumnHeaderImageUpToDate';
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
 import { isRegularStack } from '@/react/docker/stacks/view-models/utils';
 
@@ -12,12 +12,11 @@ import { columnHelper } from './helper';
 export const imageNotificationColumn = columnHelper.display({
   id: 'imageNotification',
   enableHiding: false,
-  header: () => (
-    <>
-      Images up to date
-      <ImageUpToDateTooltip />
-    </>
-  ),
+  header: () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { t } = useTranslation();
+    return t('docker.stacks.imagesUpToDate');
+  },
   cell: Cell,
 });
 

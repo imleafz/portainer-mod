@@ -67,7 +67,6 @@ describe('SettingsSidebar', () => {
 
       expect(screen.getByTestId('portainerSidebar-users')).toBeInTheDocument();
       expect(screen.getByTestId('portainerSidebar-teams')).toBeInTheDocument();
-      expect(screen.getByTestId('portainerSidebar-roles')).toBeInTheDocument();
     });
 
     it('should render environment-related submenu items', () => {

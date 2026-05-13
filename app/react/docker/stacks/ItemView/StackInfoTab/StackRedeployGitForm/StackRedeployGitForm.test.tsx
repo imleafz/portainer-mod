@@ -191,12 +191,8 @@ describe('StackRedeployGitForm', () => {
     it('should render the form with correct sections', () => {
       renderComponent();
 
-      expect(
-        screen.getByText('Redeploy from git repository')
-      ).toBeInTheDocument();
-
-      expect(screen.getByText('Options')).toBeInTheDocument(); // available only when apiVersion is >= 1.27
-      expect(screen.getByText('Actions')).toBeInTheDocument();
+      expect(screen.getByText('Redeploy from Git')).toBeInTheDocument();
+      expect(screen.getAllByText('Options').length).toBeGreaterThan(0);
     });
 
     it('should display repository information in InfoPanel', () => {
@@ -245,7 +241,7 @@ describe('StackRedeployGitForm', () => {
       await user.click(toggleButton);
 
       expect(screen.getByText('Hide configuration')).toBeInTheDocument();
-      expect(screen.getByText('Skip TLS Verification')).toBeInTheDocument();
+      expect(screen.getByText('Skip TLS verification')).toBeInTheDocument();
     });
 
     it('should hide advanced configuration when toggle is clicked again', async () => {
@@ -260,7 +256,7 @@ describe('StackRedeployGitForm', () => {
 
       expect(screen.getByText('Advanced configuration')).toBeInTheDocument();
       expect(
-        screen.queryByText('Skip TLS Verification')
+        screen.queryByText('Skip TLS verification')
       ).not.toBeInTheDocument();
     });
   });
@@ -326,14 +322,14 @@ describe('StackRedeployGitForm', () => {
         },
       });
 
-      expect(screen.queryByText('Options')).not.toBeInTheDocument();
+      expect(screen.queryByText('Prune services')).not.toBeInTheDocument();
     });
 
     it('should not show options section for older API versions', () => {
       vi.mocked(useApiVersion).mockReturnValue(1.26);
       renderComponent();
 
-      expect(screen.queryByText('Options')).not.toBeInTheDocument();
+      expect(screen.queryByText('Prune services')).not.toBeInTheDocument();
     });
   });
 
@@ -346,7 +342,7 @@ describe('StackRedeployGitForm', () => {
       await user.click(redeployButton);
 
       expect(mockConfirmStackUpdate).toHaveBeenCalledWith(
-        'Any changes to this stack or application made locally in Portainer will be overridden, which may cause service interruption. Do you wish to continue?',
+        'Any local changes made to this stack or application in Portainer will be overridden, which may cause service disruption. Are you sure you want to continue?',
         true
       );
     });

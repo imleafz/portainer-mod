@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { HardDriveIcon, LayersIcon } from 'lucide-react';
 
 import { EditEdgeStackForm } from '@/react/edge/edge-stacks/ItemView/EditEdgeStackForm/EditEdgeStackForm';
@@ -13,6 +14,7 @@ import { useEdgeStack } from '../queries/useEdgeStack';
 import { EnvironmentsDatatable } from './EnvironmentsDatatable';
 
 export function ItemView() {
+  const { t } = useTranslation();
   const idParam = useIdParam('stackId');
   const edgeStackQuery = useEdgeStack(idParam);
 
@@ -29,9 +31,9 @@ export function ItemView() {
   return (
     <>
       <PageHeader
-        title="Edit Edge stack"
+        title={t('edge.edgeStack.editEdgeStack')}
         breadcrumbs={[
-          { label: 'Edge Stacks', link: 'edge.stacks' },
+          { label: t('edge.edgeStack.edgeStacks'), link: 'edge.stacks' },
           stack.Name,
         ]}
         reload
@@ -47,7 +49,7 @@ export function ItemView() {
                 options={[
                   {
                     id: 'stack',
-                    label: 'Stack',
+                    label: t('edge.edgeStack.stack'),
                     icon: LayersIcon,
                     children: (
                       <div className="p-5 pb-10">
@@ -58,7 +60,7 @@ export function ItemView() {
                   {
                     id: 'environments',
                     icon: HardDriveIcon,
-                    label: 'Environments',
+                    label: t('edge.edgeStack.environments'),
                     children: <EnvironmentsDatatable />,
                   },
                 ]}

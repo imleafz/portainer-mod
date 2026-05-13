@@ -3,11 +3,13 @@ package registries
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	portainer "github.com/portainer/portainer/api"
 	"github.com/portainer/portainer/api/dataservices"
 	httperrors "github.com/portainer/portainer/api/http/errors"
 	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	"github.com/portainer/portainer/api/internal/registryutils"
 	"github.com/portainer/portainer/api/pendingactions/handlers"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
@@ -53,6 +55,31 @@ func (handler *Handler) registryDelete(w http.ResponseWriter, r *http.Request) *
 	}
 
 	handler.deleteKubernetesSecrets(handler.DataStore, registry)
+
+	tokenData, _ := security.RetrieveTokenData(r)
+	operatorUsername := ""
+	operatorUserID := 0
+	if tokenData != nil {
+		operatorUserID = int(tokenData.ID)
+		operator, _ := handler.DataStore.User().Read(tokenData.ID)
+		if operator != nil {
+			operatorUsername = operator.Username
+		}
+	}
+
+	activitylog.NewActivityLogBuilder(
+		activitylog.ActionDelete,
+		activitylog.ContextPortainer,
+		activitylog.ResourceTypeRegistry,
+	).
+		WithUser(operatorUserID, operatorUsername).
+		WithResource(strconv.Itoa(registryID), registry.Name).
+		WithDetails(map[string]interface{}{
+			"description":  "删除注册表成功",
+			"registryName": registry.Name,
+			"registryType": registry.Type,
+		}).
+		Log()
 
 	return response.Empty(w)
 }

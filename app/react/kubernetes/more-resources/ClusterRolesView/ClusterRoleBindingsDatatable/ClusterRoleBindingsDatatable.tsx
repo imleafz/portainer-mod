@@ -3,6 +3,7 @@ import { useRouter } from '@uirouter/react';
 import { Row } from '@tanstack/react-table';
 import clsx from 'clsx';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
 import { useAuthorizations, Authorized } from '@/react/hooks/useUser';
@@ -27,6 +28,7 @@ const storageKey = 'clusterRoleBindings';
 const settingsStore = createStore(storageKey);
 
 export function ClusterRoleBindingsDatatable() {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const tableState = useTableState(settingsStore, storageKey);
   const clusterRoleBindingsQuery = useClusterRoleBindings(environmentId, {
@@ -51,8 +53,10 @@ export function ClusterRoleBindingsDatatable() {
       columns={columns}
       settingsManager={tableState}
       isLoading={clusterRoleBindingsQuery.isLoading}
-      emptyContentLabel="No supported cluster role bindings found"
-      title="Cluster Role Bindings"
+      emptyContentLabel={t(
+        'kubernetes.clusterRoleBindings.noClusterRoleBindingsFound'
+      )}
+      title={t('kubernetes.clusterRoleBindings.title')}
       titleIcon={LinkIcon}
       getRowId={(row) => row.uid}
       isRowSelectable={(row) => !row.original.isSystem}
@@ -97,6 +101,7 @@ type TableActionsProps = {
 };
 
 function TableActions({ selectedItems }: TableActionsProps) {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const deleteClusterRoleBindingsMutation =
     useDeleteClusterRoleBindingsMutation(environmentId);
@@ -105,9 +110,7 @@ function TableActions({ selectedItems }: TableActionsProps) {
   async function handleRemoveClick(roles: SelectedRole[]) {
     const confirmed = await confirmDelete(
       <>
-        <p>
-          Are you sure you want to delete the selected cluster role binding(s)?
-        </p>
+        <p>{t('kubernetes.clusterRoleBindings.removeConfirm')}</p>
         <ul className="mt-2 max-h-96 list-inside overflow-hidden overflow-y-auto text-sm">
           {roles.map((s, index) => (
             <li key={index}>{s.name}</li>
@@ -129,14 +132,14 @@ function TableActions({ selectedItems }: TableActionsProps) {
       {
         onSuccess: () => {
           notifySuccess(
-            'Roles successfully removed',
+            t('kubernetes.clusterRoleBindings.successfullyRemoved'),
             roles.map((r) => `${r.name}`).join(', ')
           );
           router.stateService.reload();
         },
         onError: (error) => {
           notifyError(
-            'Unable to delete cluster role bindings',
+            t('kubernetes.clusterRoleBindings.unableToDelete'),
             error as Error,
             roles.map((r) => `${r.name}`).join(', ')
           );
@@ -155,10 +158,10 @@ function TableActions({ selectedItems }: TableActionsProps) {
         onClick={() => handleRemoveClick(selectedItems)}
         icon={Trash2}
         isLoading={deleteClusterRoleBindingsMutation.isLoading}
-        loadingText="Removing cluster role bindings..."
+        loadingText={t('kubernetes.clusterRoleBindings.removing')}
         data-cy="k8s-cluster-role-bindings-remove-button"
       >
-        Remove
+        {t('common.delete')}
       </LoadingButton>
 
       <CreateFromManifestButton

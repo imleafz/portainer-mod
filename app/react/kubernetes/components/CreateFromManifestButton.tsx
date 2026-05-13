@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useCurrentStateAndParams } from '@uirouter/react';
 import { Plus } from 'lucide-react';
 
@@ -10,6 +11,7 @@ export function CreateFromManifestButton({
   params = {},
   'data-cy': dataCy,
 }: { params?: object } & AutomationTestingProps) {
+  const { t } = useTranslation();
   const { state } = useCurrentStateAndParams();
   return (
     <MenuButton
@@ -21,10 +23,10 @@ export function CreateFromManifestButton({
             referrer: state.name,
             ...params,
           }}
-          label="Create from manifest"
+          label={t('kubernetes.createFromManifest')}
           data-cy={`${dataCy}-manifest`}
         >
-          Manifest
+          {t('kubernetes.manifest')}
         </MenuButtonLink>,
         <MenuButtonLink
           key="helm"
@@ -33,16 +35,16 @@ export function CreateFromManifestButton({
             referrer: state.name,
             ...params,
           }}
-          label="Create from Helm chart"
+          label={t('kubernetes.createFromHelmChart')}
           data-cy={`${dataCy}-helm`}
         >
-          Helm chart
+          {t('kubernetes.helmChart')}
         </MenuButtonLink>,
       ]}
       data-cy={dataCy}
     >
       <Icon icon={Plus} size="xs" />
-      Create from code
+      {t('kubernetes.createFromCode')}
     </MenuButton>
   );
 }

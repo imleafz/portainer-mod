@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { CellContext } from '@tanstack/react-table';
 import { AlertCircle } from 'lucide-react';
 import { PropsWithChildren } from 'react';
@@ -16,7 +17,11 @@ import { DecoratedStack } from '../types';
 import { columnHelper } from './helper';
 
 export const control = columnHelper.display({
-  header: 'Control',
+  header: () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { t } = useTranslation();
+    return t('docker.stacks.control');
+  },
   id: 'control',
   cell: ControlCell,
   enableHiding: false,
@@ -25,22 +30,24 @@ export const control = columnHelper.display({
 function ControlCell({
   row: { original: item },
 }: CellContext<DecoratedStack, unknown>) {
+  const { t } = useTranslation();
+
   if (isRegularStack(item)) {
-    return <>Total</>;
+    return <>{t('docker.stack.total')}</>;
   }
 
   if (isExternalStack(item)) {
     return (
-      <Warning tooltip="This stack was created outside of Portainer. Control over this stack is limited.">
-        Limited
+      <Warning tooltip={t('docker.stack.externalStackLimited')}>
+        {t('docker.stack.limited')}
       </Warning>
     );
   }
 
   if (isOrphanedStack(item)) {
     return (
-      <Warning tooltip="This stack was created inside an environment that is no longer registered inside Portainer.">
-        Orphaned
+      <Warning tooltip={t('docker.stack.orphanedStackTooltip')}>
+        {t('docker.stack.orphaned')}
       </Warning>
     );
   }

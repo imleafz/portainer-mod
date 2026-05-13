@@ -3,9 +3,11 @@ package webhooks
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	portainer "github.com/portainer/portainer/api"
 	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	"github.com/portainer/portainer/api/internal/registryutils/access"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
 	"github.com/portainer/portainer/pkg/libhttp/request"
@@ -103,6 +105,31 @@ func (handler *Handler) webhookCreate(w http.ResponseWriter, r *http.Request) *h
 	if err != nil {
 		return httperror.InternalServerError("Unable to persist the webhook inside the database", err)
 	}
+
+	tokenData, _ := security.RetrieveTokenData(r)
+	operatorUsername := ""
+	operatorUserID := 0
+	if tokenData != nil {
+		operatorUserID = int(tokenData.ID)
+		operator, _ := handler.DataStore.User().Read(tokenData.ID)
+		if operator != nil {
+			operatorUsername = operator.Username
+		}
+	}
+
+	activitylog.NewActivityLogBuilder(
+		activitylog.ActionCreate,
+		activitylog.ContextPortainer,
+		activitylog.ResourceTypeWebhook,
+	).
+		WithUser(operatorUserID, operatorUsername).
+		WithResource(strconv.Itoa(int(webhook.ID)), webhook.ResourceID).
+		WithDetails(map[string]interface{}{
+			"endpointID":  webhook.EndpointID,
+			"registryID":  webhook.RegistryID,
+			"webhookType": webhook.WebhookType,
+		}).
+		Log()
 
 	return response.JSON(w, webhook)
 }

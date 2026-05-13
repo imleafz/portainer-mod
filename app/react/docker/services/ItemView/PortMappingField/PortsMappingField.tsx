@@ -1,4 +1,5 @@
 import { List, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Authorized } from '@/react/hooks/useUser';
 
@@ -39,6 +40,8 @@ export function PortsMappingField({
   onReset(all?: boolean): void;
   onSubmit(): void;
 }) {
+  const { t } = useTranslation();
+
   const { handleRemoveItem, handleAdd, handleChangeItem } = useInputList<Value>(
     {
       value: values,
@@ -55,8 +58,8 @@ export function PortsMappingField({
   return (
     <ServiceWidget
       titleIcon={List}
-      title="Published ports"
-      labelForAddButton="port mapping"
+      title={t('docker.services.publishedPorts')}
+      labelForAddButton={t('docker.services.portMapping')}
       onAdd={handleAdd}
       hasChanges={hasChanges}
       onReset={onReset}
@@ -67,12 +70,12 @@ export function PortsMappingField({
         <Table data-cy="service-published-ports-table">
           <thead>
             <tr>
-              <th>Host port</th>
-              <th>Container port</th>
-              <th>Protocol</th>
-              <th>Publish mode</th>
+              <th>{t('docker.services.hostPort')}</th>
+              <th>{t('docker.services.containerPort')}</th>
+              <th>{t('docker.services.protocol')}</th>
+              <th>{t('docker.services.publishMode')}</th>
               <Authorized authorizations="DockerServiceUpdate">
-                <th>Actions</th>
+                <th>{t('docker.services.actions')}</th>
               </Authorized>
             </tr>
           </thead>
@@ -88,12 +91,18 @@ export function PortsMappingField({
                 disabled={disabled}
                 readOnly={readOnly}
                 onRemove={() => handleRemoveItem(index, item)}
+                hostPortLabel={t('docker.services.hostPort')}
+                containerPortLabel={t('docker.services.containerPort')}
+                protocolSelectorLabel={t('docker.services.protocolSelector')}
+                publishModeSelectorLabel={t(
+                  'docker.services.publishModeSelector'
+                )}
               />
             ))}
           </tbody>
         </Table>
       ) : (
-        <p className="p-5">This service has no ports published.</p>
+        <p className="p-5">{t('docker.services.noPublishedPorts')}</p>
       )}
       {typeof errors === 'string' && (
         <div className="form-group col-md-12">
@@ -112,7 +121,17 @@ function Item({
   readOnly,
   onRemove,
   index,
-}: ItemProps<Value> & { onRemove(): void }) {
+  hostPortLabel,
+  containerPortLabel,
+  protocolSelectorLabel,
+  publishModeSelectorLabel,
+}: ItemProps<Value> & {
+  onRemove(): void;
+  hostPortLabel: string;
+  containerPortLabel: string;
+  protocolSelectorLabel: string;
+  publishModeSelectorLabel: string;
+}) {
   return (
     <>
       <tr>
@@ -122,7 +141,7 @@ function Item({
               value={item.hostPort}
               onChange={(value) => handleChange('hostPort', value)}
               id={`hostPort-${index}`}
-              label="host"
+              label={hostPortLabel}
               data-cy={`hostPort-${index}`}
             />
           </div>
@@ -132,7 +151,7 @@ function Item({
             value={item.containerPort}
             onChange={(value) => handleChange('containerPort', value)}
             id={`containerPort-${index}`}
-            label="container"
+            label={containerPortLabel}
             data-cy={`containerPort-${index}`}
           />
         </td>
@@ -143,7 +162,7 @@ function Item({
             options={[{ value: 'tcp' }, { value: 'udp' }]}
             disabled={disabled}
             readOnly={readOnly}
-            aria-label="protocol selector"
+            aria-label={protocolSelectorLabel}
           />
         </td>
         <td>
@@ -155,7 +174,7 @@ function Item({
               { value: 'host', label: 'host' },
             ]}
             disabled={disabled}
-            aria-label="publish mode"
+            aria-label={publishModeSelectorLabel}
             data-cy={`publishMode-${index}`}
           />
         </td>

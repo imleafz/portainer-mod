@@ -1,5 +1,6 @@
 import { ChevronsLeft, ChevronsRight } from 'lucide-react';
 import clsx from 'clsx';
+import { useTranslation } from 'react-i18next';
 
 import { isBE } from '@/react/portainer/feature-flags/feature-flags.service';
 
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export function Header({ logo: customLogo }: Props) {
+  const { t } = useTranslation();
   const { toggle, isOpen } = useSidebarState();
 
   return (
@@ -40,7 +42,7 @@ export function Header({ logo: customLogo }: Props) {
               'th-dark:text-gray-warm-6'
             )}
           >
-            <span className="font-medium">Powered by</span>
+            <span className="font-medium">{t('sidebar.poweredBy')}</span>
             <span className="font-semibold">
               {isBE ? (
                 'portainer business'
@@ -53,7 +55,7 @@ export function Header({ logo: customLogo }: Props) {
                     'th-dark:text-blue-7 th-dark:hover:text-blue-9'
                   )}
                 >
-                  portainer community
+                  {t('sidebar.portainerCommunity')}
                 </a>
               )}
             </span>
@@ -73,8 +75,8 @@ export function Header({ logo: customLogo }: Props) {
           'absolute',
           { '-right-[10px]': !isOpen, 'right-6': isOpen }
         )}
-        aria-label="Toggle Sidebar"
-        title="Toggle Sidebar"
+        aria-label={t('sidebar.toggleSidebar')}
+        title={t('sidebar.toggleSidebar')}
       >
         {isOpen ? <ChevronsLeft /> : <ChevronsRight />}
       </button>

@@ -1,6 +1,7 @@
 import { FormikErrors } from 'formik';
 import { array, object, SchemaOf, string } from 'yup';
 import { DeviceMapping } from 'docker-types';
+import { useTranslation } from 'react-i18next';
 
 import { FormError } from '@@/form-components/FormError';
 import { InputList, ItemProps } from '@@/form-components/InputList';
@@ -22,13 +23,15 @@ export function DevicesField({
   onChange: (value: Values) => void;
   errors?: FormikErrors<Device>[];
 }) {
+  const { t } = useTranslation();
+
   return (
     <InputList
       value={values}
       onChange={onChange}
       item={Item}
-      addLabel="Add device"
-      label="Devices"
+      addLabel={t('docker.container.addDevice')}
+      label={t('docker.container.devices')}
       errors={errors}
       itemBuilder={() => ({ pathOnHost: '', pathInContainer: '' })}
       data-cy="docker-container-devices"
@@ -37,6 +40,8 @@ export function DevicesField({
 }
 
 function Item({ item, onChange, error, index }: ItemProps<Device>) {
+  const { t } = useTranslation();
+
   return (
     <div className="w-full">
       <div className="flex w-full gap-4">
@@ -44,8 +49,8 @@ function Item({ item, onChange, error, index }: ItemProps<Device>) {
           value={item.pathOnHost}
           data-cy={`device-path-on-host_${index}`}
           onChange={(e) => onChange({ ...item, pathOnHost: e.target.value })}
-          label="host"
-          placeholder="e.g. /dev/tty0"
+          label={t('docker.container.hostPath')}
+          placeholder={t('docker.container.hostPathPlaceholder')}
           className="w-1/2"
           size="small"
         />
@@ -55,8 +60,8 @@ function Item({ item, onChange, error, index }: ItemProps<Device>) {
           onChange={(e) =>
             onChange({ ...item, pathInContainer: e.target.value })
           }
-          label="container"
-          placeholder="e.g. /dev/tty0"
+          label={t('docker.container.containerPath')}
+          placeholder={t('docker.container.containerPathPlaceholder')}
           className="w-1/2"
           size="small"
         />

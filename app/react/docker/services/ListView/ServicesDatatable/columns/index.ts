@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import _ from 'lodash';
+import { useTranslation } from 'react-i18next';
 
 import { ServiceViewModel } from '@/docker/models/service';
 import { isoDate } from '@/portainer/filters/filters';
@@ -14,6 +15,8 @@ import { schedulingMode } from './schedulingMode';
 import { ports } from './ports';
 
 export function useColumns(isStackColumnVisible?: boolean) {
+  const { t } = useTranslation();
+
   return useMemo(
     () =>
       _.compact([
@@ -25,18 +28,20 @@ export function useColumns(isStackColumnVisible?: boolean) {
         ),
         isStackColumnVisible &&
           columnHelper.accessor((item) => item.StackName || '-', {
-            header: 'Stack',
+            id: 'stack',
+            header: (): string => t('docker.services.stack'),
             enableHiding: false,
           }),
         image,
         schedulingMode,
         ports,
         columnHelper.accessor('UpdatedAt', {
-          header: 'Last Update',
+          id: 'lastUpdate',
+          header: (): string => t('docker.services.lastUpdate'),
           cell: ({ getValue }) => isoDate(getValue()),
         }),
         createOwnershipColumn<ServiceViewModel>(),
       ]),
-    [isStackColumnVisible]
+    [isStackColumnVisible, t]
   );
 }

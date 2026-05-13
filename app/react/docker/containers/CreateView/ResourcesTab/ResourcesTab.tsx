@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { FormikErrors } from 'formik';
 import { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useIsStandAlone } from '@/react/docker/proxy/queries/useInfo';
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
@@ -51,6 +52,7 @@ export function ResourcesTab({
   isSysctlFieldVisible: boolean;
   renderLimits?: (values: ResourcesValues) => ReactNode;
 }) {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
 
   const environmentQuery = useCurrentEnvironment();
@@ -88,7 +90,7 @@ export function ResourcesTab({
         />
       )}
 
-      <FormControl label="Shared memory size" inputId="shm-size">
+      <FormControl label={t('docker.container.sharedMemorySize')} inputId="shm-size">
         <div className="flex items-center gap-4">
           <Input
             id="shm-size"

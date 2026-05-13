@@ -1,4 +1,5 @@
 import { Play } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Authorized } from '@/react/hooks/useUser';
 import { EnvironmentId } from '@/react/portainer/environments/types';
@@ -26,6 +27,7 @@ export function ResumeButton({
   isPortainer,
   onSuccess = () => {},
 }: ResumeButtonProps) {
+  const { t } = useTranslation();
   const resumeMutation = useResumeContainer();
 
   function handleResume() {
@@ -33,7 +35,7 @@ export function ResumeButton({
       { environmentId, containerId, nodeName },
       {
         onSuccess() {
-          notifySuccess('Success', 'Container successfully resumed');
+          notifySuccess(t('common.success'), t('docker.container.containerResumed'));
           onSuccess();
         },
       }
@@ -48,11 +50,11 @@ export function ResumeButton({
         onClick={handleResume}
         disabled={!isPaused || isPortainer}
         isLoading={resumeMutation.isLoading}
-        loadingText="Resuming..."
+        loadingText={t('docker.container.resuming')}
         data-cy="unpause-container-button"
         icon={Play}
       >
-        Resume
+        {t('docker.container.resume')}
       </LoadingButton>
     </Authorized>
   );

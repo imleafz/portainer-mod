@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portainer Architecture Diagram</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'JetBrains Mono', monospace;
+        background: #020617;
+        min-height: 100vh;
+        padding: 2rem;
+        color: white;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .header {
+        margin-bottom: 2rem;
+      }
+
+      .header-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .pulse-dot {
+        width: 12px;
+        height: 12px;
+        background: #22d3ee;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: -0.025em;
+      }
+
+      .subtitle {
+        color: #94a3b8;
+        font-size: 0.875rem;
+        margin-left: 1.75rem;
+      }
+
+      .diagram-container {
+        background: rgba(15, 23, 42, 0.5);
+        border-radius: 1rem;
+        border: 1px solid #1e293b;
+        padding: 1.5rem;
+        overflow-x: auto;
+      }
+
+      svg {
+        width: 100%;
+        min-width: 1100px;
+        display: block;
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+
+      .card {
+        background: rgba(15, 23, 42, 0.5);
+        border-radius: 0.75rem;
+        border: 1px solid #1e293b;
+        padding: 1.25rem;
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .card-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+
+      .card-dot.cyan {
+        background: #22d3ee;
+      }
+      .card-dot.emerald {
+        background: #34d399;
+      }
+      .card-dot.violet {
+        background: #a78bfa;
+      }
+      .card-dot.amber {
+        background: #fbbf24;
+      }
+      .card-dot.rose {
+        background: #fb7185;
+      }
+      .card-dot.orange {
+        background: #fb923c;
+      }
+
+      .card h3 {
+        font-size: 0.875rem;
+        font-weight: 600;
+      }
+
+      .card ul {
+        list-style: none;
+        color: #94a3b8;
+        font-size: 0.75rem;
+      }
+
+      .card li {
+        margin-bottom: 0.375rem;
+      }
+
+      .footer {
+        text-align: center;
+        margin-top: 1.5rem;
+        color: #475569;
+        font-size: 0.75rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <div class="header-row">
+          <div class="pulse-dot"></div>
+          <h1>Portainer Architecture</h1>
+        </div>
+        <p class="subtitle">Container Management Platform for Docker, Swarm, Kubernetes and ACI</p>
+      </div>
+
+      <!-- Main Diagram -->
+      <div class="diagram-container">
+        <svg viewBox="0 0 1200 900">
+          <!-- Definitions -->
+          <defs>
+            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
+            </marker>
+            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5" />
+            </pattern>
+          </defs>
+
+          <!-- Background Grid -->
+          <rect width="100%" height="100%" fill="url(#grid)" />
+
+          <!-- ============================================================
+             CLIENT LAYER
+             ============================================================ -->
+
+          <!-- Clients Region -->
+          <rect x="20" y="30" width="200" height="120" rx="12" fill="rgba(251, 191, 36, 0.05)" stroke="#fbbf24" stroke-width="1" stroke-dasharray="8,4" />
+          <text x="32" y="48" fill="#fbbf24" font-size="10" font-weight="600">Client Layer</text>
+
+          <!-- Browser -->
+          <rect x="40" y="60" width="160" height="75" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5" />
+          <text x="120" y="85" fill="white" font-size="11" font-weight="600" text-anchor="middle">Browser</text>
+          <text x="120" y="102" fill="#94a3b8" font-size="9" text-anchor="middle">React 17 + TypeScript</text>
+          <text x="120" y="118" fill="#94a3b8" font-size="9" text-anchor="middle">AngularJS 1.8 (Legacy)</text>
+
+          <!-- ============================================================
+             PORTAINER CLOUD BOUNDARY
+             ============================================================ -->
+          <rect x="220" y="20" width="960" height="860" rx="12" fill="rgba(251, 191, 36, 0.03)" stroke="#fbbf24" stroke-width="1" stroke-dasharray="8,4" />
+          <text x="232" y="38" fill="#fbbf24" font-size="10" font-weight="600">Portainer Application</text>
+
+          <!-- ============================================================
+             FRONTEND LAYER
+             ============================================================ -->
+
+          <!-- Frontend Region -->
+          <rect x="240" y="50" width="280" height="200" rx="10" fill="rgba(8, 51, 68, 0.2)" stroke="#22d3ee" stroke-width="1" stroke-dasharray="4,4" />
+          <text x="252" y="68" fill="#22d3ee" font-size="9" font-weight="600">Frontend (app/react/)</text>
+
+          <!-- React Components -->
+          <rect x="260" y="80" width="240" height="155" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5" />
+          <text x="380" y="100" fill="white" font-size="11" font-weight="600" text-anchor="middle">React Components</text>
+          <text x="380" y="118" fill="#94a3b8" font-size="8" text-anchor="middle">• components/ (UI widgets)</text>
+          <text x="380" y="132" fill="#94a3b8" font-size="8" text-anchor="middle">• kubernetes/ (K8s management)</text>
+          <text x="380" y="146" fill="#94a3b8" font-size="8" text-anchor="middle">• docker/ (Docker mgmt)</text>
+          <text x="380" y="160" fill="#94a3b8" font-size="8" text-anchor="middle">• edge/ (Edge computing)</text>
+          <text x="380" y="174" fill="#94a3b8" font-size="8" text-anchor="middle">• portainer/ (Portainer views)</text>
+          <text x="380" y="188" fill="#94a3b8" font-size="8" text-anchor="middle">• azure/ (Azure integration)</text>
+          <text x="380" y="202" fill="#94a3b8" font-size="8" text-anchor="middle">• auth/ (Authentication)</text>
+          <text x="380" y="216" fill="#22d3ee" font-size="8" text-anchor="middle">React Query + Axios</text>
+
+          <!-- AngularJS Legacy -->
+          <rect x="260" y="245" width="240" height="55" rx="6" fill="rgba(8, 51, 68, 0.3)" stroke="#22d3ee" stroke-width="1" stroke-dasharray="3,3" />
+          <text x="380" y="265" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="middle">AngularJS Components (Legacy)</text>
+          <text x="380" y="282" fill="#64748b" font-size="8" text-anchor="middle">app/portainer/, app/docker/</text>
+
+          <!-- Arrow: Client to Frontend -->
+          <line x1="200" y1="97" x2="258" y2="97" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arrowhead)" />
+          <text x="229" y="91" fill="#94a3b8" font-size="8" text-anchor="middle">HTTP/HTTPS</text>
+
+          <!-- ============================================================
+             BACKEND LAYER
+             ============================================================ -->
+
+          <!-- Backend Region -->
+          <rect x="540" y="50" width="620" height="830" rx="10" fill="rgba(6, 78, 59, 0.15)" stroke="#34d399" stroke-width="1" stroke-dasharray="4,4" />
+          <text x="552" y="68" fill="#34d399" font-size="9" font-weight="600">Backend (api/)</text>
+
+          <!-- HTTP Server / Middleware Layer -->
+          <rect x="560" y="85" width="580" height="100" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5" />
+          <text x="850" y="108" fill="white" font-size="11" font-weight="600" text-anchor="middle">HTTP Server & Middlewares</text>
+          <text x="850" y="128" fill="#94a3b8" font-size="9" text-anchor="middle">server.go | CSRF Protection | Rate Limiter | Panic Logger</text>
+          <text x="850" y="145" fill="#94a3b8" font-size="9" text-anchor="middle">Request Bouncer | Offline Gate | Slow Request Logger</text>
+          <text x="850" y="168" fill="#34d399" font-size="8" text-anchor="middle">HTTP/HTTPS Server (TLS)</text>
+
+          <!-- Arrow: Frontend to Middleware -->
+          <line x1="500" y1="135" x2="558" y2="135" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arrowhead)" />
+          <text x="529" y="129" fill="#94a3b8" font-size="8" text-anchor="middle">REST API</text>
+
+          <!-- Security Layer -->
+          <rect x="560" y="200" width="280" height="70" rx="6" fill="rgba(136, 19, 55, 0.4)" stroke="#fb7185" stroke-width="1.5" />
+          <text x="700" y="222" fill="white" font-size="11" font-weight="600" text-anchor="middle">Security Layer</text>
+          <text x="700" y="240" fill="#94a3b8" font-size="9" text-anchor="middle">JWT | API Key | OAuth | LDAP</text>
+          <text x="700" y="256" fill="#94a3b8" font-size="9" text-anchor="middle">Password Strength | Authorization</text>
+
+          <!-- Arrow: Middleware to Security -->
+          <line x1="700" y1="185" x2="700" y2="198" stroke="#fb7185" stroke-width="1.5" marker-end="url(#arrowhead)" />
+
+          <!-- Handler Layer -->
+          <rect x="560" y="285" width="580" height="200" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5" />
+          <text x="850" y="308" fill="white" font-size="11" font-weight="600" text-anchor="middle">Handler Layer (api/http/handler/)</text>
+
+          <!-- Handler Groups -->
+          <rect x="575" y="320" width="170" height="150" rx="4" fill="rgba(6, 78, 59, 0.3)" stroke="#34d399" stroke-width="1" />
+          <text x="660" y="340" fill="#94a3b8" font-size="9" font-weight="600" text-anchor="middle">Auth & Users</text>
+          <text x="660" y="358" fill="#64748b" font-size="8" text-anchor="middle">auth/ | users/</text>
+          <text x="660" y="372" fill="#64748b" font-size="8" text-anchor="middle">teams/ | roles/</text>
+          <text x="660" y="386" fill="#64748b" font-size="8" text-anchor="middle">teammemberships/</text>
+          <text x="660" y="400" fill="#64748b" font-size="8" text-anchor="middle">apikey/</text>
+          <text x="660" y="420" fill="#fb7185" font-size="7" text-anchor="middle">Authentication</text>
+
+          <rect x="760" y="320" width="170" height="150" rx="4" fill="rgba(6, 78, 59, 0.3)" stroke="#34d399" stroke-width="1" />
+          <text x="845" y="340" fill="#94a3b8" font-size="9" font-weight="600" text-anchor="middle">Container Mgmt</text>
+          <text x="845" y="358" fill="#64748b" font-size="8" text-anchor="middle">endpoints/ | docker/</text>
+          <text x="845" y="372" fill="#64748b" font-size="8" text-anchor="middle">kubernetes/ | stacks/</text>
+          <text x="845" y="386" fill="#64748b" font-size="8" text-anchor="middle">registries/ | webhooks/</text>
+          <text x="845" y="400" fill="#64748b" font-size="8" text-anchor="middle">resourcecontrols/</text>
+          <text x="845" y="420" fill="#34d399" font-size="7" text-anchor="middle">Docker/K8s APIs</text>
+
+          <rect x="945" y="320" width="170" height="150" rx="4" fill="rgba(6, 78, 59, 0.3)" stroke="#34d399" stroke-width="1" />
+          <text x="1030" y="340" fill="#94a3b8" font-size="9" font-weight="600" text-anchor="middle">Edge & Deploy</text>
+          <text x="1030" y="358" fill="#64748b" font-size="8" text-anchor="middle">edgegroups/ | edgejobs/</text>
+          <text x="1030" y="372" fill="#64748b" font-size="8" text-anchor="middle">edgestacks/ | gitops/</text>
+          <text x="1030" y="386" fill="#64748b" font-size="8" text-anchor="middle">helm/ | templates/</text>
+          <text x="1030" y="400" fill="#64748b" font-size="8" text-anchor="middle">customtemplates/</text>
+          <text x="1030" y="420" fill="#fb923c" font-size="7" text-anchor="middle">Edge Computing</text>
+
+          <!-- Proxy Layer -->
+          <rect x="560" y="500" width="580" height="80" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5" />
+          <text x="850" y="522" fill="white" font-size="11" font-weight="600" text-anchor="middle">Proxy Layer (api/http/proxy/)</text>
+          <text x="850" y="542" fill="#94a3b8" font-size="9" text-anchor="middle">Docker Proxy | Kubernetes Proxy | Endpoint Proxy</text>
+          <text x="850" y="560" fill="#94a3b8" font-size="9" text-anchor="middle">Reverse Tunnel Service | Agent Communication</text>
+
+          <!-- Arrow: Handler to Proxy -->
+          <line x1="850" y1="485" x2="850" y2="498" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrowhead)" />
+
+          <!-- Service Layer -->
+          <rect x="560" y="595" width="580" height="100" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5" />
+          <text x="850" y="617" fill="white" font-size="11" font-weight="600" text-anchor="middle">Service Layer (api/internal/)</text>
+          <text x="850" y="637" fill="#94a3b8" font-size="9" text-anchor="middle">Authorization | Edge Stack | Snapshot | SSL</text>
+          <text x="850" y="655" fill="#94a3b8" font-size="9" text-anchor="middle">Activity Log | Upgrade | Pending Actions</text>
+          <text x="850" y="678" fill="#34d399" font-size="8" text-anchor="middle">Business Logic</text>
+
+          <!-- DataStore Layer -->
+          <rect x="560" y="710" width="280" height="100" rx="6" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1.5" />
+          <text x="700" y="732" fill="white" font-size="11" font-weight="600" text-anchor="middle">DataStore</text>
+          <text x="700" y="752" fill="#94a3b8" font-size="9" text-anchor="middle">api/dataservices/</text>
+          <text x="700" y="770" fill="#94a3b8" font-size="9" text-anchor="middle">api/datastore/</text>
+          <text x="700" y="790" fill="#a78bfa" font-size="8" text-anchor="middle">Database Persistence</text>
+
+          <!-- Kubernetes/Docker Clients -->
+          <rect x="860" y="710" width="280" height="100" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5" />
+          <text x="1000" y="732" fill="white" font-size="11" font-weight="600" text-anchor="middle">Container Clients</text>
+          <text x="1000" y="752" fill="#94a3b8" font-size="9" text-anchor="middle">api/docker/ | api/kubernetes/</text>
+          <text x="1000" y="770" fill="#94a3b8" font-size="9" text-anchor="middle">Docker API | K8s API</text>
+          <text x="1000" y="790" fill="#fbbf24" font-size="8" text-anchor="middle">External Clusters</text>
+
+          <!-- Arrow: Service to Data -->
+          <line x1="700" y1="695" x2="700" y2="708" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrowhead)" />
+          <line x1="1000" y1="695" x2="1000" y2="708" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arrowhead)" />
+
+          <!-- ============================================================
+             EXTERNAL SERVICES
+             ============================================================ -->
+
+          <!-- External Region -->
+          <rect x="20" y="200" width="200" height="500" rx="12" fill="rgba(251, 191, 36, 0.05)" stroke="#fbbf24" stroke-width="1" stroke-dasharray="8,4" />
+          <text x="32" y="218" fill="#fbbf24" font-size="10" font-weight="600">External Systems</text>
+
+          <!-- Docker -->
+          <rect x="40" y="240" width="160" height="55" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5" />
+          <text x="120" y="262" fill="white" font-size="11" font-weight="600" text-anchor="middle">Docker</text>
+          <text x="120" y="280" fill="#94a3b8" font-size="9" text-anchor="middle">Docker Engine API</text>
+
+          <!-- Kubernetes -->
+          <rect x="40" y="310" width="160" height="55" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5" />
+          <text x="120" y="332" fill="white" font-size="11" font-weight="600" text-anchor="middle">Kubernetes</text>
+          <text x="120" y="350" fill="#94a3b8" font-size="9" text-anchor="middle">K8s API Server</text>
+
+          <!-- Edge Agents -->
+          <rect x="40" y="380" width="160" height="55" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5" />
+          <text x="120" y="402" fill="white" font-size="11" font-weight="600" text-anchor="middle">Edge Agents</text>
+          <text x="120" y="420" fill="#94a3b8" font-size="9" text-anchor="middle">Remote Devices</text>
+
+          <!-- LDAP/AD -->
+          <rect x="40" y="450" width="160" height="55" rx="6" fill="rgba(136, 19, 55, 0.4)" stroke="#fb7185" stroke-width="1.5" />
+          <text x="120" y="472" fill="white" font-size="11" font-weight="600" text-anchor="middle">LDAP / AD</text>
+          <text x="120" y="490" fill="#94a3b8" font-size="9" text-anchor="middle">Authentication</text>
+
+          <!-- Helm -->
+          <rect x="40" y="520" width="160" height="55" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5" />
+          <text x="120" y="542" fill="white" font-size="11" font-weight="600" text-anchor="middle">Helm</text>
+          <text x="120" y="560" fill="#94a3b8" font-size="9" text-anchor="middle">Chart Repository</text>
+
+          <!-- Git -->
+          <rect x="40" y="590" width="160" height="55" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5" />
+          <text x="120" y="612" fill="white" font-size="11" font-weight="600" text-anchor="middle">Git</text>
+          <text x="120" y="630" fill="#94a3b8" font-size="9" text-anchor="middle">GitOps Repos</text>
+
+          <!-- Arrows to External -->
+          <line x1="200" y1="267" x2="858" y2="750" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4,4" />
+          <line x1="200" y1="337" x2="858" y2="750" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4,4" />
+          <line x1="200" y1="407" x2="1120" y2="760" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4,4" />
+          <line x1="200" y1="477" x2="758" y2="240" stroke="#fb7185" stroke-width="1" stroke-dasharray="4,4" />
+
+          <!-- ============================================================
+             SHARED PACKAGES
+             ============================================================ -->
+
+          <!-- PKG Region -->
+          <rect x="20" y="720" width="200" height="130" rx="12" fill="rgba(251, 191, 36, 0.05)" stroke="#fbbf24" stroke-width="1" stroke-dasharray="8,4" />
+          <text x="32" y="738" fill="#fbbf24" font-size="10" font-weight="600">Shared Packages (pkg/)</text>
+
+          <rect x="40" y="755" width="160" height="85" rx="6" fill="rgba(76, 29, 149, 0.3)" stroke="#a78bfa" stroke-width="1.5" />
+          <text x="120" y="775" fill="white" font-size="10" font-weight="600" text-anchor="middle">libhelm</text>
+          <text x="120" y="792" fill="#94a3b8" font-size="8" text-anchor="middle">Helm Library</text>
+          <text x="120" y="808" fill="#94a3b8" font-size="8" text-anchor="middle">Chart Management</text>
+          <text x="120" y="824" fill="#a78bfa" font-size="7" text-anchor="middle">Reusable Package</text>
+
+          <!-- ============================================================
+             LEGEND
+             ============================================================ -->
+          <text x="880" y="870" fill="white" font-size="10" font-weight="600">Legend</text>
+
+          <rect x="880" y="885" width="16" height="10" rx="2" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1" />
+          <text x="902" y="893" fill="#94a3b8" font-size="8">Frontend</text>
+
+          <rect x="880" y="901" width="16" height="10" rx="2" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1" />
+          <text x="902" y="909" fill="#94a3b8" font-size="8">Backend</text>
+
+          <rect x="880" y="917" width="16" height="10" rx="2" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1" />
+          <text x="902" y="925" fill="#94a3b8" font-size="8">External/Cloud</text>
+
+          <rect x="980" y="885" width="16" height="10" rx="2" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1" />
+          <text x="1002" y="893" fill="#94a3b8" font-size="8">Database</text>
+
+          <rect x="980" y="901" width="16" height="10" rx="2" fill="rgba(136, 19, 55, 0.4)" stroke="#fb7185" stroke-width="1" />
+          <text x="1002" y="909" fill="#94a3b8" font-size="8">Security</text>
+
+          <line x1="980" y1="923" x2="996" y2="923" stroke="#fbbf24" stroke-width="1" stroke-dasharray="3,3" />
+          <text x="1002" y="925" fill="#94a3b8" font-size="8">External Comm</text>
+
+          <line x1="1080" y1="923" x2="1096" y2="923" stroke="#fb7185" stroke-width="1" stroke-dasharray="3,3" />
+          <text x="1102" y="925" fill="#94a3b8" font-size="8">Auth Flow</text>
+        </svg>
+      </div>
+
+      <!-- Info Cards -->
+      <div class="cards">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-dot cyan"></div>
+            <h3>Frontend Stack</h3>
+          </div>
+          <ul>
+            <li>• React 17 with TypeScript</li>
+            <li>• React Query for state management</li>
+            <li>• Axios for HTTP requests</li>
+            <li>• i18next for internationalization</li>
+            <li>• AngularJS 1.8 (legacy views)</li>
+            <li>• TailwindCSS + PostCSS</li>
+            <li>• Webpack build system</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-dot emerald"></div>
+            <h3>Backend Architecture</h3>
+          </div>
+          <ul>
+            <li>• Go 1.25+ HTTP server</li>
+            <li>• Layered architecture: Handler → Proxy → Service → DataStore</li>
+            <li>• Multiple auth methods: JWT, API Key, OAuth, LDAP</li>
+            <li>• Docker & Kubernetes API proxying</li>
+            <li>• Reverse tunnel for edge devices</li>
+            <li>• CSRF protection & rate limiting</li>
+            <li>• Activity logging & audit trail</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-dot violet"></div>
+            <h3>Supported Platforms</h3>
+          </div>
+          <ul>
+            <li>• Docker Standalone</li>
+            <li>• Docker Swarm</li>
+            <li>• Kubernetes</li>
+            <li>• Azure Container Instances</li>
+            <li>• Edge Computing Devices</li>
+            <li>• Nomad (via external proxy)</li>
+            <li>• Multiple registries (Docker, GitHub, GitLab, Azure)</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <p class="footer"> Portainer Community Edition • Container Management Platform • arch-diagram </p>
+    </div>
+  </body>
+</html>

@@ -4,6 +4,8 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
 	"github.com/portainer/portainer/pkg/libhttp/request"
 	"github.com/portainer/portainer/pkg/libhttp/response"
@@ -56,6 +58,26 @@ func (handler *Handler) sslUpdate(w http.ResponseWriter, r *http.Request) *httpe
 			return httperror.InternalServerError("Failed to force https", err)
 		}
 	}
+
+	tokenData, _ := security.RetrieveTokenData(r)
+	operatorUsername := ""
+	operatorUserID := 0
+	if tokenData != nil {
+		operatorUserID = int(tokenData.ID)
+		operatorUsername = tokenData.Username
+	}
+
+	activitylog.NewActivityLogBuilder(
+		activitylog.ActionUpdate,
+		activitylog.ContextPortainer,
+		activitylog.ResourceTypeSSL,
+	).
+		WithUser(operatorUserID, operatorUsername).
+		WithResource("", "SSL Settings").
+		WithDetails(map[string]interface{}{
+			"httpEnabled": payload.HTTPEnabled,
+		}).
+		Log()
 
 	return response.Empty(w)
 }

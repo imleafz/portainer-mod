@@ -1,6 +1,7 @@
 import { Form, useFormikContext } from 'formik';
 import { JSONSchema7 } from 'json-schema';
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Stack, StackType } from '@/react/common/stacks/types';
 import { EnvironmentType } from '@/react/portainer/environments/types';
@@ -46,6 +47,7 @@ export function StackEditorTabInner({
   isSubmitting,
   webhookId,
 }: StackEditorTabInnerProps) {
+  const { t } = useTranslation();
   const { authorized: isAuthorizedToUpdate } = useAuthorizations(
     'PortainerStackUpdate'
   );
@@ -81,25 +83,23 @@ export function StackEditorTabInner({
         {stackType === StackType.DockerCompose &&
           composeSyntaxMaxVersion === 2 && (
             <span className="col-sm-12 text-muted small">
-              This stack will be deployed using the equivalent of{' '}
-              <code>docker compose</code>. Only Compose file format version{' '}
-              <b>2</b> is supported at the moment.
+              {t('docker.stack.composeV2Info')}
             </span>
           )}
         {stackType === StackType.DockerCompose &&
           composeSyntaxMaxVersion > 2 && (
             <span className="col-sm-12 text-muted small">
-              This stack will be deployed using <code>docker compose</code>.
+              {t('docker.stack.composeInfo')}
             </span>
           )}
         <span className="col-sm-12 text-muted small">
-          You can get more information about Compose file format in the{' '}
+          {t('docker.stack.youCanGetMoreInfo')} {' '}
           <a
             href="https://docs.docker.com/compose/compose-file/"
             target="_blank"
             rel="noreferrer"
           >
-            official documentation
+            {t('docker.stack.officialDocumentation')}
           </a>
           .
         </span>
@@ -114,7 +114,7 @@ export function StackEditorTabInner({
         <div className="col-sm-12">
           <CodeEditor
             id="stack-editor"
-            textTip="Define or paste the content of your docker compose file here"
+            textTip={t('docker.stack.stackEditorPlaceholder')}
             type="yaml"
             onChange={(value) => setFieldValue('stackFileContent', value)}
             value={values.stackFileContent}
@@ -147,16 +147,16 @@ export function StackEditorTabInner({
         stackType === StackType.DockerCompose) &&
         apiVersion >= 1.27 && (
           <Authorized authorizations="PortainerStackUpdate">
-            <FormSection title="Options">
+            <FormSection title={t('docker.stack.options')}>
               <div className="form-group">
                 <div className="col-sm-12">
                   <SwitchField
                     name="prune"
                     checked={values.prune}
                     onChange={(checked) => setFieldValue('prune', checked)}
-                    tooltip="Prune services that are no longer referenced."
+                    tooltip={t('docker.stack.pruneServicesTooltip')}
                     labelClass="col-sm-2"
-                    label="Prune services"
+                    label={t('docker.stack.pruneServices')}
                     data-cy="stack-prune-switch"
                   />
                 </div>
@@ -169,8 +169,8 @@ export function StackEditorTabInner({
         <FormActions
           isValid={isValid && !isDeployDisabled}
           isLoading={isSubmitting}
-          loadingText="Deployment in progress..."
-          submitLabel="Update the stack"
+          loadingText={t('docker.stack.deploymentInProgress')}
+          submitLabel={t('docker.stack.updateTheStack')}
           data-cy="stack-deploy-button"
         />
       </Authorized>

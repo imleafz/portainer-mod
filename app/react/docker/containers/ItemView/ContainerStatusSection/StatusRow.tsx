@@ -1,5 +1,6 @@
 import { HeartPulseIcon } from 'lucide-react';
 import { formatDistanceToNow, parseISO } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 
 import { ContainerDetailsViewModel } from '@/docker/models/containerDetails';
 
@@ -10,6 +11,7 @@ export function StatusRow({
 }: {
   container: ContainerDetailsViewModel;
 }) {
+  const { t } = useTranslation();
   const isRunning = container.State?.Running || false;
   const isCreated = container.State?.Status === 'created';
   const activityTime = calculateActivityTime(container);
@@ -21,9 +23,9 @@ export function StatusRow({
         mode={getIconColor(container.State)}
         className="lucide mr-1"
       />
-      {getStateText(container.State)} for {activityTime}
+      {t(`docker.container.status${getStateKey(container.State)}`, { defaultValue: getStateDefault(container.State) })} {t('docker.container.for')} {activityTime}
       {!isRunning && !isCreated && (
-        <span> with exit code {container.State?.ExitCode}</span>
+        <span> {t('docker.container.withExitCode')} {container.State?.ExitCode}</span>
       )}
     </div>
   );
@@ -47,7 +49,35 @@ function getIconColor(
   return undefined;
 }
 
-function getStateText(state: ContainerDetailsViewModel['State']): string {
+function getStateKey(state: ContainerDetailsViewModel['State']): string {
+  if (state === undefined) {
+    return '';
+  }
+
+  if (state.Dead) {
+    return 'StatusDead';
+  }
+
+  if ('Ghost' in state && state.Ghost && state.Running) {
+    return 'StatusGhost';
+  }
+
+  if (state.Running && state.Paused) {
+    return 'StatusRunningPaused';
+  }
+
+  if (state.Running) {
+    return 'StatusRunning';
+  }
+
+  if (state.Status === 'created') {
+    return 'StatusCreated';
+  }
+
+  return 'StatusStopped';
+}
+
+function getStateDefault(state: ContainerDetailsViewModel['State']): string {
   if (state === undefined) {
     return '';
   }

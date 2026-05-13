@@ -44,6 +44,7 @@ export function Switch({
         })}
         data-cy={dataCy}
         aria-checked={checked}
+        htmlFor={id}
       >
         <input
           type="checkbox"

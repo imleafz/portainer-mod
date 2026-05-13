@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Lock } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
 import { Authorized, useAuthorizations } from '@/react/hooks/useUser';
@@ -29,6 +30,7 @@ const storageKey = 'k8sSecretsDatatable';
 const settingsStore = createStore(storageKey);
 
 export function SecretsDatatable() {
+  const { t } = useTranslation();
   const tableState = useTableState(settingsStore, storageKey);
   const { authorized: canWrite } = useAuthorizations(['K8sSecretsW']);
   const readOnly = !canWrite;
@@ -63,8 +65,8 @@ export function SecretsDatatable() {
       columns={columns}
       settingsManager={tableState}
       isLoading={secretsQuery.isLoading || namespacesQuery.isLoading}
-      emptyContentLabel="No secrets found"
-      title="Secrets"
+      emptyContentLabel={t('kubernetes.configs.noSecretsFound')}
+      title={t('kubernetes.configs.secrets')}
       titleIcon={Lock}
       getRowId={(row) => row.UID ?? ''}
       isRowSelectable={({ original: secret }) =>
@@ -104,8 +106,8 @@ function useSecretRowData(
         ...secret,
         inUse: secret.IsUsed,
         isSystem: namespaces
-          ? namespaces.find((namespace) => namespace.Name === secret.Namespace)
-              ?.IsSystem ?? false
+          ? (namespaces.find((namespace) => namespace.Name === secret.Namespace)
+              ?.IsSystem ?? false)
           : false,
       })) || [],
     [secrets, namespaces]
@@ -119,6 +121,7 @@ function TableActions({
   selectedItems: SecretRowData[];
   isAddSecretHidden: boolean;
 }) {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const deleteSecretMutation = useDeleteSecrets(environmentId);
 
@@ -137,10 +140,9 @@ function TableActions({
         disabled={selectedItems.length === 0}
         onConfirmed={() => handleRemoveClick(selectedItems)}
         data-cy="k8sSecret-removeSecretButton"
-        confirmMessage={`Are you sure you want to remove the selected ${pluralize(
-          selectedItems.length,
-          'secret'
-        )}?`}
+        confirmMessage={t('kubernetes.configs.removeConfirm', {
+          item: pluralize(selectedItems.length, 'Secret'),
+        })}
       />
 
       {!isAddSecretHidden && (
@@ -149,7 +151,7 @@ function TableActions({
           data-cy="k8sSecret-addSecretWithFormButton"
           color="secondary"
         >
-          Add with form
+          {t('kubernetes.configs.addWithForm')}
         </AddButton>
       )}
 

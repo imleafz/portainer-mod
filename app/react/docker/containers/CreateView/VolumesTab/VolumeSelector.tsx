@@ -1,4 +1,5 @@
 import { components, OptionProps } from 'react-select';
+import { useTranslation } from 'react-i18next';
 
 import { truncate } from '@/portainer/filters/filters';
 import { useVolumes } from '@/react/docker/volumes/queries/useVolumes';
@@ -17,6 +18,7 @@ export function VolumeSelector({
   inputId?: string;
   allowAuto: boolean;
 }) {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const volumesQuery = useVolumes(environmentId, {
     select(volumes) {
@@ -33,7 +35,7 @@ export function VolumeSelector({
   const selectedValue = volumes.find((vol) => vol.Name === value);
   return (
     <Select
-      placeholder="Select a volume"
+      placeholder={t('docker.volumes.selectAVolume')}
       options={volumes}
       getOptionValue={(vol) => vol.Name}
       isMulti={false}

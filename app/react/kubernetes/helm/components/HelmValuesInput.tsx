@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { FormControl } from '@@/form-components/FormControl';
 import { CodeEditor } from '@@/CodeEditor';
 import { ShortcutsTooltip } from '@@/CodeEditor/ShortcutsTooltip';
@@ -15,26 +17,27 @@ export function HelmValuesInput({
   valuesRef,
   isValuesRefLoading,
 }: Props) {
+  const { t } = useTranslation();
+
   return (
     <div className="grid grid-cols-2 gap-4">
       <FormControl
-        label="User-defined values"
+        label={t('helm.userDefinedValues')}
         inputId="user-values-editor"
         size="vertical"
         className="[&>label]:!mb-1 !mx-0"
         tooltip={
           <>
-            User-defined values will override the default chart values.
+            {t('helm.userDefinedValuesOverride')}
             <br />
-            You can get more information about the Helm values file format in
-            the{' '}
+            {t('helm.moreInfoAboutValues')}{' '}
             <a
               href="https://helm.sh/docs/chart_template_guide/values_files/"
               target="_blank"
               data-cy="helm-values-reference-link"
               rel="noreferrer"
             >
-              official documentation
+              {t('helm.officialDocumentation')}
             </a>
             .
           </>
@@ -47,21 +50,21 @@ export function HelmValuesInput({
           height="50vh"
           type="yaml"
           data-cy="helm-user-values-editor"
-          placeholder="Define or paste the content of your values yaml file here"
+          placeholder={t('helm.valuesPlaceholder')}
           showToolbar={false}
         />
       </FormControl>
       <FormControl
         label={
           <div className="flex justify-between w-full">
-            Values reference (read-only)
+            {t('helm.valuesReference')}
             <ShortcutsTooltip />
           </div>
         }
         inputId="values-reference"
         size="vertical"
         isLoading={isValuesRefLoading}
-        loadingText="Loading values..."
+        loadingText={t('common.loadingValues')}
         className="[&>label]:w-full [&>label]:!mb-1 !mx-0"
       >
         <CodeEditor
@@ -71,7 +74,7 @@ export function HelmValuesInput({
           type="yaml"
           readonly
           data-cy="helm-values-reference"
-          placeholder="No values reference found"
+          placeholder={t('helm.noValuesReference')}
           showToolbar={false}
         />
       </FormControl>

@@ -1,4 +1,5 @@
 import { Database } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Authorized, useAuthorizations } from '@/react/hooks/useUser';
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
@@ -29,6 +30,7 @@ import { columns } from './columns';
 import { VolumeViewModel } from './types';
 
 export function VolumesDatatable() {
+  const { t } = useTranslation();
   const tableState = useTableStateWithStorage<TableSettings>(
     'kube-volumes',
     'Name',
@@ -61,7 +63,7 @@ export function VolumesDatatable() {
       dataset={volumes}
       columns={columns}
       settingsManager={tableState}
-      title="Volumes"
+      title={t('kubernetes.volumes.volumes')}
       titleIcon={Database}
       getRowId={(row) =>
         `${row.PersistentVolumeClaim.Name}-${row.ResourcePool.Namespace.Name}`
@@ -74,7 +76,7 @@ export function VolumesDatatable() {
       renderTableActions={(selectedItems) => (
         <Authorized authorizations="K8sVolumesW">
           <DeleteButton
-            confirmMessage="Do you want to remove the selected volume(s)?"
+            confirmMessage={t('kubernetes.volumes.removeConfirm')}
             onConfirmed={() => deleteVolumesMutation.mutate(selectedItems)}
             disabled={selectedItems.length === 0}
             isLoading={deleteVolumesMutation.isLoading}

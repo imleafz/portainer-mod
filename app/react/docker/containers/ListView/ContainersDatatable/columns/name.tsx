@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { CellContext } from '@tanstack/react-table';
 import _ from 'lodash';
 import { useSref } from '@uirouter/react';
@@ -11,7 +12,11 @@ import { TableSettings } from '../types';
 import { columnHelper } from './helper';
 
 export const name = columnHelper.accessor((row) => row.Names[0], {
-  header: 'Name',
+  header: () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { t } = useTranslation();
+    return t('docker.container.name');
+  },
   id: 'name',
   cell: NameCell,
 });

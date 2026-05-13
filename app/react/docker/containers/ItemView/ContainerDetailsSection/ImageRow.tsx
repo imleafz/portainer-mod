@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { DetailsTable } from '@@/DetailsTable';
 import { Link } from '@@/Link';
 
@@ -8,8 +10,9 @@ interface ImageRowProps {
 }
 
 export function ImageRow({ image, imageHash, nodeName }: ImageRowProps) {
+  const { t } = useTranslation();
   return (
-    <DetailsTable.Row label="Image">
+    <DetailsTable.Row label={t('docker.container.image')}>
       <Link
         data-cy="container-image-link"
         to="docker.images.image"

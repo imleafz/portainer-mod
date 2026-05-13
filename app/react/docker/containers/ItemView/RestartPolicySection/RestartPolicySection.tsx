@@ -1,4 +1,5 @@
 import { Form, Formik } from 'formik';
+import { useTranslation } from 'react-i18next';
 
 import { notifySuccess } from '@/portainer/services/notifications';
 import { EnvironmentId } from '@/react/portainer/environments/types';
@@ -26,13 +27,6 @@ interface Props {
   }) => void;
 }
 
-const restartPolicyOptions: Array<Option<RestartPolicy>> = [
-  { label: 'None', value: RestartPolicy.No },
-  { label: 'On Failure', value: RestartPolicy.OnFailure },
-  { label: 'Always', value: RestartPolicy.Always },
-  { label: 'Unless Stopped', value: RestartPolicy.UnlessStopped },
-];
-
 export function RestartPolicySection({
   environmentId,
   containerId,
@@ -41,7 +35,15 @@ export function RestartPolicySection({
   maximumRetryCount = 0,
   onUpdateSuccess,
 }: Props) {
+  const { t } = useTranslation();
   const updateMutation = useUpdateRestartPolicyMutation();
+
+  const restartPolicyOptions: Array<Option<RestartPolicy>> = [
+    { label: t('docker.container.restartPolicyNever'), value: RestartPolicy.No },
+    { label: t('docker.container.restartPolicyOnFailure'), value: RestartPolicy.OnFailure },
+    { label: t('docker.container.restartPolicyAlways'), value: RestartPolicy.Always },
+    { label: t('docker.container.restartPolicyUnlessStopped'), value: RestartPolicy.UnlessStopped },
+  ];
 
   return (
     <Formik
@@ -57,7 +59,7 @@ export function RestartPolicySection({
           >
             <Authorized authorizations="DockerContainerUpdate">
               <DetailsRow
-                label="Name"
+                label={t('docker.container.restartPolicyName')}
                 columns={[
                   <LoadingButton
                     key="update-button"
@@ -65,9 +67,9 @@ export function RestartPolicySection({
                     disabled={!isValid || !dirty}
                     isLoading={updateMutation.isLoading}
                     data-cy="container-restart-policy-update-button"
-                    loadingText="Updating..."
+                    loadingText={t('docker.container.updating')}
                   >
-                    Update
+                    {t('docker.container.update')}
                   </LoadingButton>,
                 ]}
               >
@@ -80,7 +82,7 @@ export function RestartPolicySection({
               </DetailsRow>
             </Authorized>
             {values.name === RestartPolicy.OnFailure && (
-              <DetailsRow label="Maximum Retry Count">
+              <DetailsRow label={t('docker.container.maximumRetryCount')}>
                 <Input
                   type="number"
                   value={values.maximumRetryCount}
@@ -111,7 +113,7 @@ export function RestartPolicySection({
       },
       {
         onSuccess: () => {
-          notifySuccess('Success', 'Restart policy updated');
+          notifySuccess('Success', t('docker.container.restartPolicyUpdated'));
 
           onUpdateSuccess?.(values);
         },

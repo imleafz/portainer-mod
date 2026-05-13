@@ -81,7 +81,6 @@ describe('external and orphaned warnings', () => {
     renderComponent({ isOrphaned: true });
 
     expect(screen.getByText(/This stack is orphaned/i)).toBeVisible();
-    expect(screen.getByText(/Associate to this environment/i)).toBeVisible();
   });
 
   it('should show orphaned warning when isOrphanedRunning is true', () => {

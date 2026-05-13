@@ -19,8 +19,8 @@ export function AuthenticationLogsTable({
 }: {
   keyword: string;
   onChangeKeyword(keyword: string): void;
-  sort: { key: string; desc: boolean };
-  onChangeSort(sort: { key: string; desc: boolean }): void;
+  sort: { id: string; desc: boolean } | undefined;
+  onChangeSort(sort: { id: string; desc: boolean } | undefined): void;
   limit: number;
   onChangeLimit(limit: number): void;
   currentPage: number;
@@ -40,12 +40,13 @@ export function AuthenticationLogsTable({
         search: keyword,
         setPageSize: onChangeLimit,
         setSearch: onChangeKeyword,
-        setSortBy: (key, desc) =>
-          onChangeSort({ key: key || 'timestamp', desc }),
-        sortBy: {
-          id: sort.key,
-          desc: sort.desc,
-        },
+        setSortBy: (id, desc) => onChangeSort({ id: id || 'timestamp', desc }),
+        sortBy: sort
+          ? {
+              id: sort.id,
+              desc: sort.desc,
+            }
+          : undefined,
       }}
       page={currentPage}
       onPageChange={onChangePage}

@@ -177,7 +177,7 @@ class KubernetesApplicationService {
           app.Pods = _.map(app.Pods, (item) => KubernetesPodConverter.apiToModel(item));
         });
         await Promise.all(
-          _.forEach(applications, async (application) => {
+          _.map(applications, async (application) => {
             const boundScaler = KubernetesHorizontalPodAutoScalerHelper.findApplicationBoundScaler(autoScalers, application);
             const scaler = boundScaler ? await this.KubernetesHorizontalPodAutoScalerService.get(ns, boundScaler.Name) : undefined;
             application.AutoScaler = scaler;
@@ -216,13 +216,15 @@ class KubernetesApplicationService {
     }
 
     if (services) {
-      services.forEach(async (service) => {
-        try {
-          await this.KubernetesServiceService.create(service);
-        } catch (error) {
-          notifyError('Unable to create service', error);
-        }
-      });
+      await Promise.all(
+        services.map(async (service) => {
+          try {
+            await this.KubernetesServiceService.create(service);
+          } catch (error) {
+            notifyError('Unable to create service', error);
+          }
+        })
+      );
 
       try {
         //Generate all ingresses from current form by passing services object

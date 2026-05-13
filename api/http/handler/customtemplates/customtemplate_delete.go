@@ -7,6 +7,7 @@ import (
 	portainer "github.com/portainer/portainer/api"
 	httperrors "github.com/portainer/portainer/api/http/errors"
 	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
 	"github.com/portainer/portainer/pkg/libhttp/request"
 	"github.com/portainer/portainer/pkg/libhttp/response"
@@ -72,6 +73,31 @@ func (handler *Handler) customTemplateDelete(w http.ResponseWriter, r *http.Requ
 			return httperror.InternalServerError("Unable to remove the associated resource control from the database", err)
 		}
 	}
+
+	tokenData, _ := security.RetrieveTokenData(r)
+	operatorUsername := ""
+	operatorUserID := 0
+	if tokenData != nil {
+		operatorUserID = int(tokenData.ID)
+		operator, _ := handler.DataStore.User().Read(tokenData.ID)
+		if operator != nil {
+			operatorUsername = operator.Username
+		}
+	}
+
+	activitylog.NewActivityLogBuilder(
+		activitylog.ActionDelete,
+		activitylog.ContextPortainer,
+		activitylog.ResourceTypeCustomTemplate,
+	).
+		WithUser(operatorUserID, operatorUsername).
+		WithResource(strconv.Itoa(customTemplateID), customTemplate.Title).
+		WithDetails(map[string]interface{}{
+			"description":   "删除自定义模板成功",
+			"templateTitle": customTemplate.Title,
+			"templateType":  strconv.Itoa(int(customTemplate.Type)),
+		}).
+		Log()
 
 	return response.Empty(w)
 

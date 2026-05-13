@@ -19,4 +19,4 @@ api/docs
 go.work.sum
 
 .vitest
-
+.playwright*

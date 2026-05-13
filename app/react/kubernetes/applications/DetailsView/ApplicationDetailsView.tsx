@@ -1,5 +1,6 @@
 import { AlertTriangle, Code, History, Minimize2 } from 'lucide-react';
 import { useCurrentStateAndParams } from '@uirouter/react';
+import { useTranslation } from 'react-i18next';
 
 import LaptopCode from '@/assets/ico/laptop-code.svg?c';
 import { useNamespaceAccessRedirect } from '@/react/kubernetes/namespaces/hooks/useNamespaceAccessRedirect';
@@ -27,6 +28,7 @@ import { ApplicationYAMLEditor } from './AppYAMLEditor/ApplicationYAMLEditor';
 import { useApplicationYAML } from './AppYAMLEditor/useApplicationYAML';
 
 export function ApplicationDetailsView() {
+  const { t } = useTranslation();
   const stateAndParams = useCurrentStateAndParams();
   const {
     params: { namespace, name },
@@ -110,7 +112,7 @@ export function ApplicationDetailsView() {
   return (
     <>
       <PageHeader
-        title="Application details"
+        title={t('kubernetes.applications.applicationDetails')}
         breadcrumbs={[
           { label: 'Namespaces', link: 'kubernetes.resourcePools' },
           {

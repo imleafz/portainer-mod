@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { CellContext } from '@tanstack/react-table';
 
 import { ImagesListResponse } from '@/react/docker/images/queries/useImages';
@@ -8,7 +9,11 @@ import { columnHelper } from './helper';
 
 export const tags = columnHelper.accessor((item) => item.tags?.join(','), {
   id: 'tags',
-  header: 'Tags',
+  header: () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { t } = useTranslation();
+    return t('docker.images.tags');
+  },
   cell: Cell,
 });
 

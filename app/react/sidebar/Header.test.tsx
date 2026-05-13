@@ -49,7 +49,7 @@ describe('Header', () => {
     renderComponent({ logo: customLogo });
 
     expect(screen.getByText('Powered by')).toBeInTheDocument();
-    expect(screen.getByText('portainer community')).toBeInTheDocument();
+    expect(screen.getByText('Portainer Community')).toBeInTheDocument();
   });
 
   it('should not show "Powered by" section when no custom logo', () => {
@@ -97,7 +97,7 @@ describe('Header', () => {
     const mockToggle = vi.fn();
     renderComponent({}, { isOpen: true, toggle: mockToggle });
 
-    const toggleButton = screen.getByRole('button', { name: 'Toggle Sidebar' });
+    const toggleButton = screen.getByRole('button', { name: 'Toggle sidebar' });
     await user.click(toggleButton);
 
     expect(mockToggle).toHaveBeenCalledTimes(1);
@@ -106,14 +106,14 @@ describe('Header', () => {
   it('should show chevron left icon when sidebar is open', () => {
     renderComponent();
 
-    const toggleButton = screen.getByRole('button', { name: 'Toggle Sidebar' });
+    const toggleButton = screen.getByRole('button', { name: 'Toggle sidebar' });
     expect(toggleButton).toBeInTheDocument();
   });
 
   it('should show chevron right icon when sidebar is closed', () => {
     renderComponent({}, { isOpen: false, toggle: vi.fn() });
 
-    const toggleButton = screen.getByRole('button', { name: 'Toggle Sidebar' });
+    const toggleButton = screen.getByRole('button', { name: 'Toggle sidebar' });
     expect(toggleButton).toBeInTheDocument();
   });
 

@@ -1,6 +1,7 @@
 import { FormikErrors } from 'formik';
 import { array, object, SchemaOf, string } from 'yup';
 import _ from 'lodash';
+import { useTranslation } from 'react-i18next';
 
 import { useLoggingPlugins } from '@/react/docker/proxy/queries/usePlugins';
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
@@ -30,6 +31,7 @@ export function LoggerConfig({
   apiVersion: number;
   errors?: FormikErrors<LogConfig>;
 }) {
+  const { t } = useTranslation();
   const envId = useEnvironmentId();
   const isPodman = useIsPodman(envId);
   const isSystem = apiVersion < 1.25;
@@ -42,14 +44,14 @@ export function LoggerConfig({
   const isDisabled = !value.type || value.type === 'none';
 
   const pluginOptions = [
-    { label: 'Default logging driver', value: '' },
+    { label: t('docker.container.defaultLoggingDriver'), value: '' },
     ...pluginsQuery.data.map((p) => ({ label: p, value: p })),
     { label: 'none', value: 'none' },
   ];
 
   return (
-    <FormSection title="Logging">
-      <FormControl label="Driver">
+    <FormSection title={t('docker.container.logging')}>
+      <FormControl label={t('docker.container.driver')}>
         <PortainerSelect
           value={value.type}
           onChange={(type) => onChange({ ...value, type: type || '' })}
@@ -59,15 +61,13 @@ export function LoggerConfig({
       </FormControl>
 
       <TextTip color="blue">
-        Logging driver that will override the default docker daemon driver.
-        Select Default logging driver if you don&apos;t want to override it.
-        Supported logging drivers can be found{' '}
+        {t('docker.container.loggingDriverOverride')}
         <a
           href="https://docs.docker.com/engine/admin/logging/overview/#supported-logging-drivers"
           target="_blank"
           rel="noreferrer"
         >
-          in the Docker documentation
+          {t('docker.container.dockerDocumentation')}
         </a>
         .
       </TextTip>
@@ -75,10 +75,10 @@ export function LoggerConfig({
       <InputList
         tooltip={
           isDisabled
-            ? 'Add button is disabled unless a driver other than none or default is selected. Options are specific to the selected driver, refer to the driver documentation.'
+            ? t('docker.container.loggingOptionsDisabled')
             : ''
         }
-        label="Options"
+        label={t('docker.container.options')}
         onChange={(options) => handleChange({ options })}
         value={value.options}
         item={Item}
@@ -101,24 +101,26 @@ function Item({
   error,
   index,
 }: ItemProps<{ option: string; value: string }>) {
+  const { t } = useTranslation();
+
   return (
     <div>
       <div className="flex w-full gap-4">
         <InputGroup className="w-1/2">
-          <InputGroup.Addon>option</InputGroup.Addon>
+          <InputGroup.Addon>{t('docker.container.option')}</InputGroup.Addon>
           <InputGroup.Input
             value={option}
-            onChange={(e) => handleChange({ option: e.target.value })}
-            placeholder="e.g. FOO"
+            onChange={(e) => handleItemChange({ option: e.target.value })}
+            placeholder={t('docker.container.optionPlaceholder')}
             data-cy={`docker-logging-option_${index}`}
           />
         </InputGroup>
         <InputGroup className="w-1/2">
-          <InputGroup.Addon>value</InputGroup.Addon>
+          <InputGroup.Addon>{t('docker.container.value')}</InputGroup.Addon>
           <InputGroup.Input
             value={value}
-            onChange={(e) => handleChange({ value: e.target.value })}
-            placeholder="e.g bar"
+            onChange={(e) => handleItemChange({ value: e.target.value })}
+            placeholder={t('docker.container.valuePlaceholder')}
             data-cy={`docker-logging-value_${index}`}
           />
         </InputGroup>
@@ -127,7 +129,7 @@ function Item({
     </div>
   );
 
-  function handleChange(partial: Partial<{ option: string; value: string }>) {
+  function handleItemChange(partial: Partial<{ option: string; value: string }>) {
     onChange({ option, value, ...partial });
   }
 }

@@ -18,3 +18,8 @@ export interface AuthLog {
   type: ActivityType;
   origin: string;
 }
+
+export interface AuthLogsResponse {
+  logs: Array<AuthLog>;
+  totalCount: number;
+}

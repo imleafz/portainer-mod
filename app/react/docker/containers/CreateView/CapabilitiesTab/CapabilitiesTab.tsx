@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { FormSection } from '@@/form-components/FormSection';
 import { SwitchField } from '@@/form-components/SwitchField';
 
@@ -12,8 +14,10 @@ export function CapabilitiesTab({
   values: Values;
   onChange: (values: Values) => void;
 }) {
+  const { t } = useTranslation();
+
   return (
-    <FormSection title="Container capabilities">
+    <FormSection title={t('docker.container.containerCapabilities')}>
       <div className="form-group flex flex-wrap gap-y-2 px-5">
         {capabilities.map((cap) => (
           <div key={cap.key} className="w-1/3 text-center">

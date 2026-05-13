@@ -1,4 +1,5 @@
 import { Network } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Authorized } from '@/react/hooks/useUser';
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
@@ -43,6 +44,7 @@ interface Props {
 }
 
 export function NetworksDatatable({ dataset, onRemove, onRefresh }: Props) {
+  const { t } = useTranslation();
   const settings = useTableState(settingsStore, storageKey);
 
   const environmentId = useEnvironmentId();
@@ -55,7 +57,7 @@ export function NetworksDatatable({ dataset, onRemove, onRefresh }: Props) {
   return (
     <ExpandableDatatable<DecoratedNetwork>
       settingsManager={settings}
-      title="Networks"
+      title={t('docker.networks.title')}
       titleIcon={Network}
       dataset={dataset}
       columns={columns}
@@ -82,13 +84,13 @@ export function NetworksDatatable({ dataset, onRemove, onRefresh }: Props) {
             <DeleteButton
               disabled={selectedRows.length === 0}
               data-cy="network-removeNetworkButton"
-              confirmMessage="Do you want to remove the selected network(s)?"
+              confirmMessage={t('docker.networks.removeConfirm')}
               onConfirmed={() => onRemove(selectedRows)}
             />
           </Authorized>
           <Authorized authorizations="DockerNetworkCreate">
             <AddButton data-cy="network-addNetworkButton">
-              Add network
+              {t('docker.networks.addNetwork')}
             </AddButton>
           </Authorized>
         </div>

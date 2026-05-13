@@ -3,6 +3,7 @@ import { Shuffle } from 'lucide-react';
 import { useRouter } from '@uirouter/react';
 import clsx from 'clsx';
 import { Row } from '@tanstack/react-table';
+import { useTranslation } from 'react-i18next';
 
 import {
   Namespaces,
@@ -32,6 +33,7 @@ const storageKey = 'k8sServicesDatatable';
 const settingsStore = createStore(storageKey);
 
 export function ServicesDatatable() {
+  const { t } = useTranslation();
   const tableState = useTableState(settingsStore, storageKey);
   const environmentId = useEnvironmentId();
   const { data: namespaces, ...namespacesQuery } = useNamespacesQuery(
@@ -75,8 +77,8 @@ export function ServicesDatatable() {
       isLoading={
         servicesQuery.isInitialLoading || namespacesQuery.isInitialLoading
       }
-      emptyContentLabel="No services found"
-      title="Services"
+      emptyContentLabel={t('kubernetes.services.noServicesFound')}
+      title={t('kubernetes.services.title')}
       titleIcon={Shuffle}
       getRowId={(row) => row.UID}
       isRowSelectable={(row) => !namespaces?.[row.original.Namespace]?.IsSystem}
@@ -145,6 +147,7 @@ type TableActionsProps = {
 };
 
 function TableActions({ selectedItems }: TableActionsProps) {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const deleteServicesMutation = useMutationDeleteServices(environmentId);
   const router = useRouter();
@@ -156,10 +159,11 @@ function TableActions({ selectedItems }: TableActionsProps) {
         onConfirmed={() => handleRemoveClick(selectedItems)}
         confirmMessage={
           <>
-            <p>{`Are you sure you want to remove the selected ${pluralize(
-              selectedItems.length,
-              'service'
-            )}?`}</p>
+            <p>
+              {t('kubernetes.services.removeConfirm', {
+                item: pluralize(selectedItems.length, 'service'),
+              })}
+            </p>
             <ul className="pl-6">
               {selectedItems.map((s, index) => (
                 <li key={index}>
@@ -188,14 +192,14 @@ function TableActions({ selectedItems }: TableActionsProps) {
       {
         onSuccess: () => {
           notifySuccess(
-            'Services successfully removed',
+            t('kubernetes.services.successfullyRemoved'),
             services.map((s) => `${s.Namespace}/${s.Name}`).join(', ')
           );
           router.stateService.reload();
         },
         onError: (error) => {
           notifyError(
-            'Unable to delete service(s)',
+            t('kubernetes.services.unableToDelete'),
             error as Error,
             services.map((s) => `${s.Namespace}/${s.Name}`).join(', ')
           );

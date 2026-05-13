@@ -1,4 +1,5 @@
 import { CellContext } from '@tanstack/react-table';
+import { useTranslation } from 'react-i18next';
 
 import { useCurrentEnvironment } from '@/react/hooks/useCurrentEnvironment';
 import { isAgentEnvironment } from '@/react/portainer/environments/utils';
@@ -11,7 +12,12 @@ import { getTableMeta } from '../meta';
 import { columnHelper } from './helper';
 
 export const task = columnHelper.accessor('Id', {
-  header: 'Id',
+  id: 'task',
+  header: () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { t } = useTranslation();
+    return t('docker.services.taskId');
+  },
   cell: Cell,
 });
 

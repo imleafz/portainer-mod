@@ -1,10 +1,12 @@
 import _ from 'lodash';
+import { useTranslation } from 'react-i18next';
 
 import { useTags } from '@/portainer/tags/queries';
 
 import { DetailsTable } from '@@/DetailsTable';
 
 export function TagsInfo({ ids }: { ids: number[] }) {
+  const { t } = useTranslation();
   const tagsQuery = useTags();
 
   if (!tagsQuery.data) {
@@ -24,5 +26,9 @@ export function TagsInfo({ ids }: { ids: number[] }) {
       )
     : '-';
 
-  return <DetailsTable.Row label="Tags">{tagNameList}</DetailsTable.Row>;
+  return (
+    <DetailsTable.Row label={t('docker.dashboard.tags')}>
+      {tagNameList}
+    </DetailsTable.Row>
+  );
 }

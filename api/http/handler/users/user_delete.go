@@ -3,9 +3,11 @@ package users
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	portainer "github.com/portainer/portainer/api"
 	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
 	"github.com/portainer/portainer/pkg/libhttp/request"
 	"github.com/portainer/portainer/pkg/libhttp/response"
@@ -53,15 +55,15 @@ func (handler *Handler) userDelete(w http.ResponseWriter, r *http.Request) *http
 	}
 
 	if user.Role == portainer.AdministratorRole {
-		return handler.deleteAdminUser(w, user)
+		return handler.deleteAdminUser(w, r, user)
 	}
 
-	return handler.deleteUser(w, user)
+	return handler.deleteUser(w, r, user)
 }
 
-func (handler *Handler) deleteAdminUser(w http.ResponseWriter, user *portainer.User) *httperror.HandlerError {
+func (handler *Handler) deleteAdminUser(w http.ResponseWriter, r *http.Request, user *portainer.User) *httperror.HandlerError {
 	if user.Password == "" {
-		return handler.deleteUser(w, user)
+		return handler.deleteUser(w, r, user)
 	}
 
 	users, err := handler.DataStore.User().ReadAll()
@@ -80,10 +82,10 @@ func (handler *Handler) deleteAdminUser(w http.ResponseWriter, user *portainer.U
 		return httperror.InternalServerError("Cannot remove local administrator user", errCannotRemoveLastLocalAdmin)
 	}
 
-	return handler.deleteUser(w, user)
+	return handler.deleteUser(w, r, user)
 }
 
-func (handler *Handler) deleteUser(w http.ResponseWriter, user *portainer.User) *httperror.HandlerError {
+func (handler *Handler) deleteUser(w http.ResponseWriter, r *http.Request, user *portainer.User) *httperror.HandlerError {
 	err := handler.DataStore.User().Delete(user.ID)
 	if err != nil {
 		return httperror.InternalServerError("Unable to remove user from the database", err)
@@ -105,6 +107,29 @@ func (handler *Handler) deleteUser(w http.ResponseWriter, user *portainer.User) 
 			return httperror.InternalServerError("Unable to remove user API key from the database", err)
 		}
 	}
+
+	tokenData, _ := security.RetrieveTokenData(r)
+	operatorUsername := ""
+	if tokenData != nil {
+		operator, _ := handler.DataStore.User().Read(tokenData.ID)
+		if operator != nil {
+			operatorUsername = operator.Username
+		}
+	}
+
+	activitylog.NewActivityLogBuilder(
+		activitylog.ActionDelete,
+		activitylog.ContextPortainer,
+		activitylog.ResourceTypeUser,
+	).
+		WithUser(int(tokenData.ID), operatorUsername).
+		WithResource(strconv.Itoa(int(user.ID)), user.Username).
+		WithDetails(map[string]interface{}{
+			"description": "删除用户成功",
+			"username":    user.Username,
+			"userRole":    roleToString(user.Role),
+		}).
+		Log()
 
 	return response.Empty(w)
 }

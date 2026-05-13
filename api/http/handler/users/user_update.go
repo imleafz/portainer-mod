@@ -4,12 +4,14 @@ import (
 	"cmp"
 	"errors"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
 	portainer "github.com/portainer/portainer/api"
 	httperrors "github.com/portainer/portainer/api/http/errors"
 	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
 	"github.com/portainer/portainer/pkg/libhttp/request"
 	"github.com/portainer/portainer/pkg/libhttp/response"
@@ -151,6 +153,40 @@ func (handler *Handler) userUpdate(w http.ResponseWriter, r *http.Request) *http
 
 	// remove all of the users persisted API keys
 	handler.apiKeyService.InvalidateUserKeyCache(user.ID)
+
+	operatorUsername := ""
+	if tokenData != nil {
+		operator, _ := handler.DataStore.User().Read(tokenData.ID)
+		if operator != nil {
+			operatorUsername = operator.Username
+		}
+	}
+
+	payloadFields := map[string]interface{}{}
+	if payload.Username != "" {
+		payloadFields["username"] = payload.Username
+	}
+	if payload.Role != 0 {
+		payloadFields["role"] = payload.Role
+	}
+	if payload.NewPassword != "" {
+		payloadFields["passwordChanged"] = true
+	}
+
+	activitylog.NewActivityLogBuilder(
+		activitylog.ActionUpdate,
+		activitylog.ContextPortainer,
+		activitylog.ResourceTypeUser,
+	).
+		WithUser(int(tokenData.ID), operatorUsername).
+		WithResource(strconv.Itoa(int(user.ID)), user.Username).
+		WithDetails(map[string]interface{}{
+			"description":     "更新用户成功",
+			"username":        payload.Username,
+			"userRole":        roleToString(user.Role),
+			"passwordChanged": payload.NewPassword != "",
+		}).
+		Log()
 
 	// hide the password field in the response payload
 	user.Password = ""

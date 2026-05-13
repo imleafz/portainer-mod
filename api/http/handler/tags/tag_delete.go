@@ -3,9 +3,12 @@ package tags
 import (
 	"net/http"
 	"slices"
+	"strconv"
 
 	portainer "github.com/portainer/portainer/api"
 	"github.com/portainer/portainer/api/dataservices"
+	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	"github.com/portainer/portainer/api/internal/edge"
 	"github.com/portainer/portainer/api/internal/endpointutils"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
@@ -33,9 +36,39 @@ func (handler *Handler) tagDelete(w http.ResponseWriter, r *http.Request) *httpe
 		return httperror.BadRequest("Invalid tag identifier route variable", err)
 	}
 
+	tag, err := handler.DataStore.Tag().Read(portainer.TagID(id))
+	if handler.DataStore.IsErrObjectNotFound(err) {
+		return httperror.NotFound("Unable to find a tag with the specified identifier inside the database", err)
+	}
+	tagName := tag.Name
+
 	err = handler.DataStore.UpdateTx(func(tx dataservices.DataStoreTx) error {
 		return deleteTag(tx, portainer.TagID(id))
 	})
+
+	if err != nil {
+		return response.TxEmptyResponse(w, err)
+	}
+
+	tokenData, _ := security.RetrieveTokenData(r)
+	operatorUsername := ""
+	operatorUserID := 0
+	if tokenData != nil {
+		operatorUserID = int(tokenData.ID)
+		operator, _ := handler.DataStore.User().Read(tokenData.ID)
+		if operator != nil {
+			operatorUsername = operator.Username
+		}
+	}
+
+	activitylog.NewActivityLogBuilder(
+		activitylog.ActionDelete,
+		activitylog.ContextPortainer,
+		activitylog.ResourceTypeTag,
+	).
+		WithUser(operatorUserID, operatorUsername).
+		WithResource(strconv.Itoa(id), tagName).
+		Log()
 
 	return response.TxEmptyResponse(w, err)
 }

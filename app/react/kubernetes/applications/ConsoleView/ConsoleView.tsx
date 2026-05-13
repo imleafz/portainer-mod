@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useCurrentStateAndParams } from '@uirouter/react';
 import { Terminal as TerminalIcon } from 'lucide-react';
 import { Terminal } from 'xterm';
+import { useTranslation } from 'react-i18next';
 
 import { baseHref } from '@/portainer/helpers/pathHelper';
 import { notifyError } from '@/portainer/services/notifications';
@@ -18,6 +19,7 @@ interface StringDictionary {
 }
 
 export function ConsoleView() {
+  const { t } = useTranslation();
   const {
     params: {
       endpointId: environmentId,
@@ -107,7 +109,7 @@ export function ConsoleView() {
   return (
     <>
       <PageHeader
-        title="Application console"
+        title={t('kubernetes.applications.applicationConsole')}
         breadcrumbs={breadcrumbs}
         reload
       />

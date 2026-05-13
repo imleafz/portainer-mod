@@ -24,10 +24,6 @@ angular.module('portainer.app').factory('Backup', [
             };
           },
         },
-        getS3Settings: { method: 'GET', params: { subResource: 's3', action: 'settings' } },
-        saveS3Settings: { method: 'POST', params: { subResource: 's3', action: 'settings' } },
-        exportS3Backup: { method: 'POST', params: { subResource: 's3', action: 'execute' } },
-        restoreS3Backup: { method: 'POST', params: { subResource: 's3', action: 'restore' } },
       }
     );
   },

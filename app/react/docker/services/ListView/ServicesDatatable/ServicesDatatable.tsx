@@ -1,6 +1,7 @@
 import { Shuffle } from 'lucide-react';
 import { Row } from '@tanstack/react-table';
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { ServiceViewModel } from '@/docker/models/service';
 import { useApiVersion } from '@/react/docker/proxy/queries/useVersion';
@@ -43,6 +44,8 @@ export function ServicesDatatable({
   onRefresh?(): void;
   tableKey: string;
 }) {
+  const { t } = useTranslation();
+
   // use a unique tableKey so that unrelated services datatables don't share state
   const store = createPersistedStore<TableSettingsType>(
     tableKey,
@@ -67,7 +70,7 @@ export function ServicesDatatable({
 
   return (
     <ExpandableDatatable
-      title="Services"
+      title={t('docker.services.title')}
       titleIcon={titleIcon}
       dataset={dataset || []}
       isLoading={!dataset}

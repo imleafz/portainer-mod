@@ -1,5 +1,6 @@
 import { useRouter } from '@uirouter/react';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
 import { useAuthorizations, Authorized } from '@/react/hooks/useUser';
@@ -33,6 +34,7 @@ const storageKey = 'ingressClassesNameSpace';
 const settingsStore = createStore(storageKey, 'name');
 
 export function IngressDatatable() {
+  const { t } = useTranslation();
   const tableState = useTableState(settingsStore, storageKey);
   const environmentId = useEnvironmentId();
 
@@ -82,8 +84,8 @@ export function IngressDatatable() {
       dataset={ingressesWithIsSystem}
       columns={columns}
       isLoading={ingressesQuery.isLoading || namespacesQuery.isLoading}
-      emptyContentLabel="No supported ingresses found"
-      title="Ingresses"
+      emptyContentLabel={t('kubernetes.ingress.noIngressesFound')}
+      title={t('kubernetes.ingress.ingresses')}
       titleIcon={Route}
       getRowId={(row) => row.Name + row.Type + row.Namespace}
       isRowSelectable={(row) =>
@@ -126,7 +128,7 @@ export function IngressDatatable() {
         <DeleteButton
           disabled={selectedFlatRows.length === 0}
           onConfirmed={() => handleRemoveClick(selectedFlatRows)}
-          confirmMessage="Are you sure you want to delete the selected ingresses?"
+          confirmMessage={t('kubernetes.ingress.removeConfirm')}
           data-cy="remove-ingresses-button"
         />
 
@@ -136,7 +138,7 @@ export function IngressDatatable() {
             color="secondary"
             data-cy="add-ingress-button"
           >
-            Add with form
+            {t('kubernetes.ingress.addWithForm')}
           </AddButton>
         )}
 

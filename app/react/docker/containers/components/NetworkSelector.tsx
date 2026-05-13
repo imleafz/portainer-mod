@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useNetworks } from '@/react/docker/networks/queries/useNetworks';
 import { DockerNetwork } from '@/react/docker/networks/types';
@@ -20,6 +21,7 @@ export function NetworkSelector({
   onChange: (value: string) => void;
   hiddenNetworks?: string[];
 }) {
+  const { t } = useTranslation();
   const envId = useEnvironmentId();
   const isPodman = useIsPodman(envId);
   const networksQuery = useNetworksForSelector({
@@ -52,7 +54,7 @@ export function NetworkSelector({
       options={options}
       isLoading={networksQuery.isLoading}
       bindToBody
-      placeholder="Select a network"
+      placeholder={t('docker.container.selectNetwork')}
       data-cy="docker-network-selector"
     />
   );

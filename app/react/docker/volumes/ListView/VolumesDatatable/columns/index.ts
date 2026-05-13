@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useIsSwarm } from '@/react/docker/proxy/queries/useInfo';
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
@@ -14,35 +15,41 @@ import { name } from './name';
 export function useColumns() {
   const environmentId = useEnvironmentId();
   const isSwarm = useIsSwarm(environmentId);
+  const { t } = useTranslation();
 
   return useMemo(
     () =>
       _.compact([
         name,
         columnHelper.accessor((item) => item.StackName || '-', {
-          header: 'Stack',
+          id: 'stack',
+          header: t('docker.volumes.stack'),
         }),
         columnHelper.accessor((item) => item.Driver, {
-          header: 'Driver',
+          id: 'driver',
+          header: t('docker.volumes.driver'),
         }),
         columnHelper.accessor((item) => item.Mountpoint, {
-          header: 'Mount point',
+          id: 'mountpoint',
+          header: t('docker.volumes.mountPoint'),
           cell({ getValue }) {
             return truncateLeftRight(getValue());
           },
         }),
         columnHelper.accessor((item) => item.CreatedAt, {
-          header: 'Created',
+          id: 'created',
+          header: t('docker.volumes.created'),
           cell({ getValue }) {
             return isoDate(getValue());
           },
         }),
         isSwarm &&
           columnHelper.accessor((item) => item.NodeName || '-', {
-            header: 'Host',
+            id: 'host',
+            header: t('docker.volumes.host'),
           }),
         createOwnershipColumn<DecoratedVolume>(),
       ]),
-    [isSwarm]
+    [isSwarm, t]
   );
 }

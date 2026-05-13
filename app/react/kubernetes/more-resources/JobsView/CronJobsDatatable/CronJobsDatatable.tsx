@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Trash2, CalendarSync } from 'lucide-react';
 import { useRouter } from '@uirouter/react';
+import { useTranslation } from 'react-i18next';
 
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
 import { Authorized, useAuthorizations } from '@/react/hooks/useUser';
@@ -35,8 +36,7 @@ import { CronJobsExecutionsInnerDatatable } from './CronJobsExecutionsInnerDatat
 const storageKey = 'cronJobs';
 
 interface TableSettings
-  extends KubeTableSettings,
-    FilteredColumnsTableSettings {}
+  extends KubeTableSettings, FilteredColumnsTableSettings {}
 
 interface CronJobsExecutionsProps {
   item: Job[];
@@ -44,6 +44,7 @@ interface CronJobsExecutionsProps {
 }
 
 export function CronJobsDatatable() {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const tableState = useKubeStore<TableSettings>(
     storageKey,
@@ -79,7 +80,7 @@ export function CronJobsDatatable() {
       columns={columns}
       settingsManager={tableState}
       isLoading={cronJobsQuery.isLoading}
-      title="Cron Jobs"
+      title={t('kubernetes.cronJobs.title')}
       titleIcon={CalendarSync}
       getRowId={(row) => row.Id}
       isRowSelectable={(row) => !row.original.IsSystem}
@@ -128,6 +129,7 @@ type TableActionsProps = {
 };
 
 function TableActions({ selectedItems }: TableActionsProps) {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const deleteCronJobsMutation = useDeleteCronJobsMutation(environmentId);
   const router = useRouter();
@@ -141,10 +143,10 @@ function TableActions({ selectedItems }: TableActionsProps) {
         onClick={() => handleRemoveClick(selectedItems)}
         icon={Trash2}
         isLoading={deleteCronJobsMutation.isLoading}
-        loadingText="Removing Cron Jobs..."
+        loadingText={t('kubernetes.cronJobs.removing')}
         data-cy="k8s-cronJobs-removeCronJobButton"
       >
-        Remove
+        {t('common.delete')}
       </LoadingButton>
 
       <CreateFromManifestButton
@@ -157,7 +159,7 @@ function TableActions({ selectedItems }: TableActionsProps) {
   async function handleRemoveClick(cronJobs: SelectedCronJob[]) {
     const confirmed = await confirmDelete(
       <>
-        <p>Are you sure you want to delete the selected Cron Jobs?</p>
+        <p>{t('kubernetes.cronJobs.removeConfirm')}</p>
         <ul className="mt-2 max-h-96 list-inside overflow-hidden overflow-y-auto text-sm">
           {cronJobs.map((s, index) => (
             <li key={index}>
@@ -182,14 +184,14 @@ function TableActions({ selectedItems }: TableActionsProps) {
       {
         onSuccess: () => {
           notifySuccess(
-            'Cron Jobs successfully removed',
+            t('kubernetes.cronJobs.successfullyRemoved'),
             cronJobs.map((r) => `${r.Namespace}/${r.Name}`).join(', ')
           );
           router.stateService.reload();
         },
         onError: (error) => {
           notifyError(
-            'Unable to delete Cron Jobs',
+            t('kubernetes.cronJobs.unableToDelete'),
             error as Error,
             cronJobs.map((r) => `${r.Namespace}/${r.Name}`).join(', ')
           );

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Network } from 'lucide-react';
 import { EndpointSettings, NetworkSettings } from 'docker-types';
+import { useTranslation } from 'react-i18next';
 
 import { createPersistedStore } from '@@/datatables/types';
 import { useTableState } from '@@/datatables/useTableState';
@@ -26,6 +27,7 @@ export function ContainerNetworksDatatable({
   containerId: ContainerListViewModel['Id'];
   nodeName?: string;
 }) {
+  const { t } = useTranslation();
   const tableState = useTableState(store, storageKey);
   const columns = useMemo(() => buildColumns({ nodeName }), [nodeName]);
 
@@ -42,7 +44,7 @@ export function ContainerNetworksDatatable({
       columns={columns}
       dataset={networks}
       settingsManager={tableState}
-      title="Connected Networks"
+      title={t('docker.container.connectedNetworks')}
       titleIcon={Network}
       disableSelect
       getRowCanExpand={(row) => !!row.original.GlobalIPv6Address}

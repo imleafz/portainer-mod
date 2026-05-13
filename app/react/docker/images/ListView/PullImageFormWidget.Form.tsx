@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Form, useFormikContext } from 'formik';
 
 import { ImageConfigFieldset } from '@@/ImageConfigFieldset';
@@ -17,6 +18,7 @@ export function PullImageForm({
   isLoading: boolean;
   isNodeVisible: boolean;
 }) {
+  const { t } = useTranslation();
   const { values, setFieldValue, errors, isValid } =
     useFormikContext<FormValues>();
 
@@ -32,7 +34,7 @@ export function PullImageForm({
         onRateLimit={onRateLimit}
       >
         {isNodeVisible && (
-          <FormSection title="Deployment">
+          <FormSection title={t('docker.image.deployment')}>
             <NodeSelector
               value={values.node}
               onChange={(node) => setFieldValue('node', node)}
@@ -44,8 +46,8 @@ export function PullImageForm({
         <FormActions
           isLoading={isLoading}
           isValid={isValid}
-          loadingText="Download in progress..."
-          submitLabel="Pull the image"
+          loadingText={t('docker.image.downloadInProgress')}
+          submitLabel={t('docker.image.pullTheImage')}
           data-cy="pull-image-button"
         />
       </ImageConfigFieldset>

@@ -2,8 +2,11 @@ package teams
 
 import (
 	"net/http"
+	"strconv"
 
 	portainer "github.com/portainer/portainer/api"
+	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
 	"github.com/portainer/portainer/pkg/libhttp/request"
 	"github.com/portainer/portainer/pkg/libhttp/response"
@@ -31,7 +34,18 @@ func (handler *Handler) teamDelete(w http.ResponseWriter, r *http.Request) *http
 		return httperror.BadRequest("Invalid team identifier route variable", err)
 	}
 
-	_, err = handler.DataStore.Team().Read(portainer.TeamID(teamID))
+	tokenData, _ := security.RetrieveTokenData(r)
+	operatorUsername := ""
+	operatorUserID := 0
+	if tokenData != nil {
+		operatorUserID = int(tokenData.ID)
+		operator, _ := handler.DataStore.User().Read(tokenData.ID)
+		if operator != nil {
+			operatorUsername = operator.Username
+		}
+	}
+
+	team, err := handler.DataStore.Team().Read(portainer.TeamID(teamID))
 	if handler.DataStore.IsErrObjectNotFound(err) {
 		return httperror.NotFound("Unable to find a team with the specified identifier inside the database", err)
 	} else if err != nil {
@@ -53,6 +67,19 @@ func (handler *Handler) teamDelete(w http.ResponseWriter, r *http.Request) *http
 	if err != nil {
 		return httperror.InternalServerError("Unable to reset default team", err)
 	}
+
+	activitylog.NewActivityLogBuilder(
+		activitylog.ActionDelete,
+		activitylog.ContextPortainer,
+		activitylog.ResourceTypeTeam,
+	).
+		WithUser(operatorUserID, operatorUsername).
+		WithResource(strconv.Itoa(teamID), team.Name).
+		WithDetails(map[string]interface{}{
+			"description": "删除团队成功",
+			"teamName":    team.Name,
+		}).
+		Log()
 
 	return response.Empty(w)
 }

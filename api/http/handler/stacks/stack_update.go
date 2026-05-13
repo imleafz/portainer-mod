@@ -7,8 +7,10 @@ import (
 
 	portainer "github.com/portainer/portainer/api"
 	"github.com/portainer/portainer/api/dataservices"
+	alog "github.com/portainer/portainer/api/dataservices/activitylog"
 	httperrors "github.com/portainer/portainer/api/http/errors"
 	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	"github.com/portainer/portainer/api/stacks/deployments"
 	"github.com/portainer/portainer/api/stacks/stackutils"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
@@ -95,6 +97,17 @@ func (handler *Handler) stackUpdate(w http.ResponseWriter, r *http.Request) *htt
 		return httperror.BadRequest("Invalid query parameter: endpointId", err)
 	}
 
+	tokenData, _ := security.RetrieveTokenData(r)
+	operatorUsername := ""
+	operatorUserID := 0
+	if tokenData != nil {
+		operatorUserID = int(tokenData.ID)
+		operator, _ := handler.DataStore.User().Read(tokenData.ID)
+		if operator != nil {
+			operatorUsername = operator.Username
+		}
+	}
+
 	var stack *portainer.Stack
 	err = handler.DataStore.UpdateTx(func(tx dataservices.DataStoreTx) error {
 		var httpErr *httperror.HandlerError
@@ -104,6 +117,34 @@ func (handler *Handler) stackUpdate(w http.ResponseWriter, r *http.Request) *htt
 		}
 		return nil
 	})
+
+	if err != nil {
+		return response.TxResponse(w, stack, err)
+	}
+
+	endpoint, err := handler.DataStore.Endpoint().Endpoint(stack.EndpointID)
+	if err != nil {
+		endpoint = &portainer.Endpoint{Name: ""}
+	}
+
+	activitylog.NewActivityLogBuilder(
+		alog.ActionUpdate,
+		alog.ContextDocker,
+		alog.ResourceTypeDockerStack,
+	).
+		WithUser(operatorUserID, operatorUsername).
+		WithResource(strconv.Itoa(int(stack.ID)), stack.Name).
+		WithDetails(map[string]interface{}{
+			"description": "更新 Docker 堆栈成功",
+			"stackName":   stack.Name,
+			"stackType":   stack.Type,
+			"endpoint":    endpoint.Name,
+			"endpointID":  stack.EndpointID,
+			"method":      "update",
+			"redeploy":    false,
+		}).
+		Log()
+
 	return response.TxResponse(w, stack, err)
 }
 

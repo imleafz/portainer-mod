@@ -210,7 +210,7 @@ describe('ImagesDatatable', () => {
       );
 
       await waitFor(() => {
-        const buildButton = screen.getByText(/Build a new image/i);
+        const buildButton = screen.getByText(/Build new image/i);
 
         expect(buildButton).toBeVisible();
         expect(buildButton).toHaveAttribute(
@@ -238,9 +238,7 @@ describe('ImagesDatatable', () => {
       );
 
       await waitFor(() => {
-        expect(
-          screen.queryByText(/Build a new image/i)
-        ).not.toBeInTheDocument();
+        expect(screen.queryByText(/Build new image/i)).not.toBeInTheDocument();
       });
     });
   });

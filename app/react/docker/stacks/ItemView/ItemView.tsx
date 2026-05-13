@@ -1,6 +1,7 @@
 import { useCurrentStateAndParams } from '@uirouter/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { StackContainersDatatable } from '@/react/docker/stacks/ItemView/StackContainersDatatable';
 import { AccessControlPanel } from '@/react/portainer/access-control';
@@ -17,6 +18,7 @@ import { StackDetails } from './StackDetails';
 import { StackServicesDatatable } from './StackServicesDatatable';
 
 export function ItemView() {
+  const { t } = useTranslation();
   const {
     isExternal,
     isOrphaned,
@@ -45,15 +47,22 @@ export function ItemView() {
         stackType,
       })
     ) {
-      notifyError('Failure', undefined, 'Invalid type URL parameter.');
+      notifyError(
+        t('docker.stack.failure'),
+        undefined,
+        t('docker.stack.invalidTypeUrlParameter')
+      );
     }
   }, [isExternal, isOrphaned, isOrphanedRunning, stackType]);
 
   return (
     <>
       <PageHeader
-        title="Stack details"
-        breadcrumbs={[{ label: 'Stacks', link: '^' }, stackName]}
+        title={t('docker.stack.stackDetails')}
+        breadcrumbs={[
+          { label: t('docker.stacks.stacks'), link: '^' },
+          stackName,
+        ]}
       />
       <StackDetails
         isExternal={isExternal}

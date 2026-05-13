@@ -20,6 +20,7 @@ import (
 	gittypes "github.com/portainer/portainer/api/git/types"
 	"github.com/portainer/portainer/api/http/proxy/factory/utils"
 	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	"github.com/portainer/portainer/api/internal/authorization"
 	"github.com/portainer/portainer/api/logs"
 
@@ -45,6 +46,7 @@ type (
 		gitService           portainer.GitService
 		snapshotService      portainer.SnapshotService
 		dockerID             string
+		dockerLogger         *activitylog.DockerLogger
 		mu                   sync.Mutex
 	}
 
@@ -85,6 +87,9 @@ func NewTransport(parameters *TransportParameters, httpTransport *http.Transport
 		gitService:           gitService,
 		snapshotService:      snapshotService,
 	}
+
+	activitylog.InitAsyncDockerLogQueue(parameters.Endpoint.ID, parameters.Endpoint.Name)
+	transport.dockerLogger = activitylog.NewDockerLogger(parameters.Endpoint.ID, parameters.Endpoint.Name)
 
 	return transport, nil
 }
@@ -218,20 +223,36 @@ func (transport *Transport) proxyConfigRequest(request *http.Request, unversione
 
 	switch requestPath {
 	case "/configs/create":
-		return transport.decorateGenericResourceCreationOperation(request, configObjectIdentifier, portainer.ConfigResourceControl)
+		response, err := transport.decorateGenericResourceCreationOperation(request, configObjectIdentifier, portainer.ConfigResourceControl)
+		if err == nil && response.StatusCode == http.StatusCreated {
+			transport.logDockerOperationAsync("config_create", "", "", nil, request)
+		}
+		return response, err
 
 	case "/configs":
 		return transport.rewriteOperation(request, transport.configListOperation)
 
 	default:
-		// Assume /configs/{id}
+		if match(requestPath, "/configs/*/update") {
+			configID := path.Base(path.Dir(requestPath))
+			response, err := transport.restrictedResourceOperation(request, configID, configID, portainer.ConfigResourceControl, false)
+			if err == nil && response.StatusCode >= 200 && response.StatusCode < 300 {
+				transport.logDockerOperationAsync("config_update", configID, configID, nil, request)
+			}
+			return response, err
+		}
+
 		configID := path.Base(requestPath)
 
 		switch request.Method {
 		case http.MethodGet:
 			return transport.rewriteOperation(request, transport.configInspectOperation)
 		case http.MethodDelete:
-			return transport.executeGenericResourceDeletionOperation(request, configID, configID, portainer.ConfigResourceControl)
+			response, err := transport.executeGenericResourceDeletionOperation(request, configID, configID, portainer.ConfigResourceControl)
+			if err == nil && (response.StatusCode == http.StatusNoContent || response.StatusCode == http.StatusOK) {
+				transport.logDockerOperationAsync("config_delete", configID, configID, nil, request)
+			}
+			return response, err
 		}
 
 		return transport.restrictedResourceOperation(request, configID, configID, portainer.ConfigResourceControl, false)
@@ -252,22 +273,39 @@ func (transport *Transport) proxyContainerRequest(request *http.Request, unversi
 		return transport.rewriteOperationWithLabelFiltering(request, transport.containerListOperation)
 
 	default:
-		// This section assumes /containers/**
 		if match, _ := path.Match("/containers/*/*", requestPath); match {
-			// Handle /containers/{id}/{action} requests
 			containerID := path.Base(path.Dir(requestPath))
 			action := path.Base(requestPath)
 
 			if action == "json" {
 				return transport.rewriteOperation(request, transport.containerInspectOperation)
 			}
-			return transport.restrictedResourceOperation(request, containerID, containerID, portainer.ContainerResourceControl, false)
+
+			response, err := transport.restrictedResourceOperation(request, containerID, containerID, portainer.ContainerResourceControl, false)
+			if err == nil && response.StatusCode >= 200 && response.StatusCode < 300 {
+				var operation string
+				switch action {
+				case "start":
+					operation = "container_start"
+				case "stop":
+					operation = "container_stop"
+				case "restart":
+					operation = "container_restart"
+				}
+				if operation != "" {
+					transport.logDockerOperationAsync(operation, containerID, containerID, nil, request)
+				}
+			}
+			return response, err
 		} else if match, _ := path.Match("/containers/*", requestPath); match {
-			// Handle /containers/{id} requests
 			containerID := path.Base(requestPath)
 
 			if request.Method == http.MethodDelete {
-				return transport.executeGenericResourceDeletionOperation(request, containerID, containerID, portainer.ContainerResourceControl)
+				response, err := transport.executeGenericResourceDeletionOperation(request, containerID, containerID, portainer.ContainerResourceControl)
+				if err == nil && (response.StatusCode == http.StatusNoContent || response.StatusCode == http.StatusOK) {
+					transport.logDockerOperationAsync("container_delete", containerID, containerID, nil, request)
+				}
+				return response, err
 			}
 
 			return transport.restrictedResourceOperation(request, containerID, containerID, portainer.ContainerResourceControl, false)
@@ -288,25 +326,36 @@ func (transport *Transport) proxyServiceRequest(request *http.Request, unversion
 		return transport.rewriteOperation(request, transport.serviceListOperation)
 
 	default:
-		// This section assumes /services/**
 		if match, _ := path.Match("/services/*/*", requestPath); match {
-			// Handle /services/{id}/{action} requests
 			serviceID := path.Base(path.Dir(requestPath))
+			action := path.Base(requestPath)
 
 			if err := transport.decorateRegistryAuthenticationHeader(request); err != nil {
 				return nil, err
 			}
 
-			return transport.restrictedResourceOperation(request, serviceID, serviceID, portainer.ServiceResourceControl, false)
+			response, err := transport.restrictedResourceOperation(request, serviceID, serviceID, portainer.ServiceResourceControl, false)
+			if err == nil && response.StatusCode >= 200 && response.StatusCode < 300 {
+				switch action {
+				case "update":
+					transport.logDockerOperationAsync("service_update", serviceID, serviceID, nil, request)
+				case "scale":
+					transport.logDockerOperationAsync("service_scale", serviceID, serviceID, nil, request)
+				}
+			}
+			return response, err
 		} else if match, _ := path.Match("/services/*", requestPath); match {
-			// Handle /services/{id} requests
 			serviceID := path.Base(requestPath)
 
 			switch request.Method {
 			case http.MethodGet:
 				return transport.rewriteOperation(request, transport.serviceInspectOperation)
 			case http.MethodDelete:
-				return transport.executeGenericResourceDeletionOperation(request, serviceID, serviceID, portainer.ServiceResourceControl)
+				response, err := transport.executeGenericResourceDeletionOperation(request, serviceID, serviceID, portainer.ServiceResourceControl)
+				if err == nil && (response.StatusCode == http.StatusNoContent || response.StatusCode == http.StatusOK) {
+					transport.logDockerOperationAsync("service_delete", serviceID, serviceID, nil, request)
+				}
+				return response, err
 			}
 
 			return transport.restrictedResourceOperation(request, serviceID, serviceID, portainer.ServiceResourceControl, false)
@@ -345,26 +394,43 @@ func (transport *Transport) proxyNetworkRequest(request *http.Request, unversion
 
 	switch {
 	case requestPath == "/networks/create":
-		return transport.decorateGenericResourceCreationOperation(request, networkObjectIdentifier, portainer.NetworkResourceControl)
+		response, err := transport.decorateGenericResourceCreationOperation(request, networkObjectIdentifier, portainer.NetworkResourceControl)
+		if err == nil && response.StatusCode == http.StatusCreated {
+			transport.logDockerOperationAsync("network_create", "", "", nil, request)
+		}
+		return response, err
 
 	case requestPath == "/networks":
 		return transport.rewriteOperation(request, transport.networkListOperation)
 
-	case request.Method == http.MethodPost && match(requestPath, "/networks/*/connect"),
-		request.Method == http.MethodPost && match(requestPath, "/networks/*/disconnect"):
-
+	case request.Method == http.MethodPost && match(requestPath, "/networks/*/connect"):
 		networkID := path.Base(path.Dir(requestPath))
-		return transport.restrictedResourceOperation(request, networkID, networkID, portainer.NetworkResourceControl, false)
+		response, err := transport.restrictedResourceOperation(request, networkID, networkID, portainer.NetworkResourceControl, false)
+		if err == nil && response.StatusCode >= 200 && response.StatusCode < 300 {
+			transport.logDockerOperationAsync("network_connect", networkID, networkID, nil, request)
+		}
+		return response, err
+
+	case request.Method == http.MethodPost && match(requestPath, "/networks/*/disconnect"):
+		networkID := path.Base(path.Dir(requestPath))
+		response, err := transport.restrictedResourceOperation(request, networkID, networkID, portainer.NetworkResourceControl, false)
+		if err == nil && response.StatusCode >= 200 && response.StatusCode < 300 {
+			transport.logDockerOperationAsync("network_disconnect", networkID, networkID, nil, request)
+		}
+		return response, err
 
 	case request.Method == http.MethodGet && match(requestPath, "/networks/*"):
 		return transport.rewriteOperation(request, transport.networkInspectOperation)
 
 	case request.Method == http.MethodDelete && match(requestPath, "/networks/*"):
 		networkID := path.Base(requestPath)
-		return transport.executeGenericResourceDeletionOperation(request, networkID, networkID, portainer.NetworkResourceControl)
+		response, err := transport.executeGenericResourceDeletionOperation(request, networkID, networkID, portainer.NetworkResourceControl)
+		if err == nil && (response.StatusCode == http.StatusNoContent || response.StatusCode == http.StatusOK) {
+			transport.logDockerOperationAsync("network_delete", networkID, networkID, nil, request)
+		}
+		return response, err
 	}
 
-	// Assume /networks/{id}
 	networkID := path.Base(requestPath)
 	return transport.restrictedResourceOperation(request, networkID, networkID, portainer.NetworkResourceControl, false)
 }
@@ -374,20 +440,36 @@ func (transport *Transport) proxySecretRequest(request *http.Request, unversione
 
 	switch requestPath {
 	case "/secrets/create":
-		return transport.decorateGenericResourceCreationOperation(request, secretObjectIdentifier, portainer.SecretResourceControl)
+		response, err := transport.decorateGenericResourceCreationOperation(request, secretObjectIdentifier, portainer.SecretResourceControl)
+		if err == nil && response.StatusCode == http.StatusCreated {
+			transport.logDockerOperationAsync("secret_create", "", "", nil, request)
+		}
+		return response, err
 
 	case "/secrets":
 		return transport.rewriteOperation(request, transport.secretListOperation)
 
 	default:
-		// Assume /secrets/{id}
+		if match(requestPath, "/secrets/*/update") {
+			secretID := path.Base(path.Dir(requestPath))
+			response, err := transport.restrictedResourceOperation(request, secretID, secretID, portainer.SecretResourceControl, false)
+			if err == nil && response.StatusCode >= 200 && response.StatusCode < 300 {
+				transport.logDockerOperationAsync("secret_update", secretID, secretID, nil, request)
+			}
+			return response, err
+		}
+
 		secretID := path.Base(requestPath)
 
 		switch request.Method {
 		case http.MethodGet:
 			return transport.rewriteOperation(request, transport.secretInspectOperation)
 		case http.MethodDelete:
-			return transport.executeGenericResourceDeletionOperation(request, secretID, secretID, portainer.SecretResourceControl)
+			response, err := transport.executeGenericResourceDeletionOperation(request, secretID, secretID, portainer.SecretResourceControl)
+			if err == nil && (response.StatusCode == http.StatusNoContent || response.StatusCode == http.StatusOK) {
+				transport.logDockerOperationAsync("secret_delete", secretID, secretID, nil, request)
+			}
+			return response, err
 		}
 
 		return transport.restrictedResourceOperation(request, secretID, secretID, portainer.SecretResourceControl, false)
@@ -397,12 +479,20 @@ func (transport *Transport) proxySecretRequest(request *http.Request, unversione
 func (transport *Transport) proxyNodeRequest(request *http.Request, unversionedPath string) (*http.Response, error) {
 	requestPath := unversionedPath
 
-	// Assume /nodes/{id}
 	if path.Base(requestPath) != "nodes" {
 		return transport.administratorOperation(request)
 	}
 
-	return transport.executeDockerRequest(request)
+	if request.Method == http.MethodGet {
+		return transport.executeDockerRequest(request)
+	}
+
+	nodeID := path.Base(requestPath)
+	response, err := transport.executeDockerRequest(request)
+	if err == nil && response.StatusCode >= 200 && response.StatusCode < 300 {
+		transport.logDockerOperationAsync("node_update", nodeID, nodeID, nil, request)
+	}
+	return response, err
 }
 
 func (transport *Transport) proxySwarmRequest(request *http.Request, unversionedPath string) (*http.Response, error) {
@@ -411,8 +501,25 @@ func (transport *Transport) proxySwarmRequest(request *http.Request, unversioned
 	switch requestPath {
 	case "/swarm":
 		return transport.rewriteOperation(request, swarmInspectOperation)
+	case "/swarm/init":
+		response, err := transport.administratorOperation(request)
+		if err == nil && response.StatusCode >= 200 && response.StatusCode < 300 {
+			transport.logDockerOperationAsync("swarm_init", "", "", nil, request)
+		}
+		return response, err
+	case "/swarm/join":
+		response, err := transport.administratorOperation(request)
+		if err == nil && response.StatusCode >= 200 && response.StatusCode < 300 {
+			transport.logDockerOperationAsync("swarm_join", "", "", nil, request)
+		}
+		return response, err
+	case "/swarm/leave":
+		response, err := transport.administratorOperation(request)
+		if err == nil && (response.StatusCode == http.StatusOK || response.StatusCode == http.StatusNoContent) {
+			transport.logDockerOperationAsync("swarm_leave", "", "", nil, request)
+		}
+		return response, err
 	default:
-		// Assume /swarm/{action}
 		return transport.administratorOperation(request)
 	}
 }
@@ -470,10 +577,18 @@ func (transport *Transport) proxyImageRequest(request *http.Request, unversioned
 
 	switch requestPath {
 	case "/images/create":
-		return transport.replaceRegistryAuthenticationHeader(request)
+		response, err := transport.replaceRegistryAuthenticationHeader(request)
+		if err == nil && response.StatusCode == http.StatusOK {
+			transport.logDockerOperationAsync("image_pull", "", "", nil, request)
+		}
+		return response, err
 	default:
 		if path.Base(requestPath) == "push" && request.Method == http.MethodPost {
-			return transport.replaceRegistryAuthenticationHeader(request)
+			response, err := transport.replaceRegistryAuthenticationHeader(request)
+			if err == nil && response.StatusCode == http.StatusOK {
+				transport.logDockerOperationAsync("image_push", "", "", nil, request)
+			}
+			return response, err
 		}
 
 		return transport.executeDockerRequest(request)
@@ -914,4 +1029,118 @@ func (transport *Transport) fetchEndpointSecuritySettings() (*portainer.Endpoint
 	}
 
 	return &endpoint.SecuritySettings, nil
+}
+
+// getDockerOperationType determines the operation type from request method and path
+func getDockerOperationType(method, path string) string {
+	switch {
+	// Container operations
+	case method == http.MethodPost && path == "/containers/create":
+		return "container_create"
+	case method == http.MethodPost && strings.HasSuffix(path, "/start"):
+		return "container_start"
+	case method == http.MethodPost && strings.HasSuffix(path, "/stop"):
+		return "container_stop"
+	case method == http.MethodPost && strings.HasSuffix(path, "/restart"):
+		return "container_restart"
+	case method == http.MethodDelete && strings.HasPrefix(path, "/containers/"):
+		return "container_delete"
+
+	// Image operations
+	case method == http.MethodPost && path == "/images/create":
+		return "image_pull"
+	case method == http.MethodPost && strings.HasSuffix(path, "/push"):
+		return "image_push"
+	case method == http.MethodDelete && strings.HasPrefix(path, "/images/"):
+		return "image_delete"
+
+	// Network operations
+	case method == http.MethodPost && path == "/networks/create":
+		return "network_create"
+	case method == http.MethodDelete && strings.HasPrefix(path, "/networks/"):
+		return "network_delete"
+	case method == http.MethodPost && strings.HasSuffix(path, "/connect"):
+		return "network_connect"
+	case method == http.MethodPost && strings.HasSuffix(path, "/disconnect"):
+		return "network_disconnect"
+
+	// Volume operations
+	case method == http.MethodPost && path == "/volumes/create":
+		return "volume_create"
+	case method == http.MethodDelete && strings.HasPrefix(path, "/volumes/"):
+		return "volume_delete"
+
+	// Service operations
+	case method == http.MethodPost && path == "/services/create":
+		return "service_create"
+	case method == http.MethodPost && strings.HasPrefix(path, "/services/") && strings.HasSuffix(path, "/update"):
+		return "service_update"
+	case method == http.MethodDelete && strings.HasPrefix(path, "/services/"):
+		return "service_delete"
+	case method == http.MethodPost && strings.HasSuffix(path, "/scale"):
+		return "service_scale"
+
+	// Config operations
+	case method == http.MethodPost && path == "/configs/create":
+		return "config_create"
+	case method == http.MethodPost && strings.HasPrefix(path, "/configs/") && strings.HasSuffix(path, "/update"):
+		return "config_update"
+	case method == http.MethodDelete && strings.HasPrefix(path, "/configs/"):
+		return "config_delete"
+
+	// Secret operations
+	case method == http.MethodPost && path == "/secrets/create":
+		return "secret_create"
+	case method == http.MethodPost && strings.HasPrefix(path, "/secrets/") && strings.HasSuffix(path, "/update"):
+		return "secret_update"
+	case method == http.MethodDelete && strings.HasPrefix(path, "/secrets/"):
+		return "secret_delete"
+
+	// Node operations
+	case method == http.MethodGet && strings.HasPrefix(path, "/nodes/"):
+		return "node_update"
+
+	// Swarm operations
+	case method == http.MethodPost && path == "/swarm/init":
+		return "swarm_init"
+	case method == http.MethodPost && path == "/swarm/join":
+		return "swarm_join"
+	case method == http.MethodPost && path == "/swarm/leave":
+		return "swarm_leave"
+	}
+
+	return ""
+}
+
+// getUserInfoFromRequest extracts user ID and username from request
+func getUserInfoFromRequest(request *http.Request) (int, string, error) {
+	tokenData, err := security.RetrieveTokenData(request)
+	if err != nil {
+		return 0, "", err
+	}
+
+	return int(tokenData.ID), tokenData.Username, nil
+}
+
+// logDockerOperationAsync logs Docker operation asynchronously
+func (transport *Transport) logDockerOperationAsync(operation, resourceID, resourceName string, err error, request *http.Request) {
+	if operation == "" {
+		return
+	}
+
+	userID, username, userErr := getUserInfoFromRequest(request)
+	if userErr != nil {
+		return
+	}
+
+	activitylog.LogDockerOperationAsync(
+		transport.endpoint.ID,
+		transport.endpoint.Name,
+		operation,
+		resourceID,
+		resourceName,
+		userID,
+		username,
+		err,
+	)
 }

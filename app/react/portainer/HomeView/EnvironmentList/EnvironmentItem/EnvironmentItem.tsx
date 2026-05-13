@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { useTranslation } from 'react-i18next';
 import { Tag, Activity } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -44,6 +45,7 @@ export function EnvironmentItem({
   groupName,
   isActive,
 }: Props) {
+  const { t } = useTranslation();
   const isEdge = isEdgeEnvironment(environment.Type);
 
   const snapshotTime = getSnapshotTime(environment);
@@ -80,7 +82,7 @@ export function EnvironmentItem({
                 {snapshotTime && (
                   <span
                     className="small text-muted vertical-center gap-1"
-                    title="Last snapshot time"
+                    title={t('environmentItem.lastSnapshot')}
                   >
                     <Activity className="icon icon-sm" aria-hidden="true" />
                     {snapshotTime}
@@ -98,7 +100,7 @@ export function EnvironmentItem({
           <div className="small text-muted flex flex-wrap items-center gap-x-4 gap-y-2">
             {groupName && (
               <span className="font-semibold">
-                <span>Group: </span>
+                <span>{t('environmentItem.groupLabel')}</span>
                 <span>{groupName}</span>
               </span>
             )}
@@ -132,6 +134,7 @@ export function EnvironmentItem({
 }
 
 function useEnvironmentTagNames(tagIds?: TagId[]) {
+  const { t } = useTranslation();
   const tagsQuery = useTags({
     select: (tags) => {
       if (!tagIds) {
@@ -153,10 +156,10 @@ function useEnvironmentTagNames(tagIds?: TagId[]) {
   }
 
   if (isLoading) {
-    return 'Loading tags...';
+    return t('common.loadingTags');
   }
 
-  return 'No tags';
+  return t('common.noTags');
 }
 
 function getSnapshotTime(environment: Environment) {

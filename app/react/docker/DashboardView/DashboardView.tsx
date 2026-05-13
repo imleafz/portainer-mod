@@ -7,6 +7,7 @@ import {
   NetworkIcon,
   ShuffleIcon,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
 import { isAgentEnvironment } from '@/react/portainer/environments/utils';
@@ -27,6 +28,7 @@ import { ImagesTotalSize } from './ImagesTotalSize';
 import { useDashboard } from './useDashboard';
 
 export function DashboardView() {
+  const { t } = useTranslation();
   const envId = useEnvironmentId();
   const envQuery = useCurrentEnvironment();
   const isEnvAdminQuery = useIsEnvironmentAdmin();
@@ -44,7 +46,11 @@ export function DashboardView() {
 
   return (
     <>
-      <PageHeader title="Dashboard" breadcrumbs="Environment summary" reload />
+      <PageHeader
+        title={t('docker.dashboard.title')}
+        breadcrumbs={t('docker.dashboard.environmentSummary')}
+        reload
+      />
 
       <div className="mx-4 space-y-6">
         <InfoPanels isAgent={isAgentEnvironment(env.Type)} />

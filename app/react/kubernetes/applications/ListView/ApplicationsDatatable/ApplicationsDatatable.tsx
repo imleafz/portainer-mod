@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BoxIcon } from 'lucide-react';
 import { groupBy, partition } from 'lodash';
 import { useRouter } from '@uirouter/react';
@@ -46,6 +47,7 @@ export function ApplicationsDatatable({
     search: string;
   };
 }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const environmentId = useEnvironmentId();
   const restrictSecretsQuery = useEnvironment(
@@ -87,7 +89,7 @@ export function ApplicationsDatatable({
       dataset={filteredApplications ?? []}
       settingsManager={tableState}
       columns={columns}
-      title="Applications"
+      title={t('kubernetes.applications.applications')}
       titleIcon={BoxIcon}
       isLoading={applicationsQuery.isLoading}
       disableSelect={!hasWriteAuth}
@@ -110,11 +112,11 @@ export function ApplicationsDatatable({
               data-cy="k8sApp-removeAppButton"
               disabled={selectedItems.length === 0}
               isLoading={removeApplicationsMutation.isLoading}
-              confirmMessage="Do you want to remove the selected application(s)?"
+              confirmMessage={t('kubernetes.applications.confirmRemoveApps')}
               onConfirmed={() => handleRemoveApplications(selectedItems)}
             />
             <AddButton data-cy="k8sApp-addApplicationButton" color="secondary">
-              Add with form
+              {t('kubernetes.applications.addWithForm')}
             </AddButton>
             <CreateFromManifestButton data-cy="k8sApp-deployFromManifestButton" />
           </>

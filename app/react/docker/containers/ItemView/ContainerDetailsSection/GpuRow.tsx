@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { DeviceRequest } from 'docker-types/generated/1.44';
 import _ from 'lodash';
 
@@ -8,21 +9,27 @@ interface GpuRowProps {
 }
 
 export function GpuRow({ deviceRequests }: GpuRowProps) {
+  const { t } = useTranslation();
   if (!deviceRequests?.length) {
     return null;
   }
 
-  const gpuCommand = computeDockerGPUCommand(deviceRequests);
+  const gpuCommand = computeDockerGPUCommand(deviceRequests, t);
 
   if (!gpuCommand) {
     return null;
   }
 
-  return <DetailsTable.Row label="GPUS">{gpuCommand}</DetailsTable.Row>;
+  return (
+    <DetailsTable.Row label={t('docker.container.gpu', 'GPU')}>
+      {gpuCommand}
+    </DetailsTable.Row>
+  );
 }
 
 export function computeDockerGPUCommand(
-  deviceRequests: Array<DeviceRequest>
+  deviceRequests: Array<DeviceRequest>,
+  translateFn: (key: string) => string
 ): string | null {
   const gpuOptions = deviceRequests?.find(
     (o) =>
@@ -33,7 +40,7 @@ export function computeDockerGPUCommand(
         o.Capabilities[0][0] === 'gpu')
   );
   if (!gpuOptions) {
-    return 'No GPU config found';
+    return translateFn('docker.container.noGpuConfigFound');
   }
 
   let gpuStr = 'all';
@@ -41,8 +48,6 @@ export function computeDockerGPUCommand(
     gpuStr = `"device=${_.join(gpuOptions.DeviceIDs, ',')}"`;
   }
 
-  // we only support a single set of capabilities for now
-  // creation UI needs to be reworked in order to support OR combinations of AND capabilities
   const capStr = gpuOptions.Capabilities
     ? `"capabilities=${_.join(gpuOptions.Capabilities[0], ',')}"`
     : '';

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { FormikErrors } from 'formik';
+import { useTranslation } from 'react-i18next';
 
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
 
@@ -18,6 +19,7 @@ export function NodeSelector({
   onChange: (value: string) => void;
   error?: FormikErrors<string>;
 }) {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
 
   const apiVersionQuery = useApiVersion(environmentId);
@@ -39,7 +41,7 @@ export function NodeSelector({
   }, [nodesQuery.data, onChange, value]);
 
   return (
-    <FormControl label="Node" inputId="node-selector" errors={error}>
+    <FormControl label={t('docker.container.node')} inputId="node-selector" errors={error}>
       <PortainerSelect
         inputId="node-selector"
         value={value}

@@ -13,6 +13,7 @@ import (
 	"github.com/portainer/portainer/api/apikey"
 	"github.com/portainer/portainer/api/crypto"
 	"github.com/portainer/portainer/api/dataservices"
+	"github.com/portainer/portainer/api/dataservices/activitylog"
 	"github.com/portainer/portainer/api/docker"
 	dockerclient "github.com/portainer/portainer/api/docker/client"
 	"github.com/portainer/portainer/api/http/csrf"
@@ -48,6 +49,7 @@ import (
 	"github.com/portainer/portainer/api/http/handler/teams"
 	"github.com/portainer/portainer/api/http/handler/templates"
 	"github.com/portainer/portainer/api/http/handler/upload"
+	"github.com/portainer/portainer/api/http/handler/useractivity"
 	"github.com/portainer/portainer/api/http/handler/users"
 	"github.com/portainer/portainer/api/http/handler/webhooks"
 	"github.com/portainer/portainer/api/http/handler/websocket"
@@ -56,6 +58,7 @@ import (
 	"github.com/portainer/portainer/api/http/proxy"
 	"github.com/portainer/portainer/api/http/proxy/factory/kubernetes"
 	"github.com/portainer/portainer/api/http/security"
+	activitylogpkg "github.com/portainer/portainer/api/internal/activitylog"
 	"github.com/portainer/portainer/api/internal/authorization"
 	edgestackservice "github.com/portainer/portainer/api/internal/edge/edgestacks"
 	"github.com/portainer/portainer/api/internal/snapshot"
@@ -297,6 +300,26 @@ func (server *Server) Start() error {
 	webhookHandler.DataStore = server.DataStore
 	webhookHandler.DockerClientFactory = server.DockerClientFactory
 
+	activitylogService, err := activitylog.NewService(filepath.Join(server.FileService.GetDatastorePath(), "activitylogs"))
+	if err != nil {
+		log.Error().Err(err).Msg("failed to create activitylog service")
+	} else {
+		log.Info().Msg("activitylog service created successfully")
+
+		activitylogLogger := activitylogpkg.NewLogger(activitylogService.ActivityLogService, activitylogService.AuthLogService)
+
+		settings, err := server.DataStore.Settings().Settings()
+		if err == nil {
+			activitylogLogger.SetEnabled(settings.EnableActivityLog)
+			log.Info().Bool("enableActivityLog", settings.EnableActivityLog).Msg("activitylog setting loaded")
+		}
+	}
+
+	var userActivityHandler *useractivity.Handler
+	if activitylogService != nil {
+		userActivityHandler = useractivity.NewHandler(requestBouncer, activitylogService)
+	}
+
 	server.Handler = &handler.Handler{
 		RoleHandler:            roleHandler,
 		AuthHandler:            authHandler,
@@ -333,6 +356,7 @@ func (server *Server) Start() error {
 		UserHandler:            userHandler,
 		WebSocketHandler:       websocketHandler,
 		WebhookHandler:         webhookHandler,
+		UserActivityHandler:    userActivityHandler,
 	}
 
 	errorLogger := NewHTTPLogger()
@@ -341,7 +365,7 @@ func (server *Server) Start() error {
 
 	handler = middlewares.WithPanicLogger(middlewares.WithSlowRequestsLogger(handler))
 
-	handler, err := csrf.WithProtect(handler, server.TrustedOrigins)
+	handler, err = csrf.WithProtect(handler, server.TrustedOrigins)
 	if err != nil {
 		return errors.Wrap(err, "failed to create CSRF middleware")
 	}

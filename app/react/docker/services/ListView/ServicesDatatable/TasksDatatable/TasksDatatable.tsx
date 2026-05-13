@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { DecoratedTask } from '@/react/docker/services/ItemView/TasksDatatable/types';
 import { status } from '@/react/docker/services/ItemView/TasksDatatable/columns/status';
 import { actions } from '@/react/docker/services/ItemView/TasksDatatable/columns/actions';
@@ -18,12 +20,13 @@ export function TasksDatatable({
   dataset: DecoratedTask[];
   search?: string;
 }) {
+  const { t } = useTranslation();
   return (
     <NestedDatatable
       columns={columns}
       dataset={dataset}
       search={search}
-      aria-label="Tasks table"
+      aria-label={t('docker.services.tasksTable')}
       data-cy="docker-service-tasks-nested-datatable"
       initialSortBy={{ id: 'Updated', desc: true }}
     />

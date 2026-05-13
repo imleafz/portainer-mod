@@ -1,6 +1,7 @@
 import { Terminal } from 'xterm';
 import { fit } from 'xterm/lib/addons/fit/fit';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
 import { baseHref } from '@/portainer/helpers/pathHelper';
@@ -15,6 +16,7 @@ type Socket = WebSocket | null;
 type ShellState = 'loading' | 'connected' | 'disconnected';
 
 export function KubectlShellView() {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const [terminal] = useState(new Terminal());
 
@@ -38,11 +40,11 @@ export function KubectlShellView() {
     terminal.setOption('cursorBlink', true);
     terminal.focus();
     fit(terminal);
-    terminal.writeln('#Run kubectl commands inside here');
-    terminal.writeln('#e.g. kubectl get all');
+    terminal.writeln('# Run kubectl commands inside here');
+    terminal.writeln(`# ${t('kubernetes.kubectl.example')}`);
     terminal.writeln('');
     setShellState('connected');
-  }, [terminal]);
+  }, [terminal, t]);
 
   const resizeTerminal = useCallback(() => {
     fit(terminal);
@@ -67,9 +69,9 @@ export function KubectlShellView() {
       closeTerminal();
       if (socket?.readyState !== WebSocket.CLOSED) {
         notifyError(
-          'Failure',
+          t('common.failure'),
           e as unknown as Error,
-          'Websocket connection error'
+          t('kubernetes.kubectl.websocketError')
         );
       }
     }
@@ -115,24 +117,29 @@ export function KubectlShellView() {
   return (
     <div className="fixed bottom-0 left-0 right-0 top-0 z-[10000] bg-black text-white">
       {shellState === 'loading' && (
-        <div className="px-4 pt-2">Loading Terminal...</div>
+        <div className="px-4 pt-2">
+          {t('kubernetes.kubectl.loadingTerminal')}
+        </div>
       )}
       {shellState === 'disconnected' && (
         <div className="p-4">
-          <Alert color="info" title="Console disconnected">
+          <Alert
+            color="info"
+            title={t('kubernetes.kubectl.consoleDisconnected')}
+          >
             <div className="mt-4 flex items-center gap-2">
               <Button
                 onClick={() => window.location.reload()}
                 data-cy="k8sShell-reloadButton"
               >
-                Reload
+                {t('common.reload')}
               </Button>
               <Button
                 onClick={() => window.close()}
                 color="default"
                 data-cy="k8sShell-closeButton"
               >
-                Close
+                {t('common.close')}
               </Button>
             </div>
           </Alert>

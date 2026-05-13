@@ -1,4 +1,5 @@
 import { List } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { ContainerDetailsViewModel } from '@/docker/models/containerDetails';
 import { EnvironmentId } from '@/react/portainer/environments/types';
@@ -30,6 +31,7 @@ export function ContainerDetailsSection({
   nodeName,
   onUpdateSuccess,
 }: Props) {
+  const { t } = useTranslation();
   const config = container.Config;
   const hostConfig = container.HostConfig;
 
@@ -43,7 +45,10 @@ export function ContainerDetailsSection({
 
   return (
     <Widget>
-      <Widget.Title icon={List} title="Container details" />
+      <Widget.Title
+        icon={List}
+        title={t('docker.container.containerDetails')}
+      />
       <Widget.Body>
         <DetailsTable dataCy="container-details-table">
           <ImageRow
@@ -54,11 +59,11 @@ export function ContainerDetailsSection({
 
           <PortConfigurationRow ports={container.NetworkSettings?.Ports} />
 
-          <DetailsTable.Row label="CMD">
+          <DetailsTable.Row label={t('docker.container.cmd')}>
             <code>{joinCommand(config.Cmd)}</code>
           </DetailsTable.Row>
 
-          <DetailsTable.Row label="ENTRYPOINT">
+          <DetailsTable.Row label={t('docker.container.entrypoint')}>
             <code>
               {config.Entrypoint ? joinCommand(config.Entrypoint) : 'null'}
             </code>
@@ -68,7 +73,7 @@ export function ContainerDetailsSection({
 
           <LabelsRow labels={config.Labels} />
 
-          <DetailsTable.Row label="Restart policies">
+          <DetailsTable.Row label={t('docker.container.restartPolicies')}>
             <RestartPolicySection
               environmentId={environmentId}
               containerId={container.Id}

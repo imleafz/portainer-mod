@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { List } from 'lucide-react';
 
 import { joinCommand } from '@/docker/filters/utils';
@@ -19,22 +20,23 @@ interface Props {
 }
 
 export function DockerfileDetails({ image }: Props) {
+  const { t } = useTranslation();
   return (
     <TableContainer>
-      <TableTitle label="Dockerfile details" icon={List} />
+      <TableTitle label={t('docker.image.dockerfileDetails')} icon={List} />
       <DetailsTable dataCy="dockerfile-details-table">
-        <DetailsTable.Row label="CMD">
+        <DetailsTable.Row label={t('docker.image.cmd')}>
           <code>{image.Command ? joinCommand(image.Command) : '-'}</code>
         </DetailsTable.Row>
 
         {image.Entrypoint && (
-          <DetailsTable.Row label="ENTRYPOINT">
+          <DetailsTable.Row label={t('docker.image.entrypoint')}>
             <code>{joinCommand(image.Entrypoint)}</code>
           </DetailsTable.Row>
         )}
 
         {image.ExposedPorts.length > 0 && (
-          <DetailsTable.Row label="EXPOSE">
+          <DetailsTable.Row label={t('docker.image.expose')}>
             {image.ExposedPorts.map((port, index) => (
               <span className="label label-default space-right" key={index}>
                 {port}
@@ -44,7 +46,7 @@ export function DockerfileDetails({ image }: Props) {
         )}
 
         {image.Volumes.length > 0 && (
-          <DetailsTable.Row label="VOLUME">
+          <DetailsTable.Row label={t('docker.image.volume')}>
             <div className="flex flex-wrap gap-1">
               {image.Volumes.map((volume, index) => (
                 <span key={index} className="label label-default space-right">
@@ -56,7 +58,7 @@ export function DockerfileDetails({ image }: Props) {
         )}
 
         {image.Env.length > 0 && (
-          <DetailsTable.Row label="ENV">
+          <DetailsTable.Row label={t('docker.image.env')}>
             <table className="table-bordered table-condensed table">
               <tbody>
                 {image.Env.map((variable) => (

@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { ArrowRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Icon } from '@@/Icon';
 import { ButtonSelector } from '@@/form-components/ButtonSelector/ButtonSelector';
@@ -18,14 +19,15 @@ export function Item({
   error,
   index,
 }: ItemProps<Volume>) {
+  const { t } = useTranslation();
   const { allowBindMounts, allowAuto } = useInputContext();
 
   return (
     <div>
       <div className="col-sm-12 form-inline flex gap-1">
         <InputLabeled
-          label="container"
-          placeholder="e.g. /path/in/container"
+          label={t('docker.container.containerPath')}
+          placeholder={t('docker.container.containerPathPlaceholder')}
           value={volume.containerPath}
           onChange={(e) => setValue({ containerPath: e.target.value })}
           size="small"
@@ -42,10 +44,10 @@ export function Item({
                 onChange({ ...volume, type, name: '' });
               }}
               options={[
-                { value: 'volume', label: 'Volume' },
-                { value: 'bind', label: 'Bind' },
+                { value: 'volume', label: t('docker.container.volume') },
+                { value: 'bind', label: t('docker.container.bind') },
               ]}
-              aria-label="Volume type"
+              aria-label={t('docker.container.volumeType')}
             />
           </InputGroup>
         )}
@@ -55,7 +57,7 @@ export function Item({
         {volume.type === 'volume' && (
           <InputGroup size="small" className="flex-1">
             <InputGroup.Addon as="label" htmlFor={`volume-${index}`}>
-              volume
+              {t('docker.container.volume')}
             </InputGroup.Addon>
             <VolumeSelector
               value={volume.name}
@@ -70,8 +72,8 @@ export function Item({
           <InputLabeled
             size="small"
             className="flex-1"
-            label="host"
-            placeholder="e.g. /path/on/host"
+            label={t('docker.container.hostPath')}
+            placeholder={t('docker.container.hostPathPlaceholder')}
             value={volume.name}
             onChange={(e) => setValue({ name: e.target.value })}
             id={`host-path-${index}`}
@@ -81,12 +83,12 @@ export function Item({
 
         <InputGroup size="small">
           <ButtonSelector<boolean>
-            aria-label="ReadWrite"
+            aria-label={t('docker.container.readWrite')}
             value={volume.readOnly}
             onChange={(readOnly) => setValue({ readOnly })}
             options={[
-              { value: false, label: 'Writable' },
-              { value: true, label: 'Read-only' },
+              { value: false, label: t('docker.container.writable') },
+              { value: true, label: t('docker.container.readOnly') },
             ]}
           />
         </InputGroup>

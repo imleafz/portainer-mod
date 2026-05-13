@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { useInfo } from '@/react/docker/proxy/queries/useInfo';
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
 
@@ -10,10 +12,11 @@ export function RuntimeSelector({
   value: string;
   onChange: (value: string) => void;
 }) {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const infoQuery = useInfo(environmentId, {
     select: (info) => [
-      { label: 'Default', value: '' },
+      { label: t('common.default'), value: '' },
       ...Object.keys(info?.Runtimes || {}).map((runtime) => ({
         label: runtime,
         value: runtime,

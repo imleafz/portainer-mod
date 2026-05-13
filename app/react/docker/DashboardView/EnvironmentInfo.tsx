@@ -1,4 +1,5 @@
 import { GaugeIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { useCurrentEnvironment } from '@/react/hooks/useCurrentEnvironment';
 import { stripProtocol } from '@/react/common/string-utils';
@@ -20,6 +21,7 @@ import { TagsInfo } from './EnvironmentInfo.TagsInfo';
 import { ClusterVisualizerLink } from './ClusterVisualizerLink';
 
 export function EnvironmentInfo() {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const envQuery = useCurrentEnvironment();
 
@@ -38,10 +40,13 @@ export function EnvironmentInfo() {
 
   return (
     <Widget>
-      <Widget.Title icon={GaugeIcon} title="Environment info" />
+      <Widget.Title
+        icon={GaugeIcon}
+        title={t('docker.dashboard.environmentInfo')}
+      />
       <Widget.Body className="!px-5 !py-0">
         <DetailsTable dataCy="environment-info">
-          <DetailsTable.Row label="Environment">
+          <DetailsTable.Row label={t('docker.dashboard.environmentInfo')}>
             <div className="flex items-center gap-2">
               {environment.Name}
               <SnapshotStats snapshot={environment.Snapshots[0]} />
@@ -51,7 +56,7 @@ export function EnvironmentInfo() {
           </DetailsTable.Row>
 
           {isEnvUrlVisible && (
-            <DetailsTable.Row label="URL">
+            <DetailsTable.Row label={t('docker.dashboard.url')}>
               {stripProtocol(environment.URL)}
             </DetailsTable.Row>
           )}

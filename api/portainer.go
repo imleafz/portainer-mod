@@ -1122,6 +1122,8 @@ type (
 		AgentSecret string `json:"AgentSecret"`
 		// EdgePortainerURL is the URL that is exposed to edge agents
 		EdgePortainerURL string `json:"EdgePortainerUrl"`
+		// Whether activity logging is enabled
+		EnableActivityLog bool `json:"EnableActivityLog"`
 
 		Edge Edge `json:"Edge"`
 

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { HardDrive } from 'lucide-react';
 
 import { NodeViewModel } from '@/docker/models/node';
@@ -27,12 +28,13 @@ export function MacvlanNodesSelector({
   value: Array<NodeViewModel>;
   onChange(value: Array<NodeViewModel>): void;
 }) {
+  const { t } = useTranslation();
   const columns = useColumns(isIpColumnVisible);
   const tableState = useTableState(store, tableKey);
 
   return (
     <Datatable<NodeViewModel>
-      title="Select the nodes where you want to deploy the local configuration"
+      title={t('docker.networks.selectNodes')}
       titleIcon={HardDrive}
       columns={columns}
       dataset={dataset || []}

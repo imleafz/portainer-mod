@@ -1,6 +1,7 @@
 import { Trash2, UserCheck } from 'lucide-react';
 import { useRouter } from '@uirouter/react';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
 import { Authorized } from '@/react/hooks/useUser';
@@ -31,10 +32,10 @@ import { useDeleteRolesMutation } from './queries/useDeleteRolesMutation';
 
 const storageKey = 'roles';
 interface TableSettings
-  extends KubeTableSettings,
-    FilteredColumnsTableSettings {}
+  extends KubeTableSettings, FilteredColumnsTableSettings {}
 
 export function RolesDatatable() {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const tableState = useKubeStore<TableSettings>(
     storageKey,
@@ -65,8 +66,8 @@ export function RolesDatatable() {
       columns={columns}
       settingsManager={tableState}
       isLoading={rolesQuery.isLoading || roleBindingsQuery.isLoading}
-      emptyContentLabel="No roles found"
-      title="Roles"
+      emptyContentLabel={t('kubernetes.roles.noRolesFound')}
+      title={t('kubernetes.roles.title')}
       titleIcon={UserCheck}
       getRowId={(row) => row.uid}
       isRowSelectable={(row) => !row.original.isSystem}
@@ -98,6 +99,7 @@ type TableActionsProps = {
 };
 
 function TableActions({ selectedItems }: TableActionsProps) {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const deleteRolesMutation = useDeleteRolesMutation(environmentId);
   const router = useRouter();
@@ -111,10 +113,10 @@ function TableActions({ selectedItems }: TableActionsProps) {
         onClick={() => handleRemoveClick(selectedItems)}
         icon={Trash2}
         isLoading={deleteRolesMutation.isLoading}
-        loadingText="Removing roles..."
+        loadingText={t('kubernetes.roles.removing')}
         data-cy="k8s-roles-removeRoleButton"
       >
-        Remove
+        {t('common.delete')}
       </LoadingButton>
 
       <CreateFromManifestButton
@@ -127,7 +129,7 @@ function TableActions({ selectedItems }: TableActionsProps) {
   async function handleRemoveClick(roles: SelectedRole[]) {
     const confirmed = await confirmDelete(
       <>
-        <p>Are you sure you want to delete the selected role(s)?</p>
+        <p>{t('kubernetes.roles.removeConfirm')}</p>
         <ul className="mt-2 max-h-96 list-inside overflow-hidden overflow-y-auto text-sm">
           {roles.map((s, index) => (
             <li key={index}>
@@ -152,14 +154,14 @@ function TableActions({ selectedItems }: TableActionsProps) {
       {
         onSuccess: () => {
           notifySuccess(
-            'Roles successfully removed',
+            t('kubernetes.roles.successfullyRemoved'),
             roles.map((r) => `${r.namespace}/${r.name}`).join(', ')
           );
           router.stateService.reload();
         },
         onError: (error) => {
           notifyError(
-            'Unable to delete roles',
+            t('kubernetes.roles.unableToDelete'),
             error as Error,
             roles.map((r) => `${r.namespace}/${r.name}`).join(', ')
           );

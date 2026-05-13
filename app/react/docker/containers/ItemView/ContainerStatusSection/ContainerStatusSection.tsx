@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import {
   EnvironmentId,
   EnvironmentType,
@@ -31,6 +33,7 @@ export function ContainerStatusSection({
   onSuccessUpdate,
   registryId,
 }: Props) {
+  const { t } = useTranslation();
   const environmentQuery = useEnvironment(environmentId);
   const isRunning = container.State?.Running || false;
   const isCreated = container.State?.Status === 'created';
@@ -40,11 +43,11 @@ export function ContainerStatusSection({
 
   return (
     <Widget>
-      <Widget.Title icon="box" title="Container status" />
+      <Widget.Title icon="box" title={t('docker.container.containerStatus')} />
       <WidgetBody className="no-padding">
         <DetailsTable dataCy="container-status-table">
-          <DetailsTable.Row label="ID">{container.Id}</DetailsTable.Row>
-          <DetailsTable.Row label="Name">
+          <DetailsTable.Row label={t('docker.container.id')}>{container.Id}</DetailsTable.Row>
+          <DetailsTable.Row label={t('docker.container.nameLabel')}>
             <NameRow
               containerId={container.Id || ''}
               containerName={container.Name || ''}
@@ -54,23 +57,23 @@ export function ContainerStatusSection({
             />
           </DetailsTable.Row>
           {!!container.NetworkSettings?.IPAddress && (
-            <DetailsTable.Row label="IP address">
+            <DetailsTable.Row label={t('docker.container.ipAddress')}>
               {container.NetworkSettings.IPAddress}
             </DetailsTable.Row>
           )}
-          <DetailsTable.Row label="Status">
+          <DetailsTable.Row label={t('docker.container.status')}>
             <StatusRow container={container} />
           </DetailsTable.Row>
-          <DetailsTable.Row label="Created">
+          <DetailsTable.Row label={t('docker.container.created')}>
             {isoDate(container.Created)}
           </DetailsTable.Row>
           {isRunning && (
-            <DetailsTable.Row label="Start time">
+            <DetailsTable.Row label={t('docker.container.startTime')}>
               {isoDate(container.State?.StartedAt)}
             </DetailsTable.Row>
           )}
           {!isRunning && !isCreated && (
-            <DetailsTable.Row label="Finished">
+            <DetailsTable.Row label={t('docker.container.finished')}>
               {isoDate(container.State?.FinishedAt)}
             </DetailsTable.Row>
           )}

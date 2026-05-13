@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { CellContext } from '@tanstack/react-table';
 import { useSref } from '@uirouter/react';
 
@@ -6,7 +7,11 @@ import type { ContainerListViewModel } from '@/react/docker/containers/types';
 import { columnHelper } from './helper';
 
 export const image = columnHelper.accessor('Image', {
-  header: 'Image',
+  header: () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { t } = useTranslation();
+    return t('docker.container.image');
+  },
   id: 'image',
   cell: ImageCell,
 });

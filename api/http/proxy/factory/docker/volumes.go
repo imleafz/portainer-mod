@@ -152,6 +152,16 @@ func (transport *Transport) decorateVolumeResourceCreationOperation(request *htt
 
 	if response.StatusCode == http.StatusCreated {
 		err = transport.decorateVolumeCreationResponse(response, resourceType, tokenData.ID)
+
+		if err == nil {
+			responseObject, _ := utils.GetResponseAsJSONObject(response)
+			if responseObject != nil {
+				if name, ok := responseObject["Name"].(string); ok {
+					resourceID, _ := transport.getVolumeResourceID(name)
+					transport.logDockerOperationAsync("volume_create", resourceID, name, nil, request)
+				}
+			}
+		}
 	}
 
 	return response, err
@@ -197,7 +207,11 @@ func (transport *Transport) restrictedVolumeOperation(requestPath string, reques
 	}
 
 	if request.Method == http.MethodDelete {
-		return transport.executeGenericResourceDeletionOperation(request, resourceID, volumeName, portainer.VolumeResourceControl)
+		response, err := transport.executeGenericResourceDeletionOperation(request, resourceID, volumeName, portainer.VolumeResourceControl)
+		if err == nil && (response.StatusCode == http.StatusNoContent || response.StatusCode == http.StatusOK) {
+			transport.logDockerOperationAsync("volume_delete", resourceID, volumeName, nil, request)
+		}
+		return response, err
 	}
 
 	return transport.restrictedResourceOperation(request, resourceID, volumeName, portainer.VolumeResourceControl, false)

@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useIsEnvironmentAdmin } from '@/react/hooks/useUser';
 import { useCurrentEnvironment } from '@/react/hooks/useCurrentEnvironment';
@@ -21,6 +22,7 @@ export function VolumesTab({
   errors?: ArrayError<Values>;
   allowAuto?: boolean;
 }) {
+  const { t } = useTranslation();
   const isEnvironmentAdminQuery = useIsEnvironmentAdmin({ adminOnlyCE: true });
   const envQuery = useCurrentEnvironment();
 
@@ -38,10 +40,10 @@ export function VolumesTab({
     <InputContext.Provider value={inputContext}>
       <InputList<Volume>
         errors={Array.isArray(errors) ? errors : []}
-        label="Volume mapping"
+        label={t('docker.container.volumeMapping')}
         onChange={(volumes) => handleChange(volumes)}
         value={values}
-        addLabel="map additional volume"
+        addLabel={t('docker.container.mapAdditionalVolume')}
         item={Item}
         itemBuilder={() => ({
           containerPath: '',

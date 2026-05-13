@@ -9,6 +9,7 @@ import { Widget } from '@@/Widget';
 import { LoadingButton } from '@@/buttons';
 import { FormControl } from '@@/form-components/FormControl';
 import { Input } from '@@/form-components/Input';
+import { SwitchField } from '@@/form-components/SwitchField';
 
 import { type Settings } from '../../types';
 
@@ -35,6 +36,7 @@ export function ApplicationSettingsPanel({
     logo: settings.LogoURL,
     snapshotInterval: settings.SnapshotInterval,
     templatesUrl: settings.TemplatesURL,
+    enableActivityLog: !!settings.EnableActivityLog,
   };
 
   return (
@@ -61,6 +63,7 @@ export function ApplicationSettingsPanel({
         CustomLoginBanner: values.loginBanner,
         TemplatesURL: values.templatesUrl,
         EdgeAgentCheckinInterval: values.edgeAgentCheckinInterval,
+        EnableActivityLog: values.enableActivityLog,
       },
       {
         onSuccess(settings) {
@@ -103,6 +106,22 @@ function InnerForm({ isLoading }: { isLoading: boolean }) {
       <ScreenBannerFieldset />
 
       <TemplatesUrlSection />
+
+      <FormControl
+        label="Enable activity logging"
+        inputId="enable-activity-log"
+        tooltip="When enabled, user activity logs will be recorded and available in the Logs section"
+      >
+        <div className="col-sm-9 col-lg-10">
+          <SwitchField
+            label="Enable activity logging"
+            name="enableActivityLog"
+            checked={values.enableActivityLog}
+            onChange={(value) => setFieldValue('enableActivityLog', value)}
+            data-cy="enableActivityLogSwitch"
+          />
+        </div>
+      </FormControl>
 
       <div className="form-group">
         <div className="col-sm-12">

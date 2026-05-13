@@ -102,7 +102,7 @@ func (handler *Handler) createSwarmStackFromFileContent(w http.ResponseWriter, r
 		return httpErr
 	}
 
-	return handler.decorateStackResponse(w, stack, userID)
+	return handler.decorateStackResponse(w, r, stack, userID)
 }
 
 type swarmStackFromGitRepositoryPayload struct {
@@ -246,7 +246,7 @@ func (handler *Handler) createSwarmStackFromGitRepository(w http.ResponseWriter,
 		return httpErr
 	}
 
-	return handler.decorateStackResponse(w, stack, userID)
+	return handler.decorateStackResponse(w, r, stack, userID)
 }
 
 type swarmStackFromFileUploadPayload struct {
@@ -347,5 +347,5 @@ func (handler *Handler) createSwarmStackFromFileUpload(w http.ResponseWriter, r 
 		return httpErr
 	}
 
-	return handler.decorateStackResponse(w, stack, userID)
+	return handler.decorateStackResponse(w, r, stack, userID)
 }

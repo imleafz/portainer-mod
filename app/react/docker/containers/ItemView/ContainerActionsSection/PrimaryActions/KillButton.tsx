@@ -1,4 +1,5 @@
 import { Bomb } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Authorized } from '@/react/hooks/useUser';
 import { EnvironmentId } from '@/react/portainer/environments/types';
@@ -26,6 +27,7 @@ export function KillButton({
   isPortainer,
   onSuccess = () => {},
 }: KillButtonProps) {
+  const { t } = useTranslation();
   const killMutation = useKillContainer();
 
   function handleKill() {
@@ -33,7 +35,7 @@ export function KillButton({
       { environmentId, containerId, nodeName },
       {
         onSuccess() {
-          notifySuccess('Success', 'Container successfully killed');
+          notifySuccess(t('common.success'), t('docker.container.containerKilled'));
           onSuccess();
         },
       }
@@ -48,11 +50,11 @@ export function KillButton({
         onClick={handleKill}
         disabled={!isRunning || isPortainer}
         isLoading={killMutation.isLoading}
-        loadingText="Killing..."
+        loadingText={t('docker.container.killing')}
         data-cy="kill-container-button"
         icon={Bomb}
       >
-        Kill
+        {t('docker.container.kill')}
       </LoadingButton>
     </Authorized>
   );

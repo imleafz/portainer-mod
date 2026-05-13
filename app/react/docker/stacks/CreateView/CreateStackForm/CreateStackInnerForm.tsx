@@ -1,4 +1,5 @@
 import { Form, useFormikContext } from 'formik';
+import { useTranslation } from 'react-i18next';
 
 import { AccessControlForm } from '@/react/portainer/access-control/AccessControlForm';
 import { NameField } from '@/react/docker/stacks/common/NameField';
@@ -38,6 +39,7 @@ export function CreateStackInnerForm({
   isSaved: boolean;
   webhookId: string;
 }) {
+  const { t } = useTranslation();
   const environmentQuery = useCurrentEnvironment();
   const schemaQuery = useDockerComposeSchema();
   const formikContext = useFormikContext<FormValues>();
@@ -59,7 +61,7 @@ export function CreateStackInnerForm({
       <NameField
         value={values.name}
         onChange={(name) => setFieldValue('name', name)}
-        placeholder="e.g. mystack"
+        placeholder={t('docker.stacks.nameFieldPlaceholder')}
         errors={errors.name}
       />
 
@@ -68,7 +70,7 @@ export function CreateStackInnerForm({
         composeSyntaxMaxVersion={composeSyntaxMaxVersion}
       />
 
-      <FormSection title="Build method">
+      <FormSection title={t('docker.stacks.buildMethod')}>
         <BoxSelector
           radioName="build-method"
           value={values.method}
@@ -123,15 +125,15 @@ export function CreateStackInnerForm({
         errors={errors.accessControl}
       />
 
-      <FormSection title="Actions">
+      <FormSection title={t('docker.stacks.options')}>
         <LoadingButton
-          loadingText="Deployment in progress..."
+          loadingText={t('docker.stacks.deploymentInProgress')}
           isLoading={isDeploying}
           disabled={!isValid}
           className="!ml-0"
           data-cy="create-stack-submit-btn"
         >
-          Deploy the stack
+          {t('docker.stacks.deployTheStack')}
         </LoadingButton>
       </FormSection>
     </Form>

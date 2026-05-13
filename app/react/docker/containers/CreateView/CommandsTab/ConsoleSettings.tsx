@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { mixed } from 'yup';
 import { ContainerConfig } from 'docker-types';
+import { useTranslation } from 'react-i18next';
 
 import { AutomationTestingProps } from '@/types';
 
@@ -19,14 +20,16 @@ export function ConsoleSettings({
   value: ConsoleSetting;
   onChange(value: ConsoleSetting): void;
 }) {
+  const { t } = useTranslation();
+
   return (
-    <FormControl label="Console" size="xsmall">
+    <FormControl label={t('docker.container.console')} size="xsmall">
       <Item
         value="both"
         onChange={handleChange}
         label={
           <>
-            Interactive & TTY <span className="small text-muted">(-i -t)</span>
+            {t('docker.container.interactiveTTY')} <span className="small text-muted">(-i -t)</span>
           </>
         }
         selected={value}
@@ -37,7 +40,7 @@ export function ConsoleSettings({
         onChange={handleChange}
         label={
           <>
-            Interactive <span className="small text-muted">(-i)</span>
+            {t('docker.container.interactive')} <span className="small text-muted">(-i)</span>
           </>
         }
         selected={value}
@@ -48,7 +51,7 @@ export function ConsoleSettings({
         onChange={handleChange}
         label={
           <>
-            TTY <span className="small text-muted">(-t)</span>
+            {t('docker.container.tty')} <span className="small text-muted">(-t)</span>
           </>
         }
         selected={value}
@@ -57,7 +60,7 @@ export function ConsoleSettings({
       <Item
         value="none"
         onChange={handleChange}
-        label={<>None</>}
+        label={<>{t('docker.container.none')}</>}
         selected={value}
         data-cy="container-console-none"
       />

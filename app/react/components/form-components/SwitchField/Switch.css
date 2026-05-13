@@ -35,7 +35,7 @@
   box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.5);
 }
 
-.switch :checked + i {
+.switch :checked + span.slider {
   padding-right: 0;
   padding-left: var(--switch-size);
   -webkit-box-shadow:
@@ -47,6 +47,16 @@
   box-shadow:
     inset 0 0 1px rgba(0, 0, 0, 0.5),
     inset 0 0 40px #337ab7;
+}
+
+.switch :disabled + span.slider {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.switch.limited span.slider {
+  opacity: 1;
+  cursor: not-allowed;
 }
 
 .switch :disabled + i {

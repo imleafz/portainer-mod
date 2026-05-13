@@ -1,5 +1,6 @@
 import { Form, Formik } from 'formik';
 import { SchemaOf, object, string } from 'yup';
+import { useTranslation } from 'react-i18next';
 
 import { useAuthorizations } from '@/react/hooks/useUser';
 import { useConnectContainerMutation } from '@/react/docker/networks/queries/useConnectContainerMutation';
@@ -24,6 +25,7 @@ export function ConnectNetworkForm({
   containerId: string;
   selectedNetworks: string[];
 }) {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const { authorized } = useAuthorizations('DockerNetworkConnect');
   const connectMutation = useConnectContainerMutation(environmentId);
@@ -40,7 +42,7 @@ export function ConnectNetworkForm({
       {({ values, errors, setFieldValue }) => (
         <Form className="form-horizontal w-full">
           <FormControl
-            label="Join a network"
+            label={t('docker.container.joinNetwork')}
             className="!mb-0"
             errors={errors.networkId}
           >
@@ -53,11 +55,11 @@ export function ConnectNetworkForm({
                 />
               </div>
               <LoadingButton
-                loadingText="Joining network..."
+                loadingText={t('docker.container.joiningNetwork')}
                 data-cy="connect-network-button"
                 isLoading={connectMutation.isLoading}
               >
-                Join Network
+                {t('docker.container.joinNetworkButton')}
               </LoadingButton>
             </div>
           </FormControl>
@@ -71,7 +73,7 @@ export function ConnectNetworkForm({
       { containerId, networkId, nodeName },
       {
         onSuccess() {
-          notifySuccess('Success', `Connected container to ${networkId}`);
+          notifySuccess('Success', t('docker.container.connectedToNetwork', { networkId }));
         },
       }
     );

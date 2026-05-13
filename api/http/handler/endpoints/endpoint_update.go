@@ -9,7 +9,10 @@ import (
 
 	portainer "github.com/portainer/portainer/api"
 	"github.com/portainer/portainer/api/dataservices"
+	activitylogds "github.com/portainer/portainer/api/dataservices/activitylog"
 	"github.com/portainer/portainer/api/http/client"
+	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	"github.com/portainer/portainer/api/internal/endpointutils"
 	"github.com/portainer/portainer/api/pendingactions/handlers"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
@@ -286,6 +289,32 @@ func (handler *Handler) endpointUpdate(w http.ResponseWriter, r *http.Request) *
 	if err := handler.SnapshotService.FillSnapshotData(endpoint, true); err != nil {
 		return httperror.InternalServerError("Unable to add snapshot data", err)
 	}
+
+	tokenData, _ := security.RetrieveTokenData(r)
+	operatorUsername := ""
+	operatorUserID := 0
+	if tokenData != nil {
+		operatorUserID = int(tokenData.ID)
+		operator, _ := handler.DataStore.User().Read(tokenData.ID)
+		if operator != nil {
+			operatorUsername = operator.Username
+		}
+	}
+
+	activitylog.NewActivityLogBuilder(
+		activitylogds.ActionUpdate,
+		activitylogds.ContextPortainer,
+		activitylogds.ResourceTypeEndpoint,
+	).
+		WithUser(operatorUserID, operatorUsername).
+		WithResource(strconv.Itoa(int(endpoint.ID)), endpoint.Name).
+		WithDetails(map[string]interface{}{
+			"description":  "更新环境成功",
+			"endpointName": endpoint.Name,
+			"endpointType": strconv.Itoa(int(endpoint.Type)),
+			"endpointURL":  endpoint.URL,
+		}).
+		Log()
 
 	return response.JSON(w, endpoint)
 }

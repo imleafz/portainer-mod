@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Edit } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { EnvironmentId } from '@/react/portainer/environments/types';
 import { ContainerId } from '@/react/docker/containers/types';
@@ -24,6 +25,7 @@ export function NameRow({
   nodeName?: string;
   onSuccess?(): void;
 }) {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
 
   function handleEdit() {
@@ -41,8 +43,8 @@ export function NameRow({
             className="!ml-1 !p-0 hover:no-underline"
             onClick={handleEdit}
             data-cy="container-edit-name-button"
-            title="Edit container name"
-            aria-label="Edit container name"
+            title={t('docker.container.editContainerName')}
+            aria-label={t('docker.container.editContainerName')}
           >
             <Icon icon={Edit} className="lucide" />
           </Button>

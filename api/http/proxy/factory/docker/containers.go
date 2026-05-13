@@ -248,6 +248,19 @@ func (transport *Transport) decorateContainerCreationOperation(request *http.Req
 
 	if response.StatusCode == http.StatusCreated {
 		err = transport.decorateGenericResourceCreationResponse(response, resourceIdentifierAttribute, resourceType, tokenData.ID)
+
+		if err == nil {
+			responseObject, _ := utils.GetResponseAsJSONObject(response)
+			if responseObject != nil {
+				if id, ok := responseObject[resourceIdentifierAttribute].(string); ok {
+					resourceName := id
+					if name, ok := responseObject["Name"].(string); ok {
+						resourceName = name
+					}
+					transport.logDockerOperationAsync("container_create", id, resourceName, nil, request)
+				}
+			}
+		}
 	}
 
 	return response, err

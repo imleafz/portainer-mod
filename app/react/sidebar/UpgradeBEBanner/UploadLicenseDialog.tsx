@@ -1,5 +1,6 @@
 import { Field, Form, Formik } from 'formik';
 import { object, SchemaOf, string } from 'yup';
+import { useTranslation } from 'react-i18next';
 
 import { useUpgradeEditionMutation } from '@/react/portainer/system/useUpgradeEditionMutation';
 import { notifySuccess } from '@/portainer/services/notifications';
@@ -29,6 +30,7 @@ export function UploadLicenseDialog({
   goToGetLicense: () => void;
   isGetLicenseSubmitted: boolean;
 }) {
+  const { t } = useTranslation();
   const upgradeMutation = useUpgradeEditionMutation();
 
   return (
@@ -37,7 +39,7 @@ export function UploadLicenseDialog({
       aria-label="Upgrade Portainer to Business Edition"
     >
       <Modal.Header
-        title={<h4 className="text-xl font-medium">Upgrade Portainer</h4>}
+        title={<h4 className="text-xl font-medium">{t('upgradeBE.uploadLicense.title')}</h4>}
       />
       <Formik
         initialValues={initialValues}
@@ -50,19 +52,18 @@ export function UploadLicenseDialog({
             <Modal.Body>
               {!isGetLicenseSubmitted ? (
                 <p className="font-semibold text-gray-7">
-                  Please enter your Portainer License below
+                  {t('upgradeBE.uploadLicense.enterLicense')}
                 </p>
               ) : (
                 <div className="mb-4">
-                  <Alert color="success" title="License successfully sent">
-                    Please check your email and copy your license into the field
-                    below to upgrade Portainer.
+                  <Alert color="success" title={t('upgradeBE.uploadLicense.licenseSent')}>
+                    {t('upgradeBE.uploadLicense.checkEmail')}
                   </Alert>
                 </div>
               )}
 
               <FormControl
-                label="License"
+                label={t('upgradeBE.uploadLicense.license')}
                 errors={errors.license}
                 required
                 size="vertical"
@@ -79,16 +80,16 @@ export function UploadLicenseDialog({
                   className="w-full"
                   onClick={goToGetLicense}
                 >
-                  Get a license
+                  {t('upgradeBE.uploadLicense.getLicense')}
                 </Button>
                 <LoadingButton
                   color="primary"
                   data-cy="start-upgrade-button"
                   size="medium"
-                  loadingText="Validating License"
+                  loadingText={t('upgradeBE.uploadLicense.validatingLicense')}
                   isLoading={upgradeMutation.isLoading}
                 >
-                  Start upgrade
+                  {t('upgradeBE.uploadLicense.startUpgrade')}
                 </LoadingButton>
               </div>
             </Modal.Footer>
@@ -101,7 +102,10 @@ export function UploadLicenseDialog({
   function handleSubmit(values: FormValues) {
     upgradeMutation.mutate(values, {
       onSuccess() {
-        notifySuccess('Starting upgrade', 'License validated successfully');
+        notifySuccess(
+          t('upgradeBE.uploadLicense.startingUpgrade'),
+          t('upgradeBE.uploadLicense.licenseValidated')
+        );
         goToLoading();
       },
     });

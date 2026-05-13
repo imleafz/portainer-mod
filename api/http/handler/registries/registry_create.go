@@ -4,10 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	portainer "github.com/portainer/portainer/api"
 	httperrors "github.com/portainer/portainer/api/http/errors"
 	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
 	"github.com/portainer/portainer/pkg/libhttp/request"
 	"github.com/portainer/portainer/pkg/libhttp/response"
@@ -141,6 +143,32 @@ func (handler *Handler) registryCreate(w http.ResponseWriter, r *http.Request) *
 	if err != nil {
 		return httperror.InternalServerError("Unable to persist the registry inside the database", err)
 	}
+
+	tokenData, _ := security.RetrieveTokenData(r)
+	operatorUsername := ""
+	operatorUserID := 0
+	if tokenData != nil {
+		operatorUserID = int(tokenData.ID)
+		operator, _ := handler.DataStore.User().Read(tokenData.ID)
+		if operator != nil {
+			operatorUsername = operator.Username
+		}
+	}
+
+	activitylog.NewActivityLogBuilder(
+		activitylog.ActionCreate,
+		activitylog.ContextPortainer,
+		activitylog.ResourceTypeRegistry,
+	).
+		WithUser(operatorUserID, operatorUsername).
+		WithResource(strconv.Itoa(int(registry.ID)), registry.Name).
+		WithDetails(map[string]interface{}{
+			"description":  "创建注册表成功",
+			"registryName": registry.Name,
+			"registryType": registry.Type,
+			"registryURL":  registry.URL,
+		}).
+		Log()
 
 	hideFields(registry, true)
 	return response.JSON(w, registry)

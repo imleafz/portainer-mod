@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { CellContext, Column } from '@tanstack/react-table';
 
 import { useIsEdgeAdmin } from '@/react/hooks/useUser';
@@ -16,21 +17,17 @@ import { DecoratedStack } from '../types';
 
 import { columnHelper } from './helper';
 
-const filterOptions = ['Active Stacks', 'Inactive Stacks'] as const;
-
-type FilterOption = (typeof filterOptions)[number];
-
 export const name = columnHelper.accessor('Name', {
-  header: 'Name',
+  header: () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { t } = useTranslation();
+    return t('docker.stacks.name');
+  },
   id: 'name',
   cell: NameCell,
   enableHiding: false,
   enableColumnFilter: true,
-  filterFn: (
-    { original: stack },
-    columnId,
-    filterValue: Array<FilterOption>
-  ) => {
+  filterFn: ({ original: stack }, columnId, filterValue: Array<string>) => {
     if (filterValue.length === 0) {
       return true;
     }
@@ -39,11 +36,14 @@ export const name = columnHelper.accessor('Name', {
       return true;
     }
 
+    const activeLabel = 'Active Stacks';
+    const inactiveLabel = 'Inactive Stacks';
+
     return (
       (stack.Status === StackStatus.Active &&
-        filterValue.includes('Active Stacks')) ||
+        filterValue.includes(activeLabel)) ||
       (stack.Status === StackStatus.Inactive &&
-        filterValue.includes('Inactive Stacks'))
+        filterValue.includes(inactiveLabel))
     );
   },
   meta: {
@@ -54,12 +54,13 @@ export const name = columnHelper.accessor('Name', {
 function NameCell({
   row: { original: item },
 }: CellContext<DecoratedStack, string>) {
+  const { t } = useTranslation();
   return (
     <>
       <NameLink item={item} />
       {isRegularStack(item) && item.Status === 2 && (
         <span className="label label-warning image-tag space-left ml-2">
-          Inactive
+          {t('docker.stacks.inactive')}
         </span>
       )}
     </>
@@ -121,12 +122,37 @@ function Filter<TData extends { Used: boolean }>({
   const valueAsArray = getValueAsArrayOfStrings(value);
 
   return (
-    <MultipleSelectionFilter
-      options={filterOptions}
+    <FilterContent
       filterKey={id}
       value={valueAsArray}
+      setFilterValue={setFilterValue}
+    />
+  );
+}
+
+function FilterContent({
+  filterKey,
+  value,
+  setFilterValue,
+}: {
+  filterKey: string;
+  value: string[];
+  setFilterValue: (value: string[] | null) => void;
+}) {
+  const { t } = useTranslation();
+
+  const filterOptions = [
+    t('docker.stacks.activeStacks'),
+    t('docker.stacks.inactiveStacks'),
+  ];
+
+  return (
+    <MultipleSelectionFilter
+      options={filterOptions}
+      filterKey={filterKey}
+      value={value}
       onChange={setFilterValue}
-      menuTitle="Filter by activity"
+      menuTitle={t('docker.stacks.filterByActivity')}
     />
   );
 }

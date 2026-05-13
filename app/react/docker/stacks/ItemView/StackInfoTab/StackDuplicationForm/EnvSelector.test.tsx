@@ -114,8 +114,15 @@ describe('EnvSelector', () => {
 });
 
 describe('getEnvironmentOptions', () => {
+  const translateFn = (key: string) => {
+    if (key === 'docker.stack.others') {
+      return 'Others';
+    }
+    return key;
+  };
+
   it('should return empty array when no data provided', () => {
-    expect(getEnvironmentOptions([], [])).toEqual([]);
+    expect(getEnvironmentOptions([], [], translateFn)).toEqual([]);
 
     expect(
       getEnvironmentOptions(
@@ -125,7 +132,8 @@ describe('getEnvironmentOptions', () => {
             Name: 'Group 1',
           } as EnvironmentGroup,
         ],
-        []
+        [],
+        translateFn
       )
     ).toEqual([]);
   });
@@ -139,7 +147,7 @@ describe('getEnvironmentOptions', () => {
       { Id: 2, Name: 'Env 2', GroupId: 1 } as Environment,
     ];
 
-    const result = getEnvironmentOptions(groups, environments, 1);
+    const result = getEnvironmentOptions(groups, environments, translateFn, 1);
 
     expect(result).toHaveLength(1);
     expect(result[0].options).toHaveLength(1);
@@ -157,7 +165,7 @@ describe('getEnvironmentOptions', () => {
       { Id: 3, Name: 'Env 3', GroupId: 2 } as Environment,
     ];
 
-    const result = getEnvironmentOptions(groups, environments);
+    const result = getEnvironmentOptions(groups, environments, translateFn);
 
     expect(result).toHaveLength(2);
     expect(result[0]).toEqual({
@@ -180,7 +188,7 @@ describe('getEnvironmentOptions', () => {
     ];
     const groups: EnvironmentGroup[] = [];
 
-    const result = getEnvironmentOptions(groups, environments);
+    const result = getEnvironmentOptions(groups, environments, translateFn);
     expect(result.length).toBe(1);
     expect(result[0].label).toBe('Others');
     expect(result[0].options).toEqual([

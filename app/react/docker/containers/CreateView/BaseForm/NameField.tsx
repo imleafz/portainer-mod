@@ -1,4 +1,5 @@
 import { string } from 'yup';
+import { useTranslation } from 'react-i18next';
 
 import { FormControl } from '@@/form-components/FormControl';
 import { Input } from '@@/form-components/Input';
@@ -12,15 +13,17 @@ export function NameField({
   error?: string;
   onChange: (value: string) => void;
 }) {
+  const { t } = useTranslation();
+
   return (
-    <FormControl label="Name" inputId="name-input" errors={error}>
+    <FormControl label={t('docker.container.name')} inputId="name-input" errors={error}>
       <Input
         id="name-input"
         value={value}
         onChange={(e) => {
           onChange(e.target.value);
         }}
-        placeholder="e.g. myContainer"
+        placeholder={t('docker.container.namePlaceholder')}
         data-cy="container-name-input"
       />
     </FormControl>

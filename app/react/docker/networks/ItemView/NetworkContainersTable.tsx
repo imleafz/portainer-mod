@@ -1,4 +1,5 @@
 import { Server, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Authorized } from '@/react/hooks/useUser';
 import { EnvironmentId } from '@/react/portainer/environments/types';
@@ -20,24 +21,25 @@ type Props = {
   networkId: NetworkId;
 };
 
-const tableHeaders = [
-  'Container Name',
-  'IPv4 Address',
-  'IPv6 Address',
-  'MacAddress',
-  'Actions',
-];
-
 export function NetworkContainersTable({
   networkContainers,
   nodeName,
   environmentId,
   networkId,
 }: Props) {
+  const { t } = useTranslation();
   const disconnectContainer = useDisconnectContainer({
     environmentId,
     networkId,
   });
+
+  const tableHeaders = [
+    t('docker.networks.containerName'),
+    t('docker.networks.ipv4Address'),
+    t('docker.networks.ipv6Address'),
+    t('docker.networks.macAddress'),
+    t('docker.networks.actions'),
+  ];
 
   if (networkContainers.length === 0) {
     return null;
@@ -45,7 +47,10 @@ export function NetworkContainersTable({
 
   return (
     <TableContainer>
-      <TableTitle label="Containers in network" icon={Server} />
+      <TableTitle
+        label={t('docker.networks.containersInNetwork')}
+        icon={Server}
+      />
       <DetailsTable
         headers={tableHeaders}
         dataCy="networkDetails-networkContainers"
@@ -84,7 +89,7 @@ export function NetworkContainersTable({
                         {
                           onSuccess: () =>
                             notifySuccess(
-                              'Container successfully disconnected',
+                              t('docker.networks.containerDisconnected'),
                               networkId
                             ),
                         }
@@ -93,7 +98,7 @@ export function NetworkContainersTable({
                   }}
                 >
                   <Icon icon={Trash2} class-name="icon-secondary icon-md" />
-                  Leave Network
+                  {t('docker.networks.leaveNetwork')}
                 </Button>
               </Authorized>
             </td>

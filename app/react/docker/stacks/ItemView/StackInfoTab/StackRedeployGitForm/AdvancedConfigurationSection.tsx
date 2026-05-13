@@ -1,6 +1,7 @@
 import { MinusIcon, PlusIcon } from 'lucide-react';
 import { useReducer } from 'react';
 import { useFormikContext } from 'formik';
+import { useTranslation } from 'react-i18next';
 
 import { Stack } from '@/react/common/stacks/types';
 import { AuthFieldset } from '@/react/portainer/gitops/AuthFieldset';
@@ -20,6 +21,7 @@ interface Props {
 }
 
 export function AdvancedConfigurationSection({ stack }: Props) {
+  const { t } = useTranslation();
   const { values, setFieldValue, errors, initialValues } =
     useFormikContext<FormValues>();
   const [isAdvancedMode, toggleAdvancedMode] = useReducer(
@@ -65,7 +67,9 @@ export function AdvancedConfigurationSection({ stack }: Props) {
               icon={isAdvancedMode ? MinusIcon : PlusIcon}
               className="mr-1"
             />
-            {isAdvancedMode ? 'Hide' : 'Advanced'} configuration
+            {isAdvancedMode
+              ? t('docker.stacks.hideConfiguration')
+              : t('docker.stacks.advancedConfiguration')}
           </Button>
         </div>
       </div>

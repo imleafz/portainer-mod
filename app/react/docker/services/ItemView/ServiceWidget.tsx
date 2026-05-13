@@ -1,5 +1,6 @@
 import { Plus, ChevronDown } from 'lucide-react';
 import { ComponentProps, PropsWithChildren } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Menu, MenuButton, MenuItem, MenuPopover } from '@reach/menu-button';
 import { positionRight } from '@reach/popover';
 
@@ -32,6 +33,8 @@ export function ServiceWidget({
   labelForAddButton: string;
   isValid?: boolean;
 }>) {
+  const { t } = useTranslation();
+
   return (
     <Widget aria-label={title}>
       <Widget.Title icon={titleIcon} title={title}>
@@ -59,7 +62,7 @@ export function ServiceWidget({
               disabled={!hasChanges || !isValid}
               data-cy="service-apply-changes-button"
             >
-              Apply changes
+              {t('docker.services.applyChanges')}
             </Button>
 
             <Menu>
@@ -74,9 +77,11 @@ export function ServiceWidget({
               </MenuButton>
               <MenuPopover position={positionRight}>
                 <div className="mt-3 bg-white th-highcontrast:bg-black th-dark:bg-black">
-                  <MenuItem onSelect={() => onReset()}>Reset changes</MenuItem>
+                  <MenuItem onSelect={() => onReset()}>
+                    {t('docker.services.resetChanges')}
+                  </MenuItem>
                   <MenuItem onSelect={() => onReset(true)}>
-                    Reset all changes
+                    {t('docker.services.resetAllChanges')}
                   </MenuItem>
                 </div>
               </MenuPopover>

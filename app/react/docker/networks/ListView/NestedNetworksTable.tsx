@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
 
 import { NestedDatatable } from '@@/datatables/NestedDatatable';
@@ -12,6 +14,7 @@ export function NestedNetworksDatatable({
 }: {
   dataset: Array<DecoratedNetwork>;
 }) {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const isSwarm = useIsSwarm(environmentId);
 
@@ -20,7 +23,7 @@ export function NestedNetworksDatatable({
     <NestedDatatable
       columns={columns}
       dataset={dataset}
-      aria-label="Networks table"
+      aria-label={t('docker.networks.table')}
       data-cy="docker-networks-nested-datatable"
     />
   );

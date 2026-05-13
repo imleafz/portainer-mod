@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import { DownloadCloud } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { useUIState } from '@/react/hooks/useUIState';
 import { useSystemVersion } from '@/react/portainer/system/useSystemVersion';
@@ -9,6 +10,7 @@ import { Icon } from '@@/Icon';
 import styles from './UpdateNotifications.module.css';
 
 export function UpdateNotification() {
+  const { t } = useTranslation();
   const uiStateStore = useUIState();
   const query = useSystemVersion();
 
@@ -38,7 +40,7 @@ export function UpdateNotification() {
       <div className={clsx(styles.dismissTitle, 'vertical-center')}>
         <Icon icon={DownloadCloud} mode="primary" size="md" />
         <span className="space-left">
-          New version available {LatestVersion}
+          {t('footer.newVersionAvailable', { version: LatestVersion })}
         </span>
       </div>
 
@@ -48,7 +50,7 @@ export function UpdateNotification() {
           className={clsx(styles.dismissBtn, 'space-right')}
           onClick={() => onDismiss(LatestVersion)}
         >
-          Dismiss
+          {t('footer.dismiss')}
         </button>
         <a
           className="hyperlink space-left"
@@ -56,7 +58,7 @@ export function UpdateNotification() {
           href={`https://github.com/portainer/portainer/releases/tag/${LatestVersion}`}
           rel="noreferrer"
         >
-          See what&apos;s new
+          {t('footer.seeWhatsNew')}
         </a>
       </div>
     </div>

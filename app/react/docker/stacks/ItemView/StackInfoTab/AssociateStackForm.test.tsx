@@ -48,7 +48,7 @@ afterEach(() => {
 it('should render correctly', () => {
   renderComponent();
 
-  expect(screen.getByText('Associate to this environment')).toBeVisible();
+  expect(screen.getByText('Associate to environment')).toBeVisible();
   expect(
     screen.getByText(/This feature allows you to re-associate this stack/i)
   ).toBeVisible();
@@ -116,7 +116,7 @@ describe('form submission', () => {
     await user.click(associateButton);
 
     // Check for loading text
-    expect(screen.getByText(/association in progress/i)).toBeVisible();
+    expect(screen.getByText(/Associating\.\.\./i)).toBeVisible();
 
     // Wait for API call
     await waitFor(

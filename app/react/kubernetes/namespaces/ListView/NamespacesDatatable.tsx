@@ -1,5 +1,6 @@
 import { Layers } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 
 import { Authorized, useAuthorizations } from '@/react/hooks/useUser';
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
@@ -28,6 +29,7 @@ import { queryKeys } from '../queries/queryKeys';
 import { useColumns } from './columns/useColumns';
 
 export function NamespacesDatatable() {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
 
   const tableState = useTableStateWithStorage<TableSettings>(
@@ -63,7 +65,7 @@ export function NamespacesDatatable() {
       columns={columns}
       settingsManager={tableState}
       isLoading={namespacesQuery.isLoading}
-      title="Namespaces"
+      title={t('kubernetes.namespace.namespaces')}
       titleIcon={Layers}
       getRowId={(item) => item.Id}
       disableSelect={!hasWriteAuthQuery.authorized}
@@ -97,6 +99,7 @@ function TableActions({
   selectedItems: PortainerNamespace[];
   namespaces?: PortainerNamespace[];
 }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const environmentId = useEnvironmentId();
   const deleteNamespacesMutation = useDeleteNamespaces(environmentId);
@@ -106,8 +109,10 @@ function TableActions({
     (ns) => ns.Status.phase === 'Terminating'
   );
   const message = includesTerminatingNamespace
-    ? 'At least one namespace is in a terminating state. For terminating state namespaces, you may continue and force removal, but doing so without having properly cleaned up may lead to unstable and unpredictable behavior. Are you sure you wish to proceed?'
-    : `Do you want to remove the selected ${selectedNamespacePlural}? All the resources associated to the selected ${selectedNamespacePlural} will be removed too. Are you sure you wish to proceed?`;
+    ? t('kubernetes.namespace.removeConfirmTerminating')
+    : t('kubernetes.namespace.removeConfirm', {
+        item: selectedNamespacePlural,
+      });
 
   return (
     <Authorized authorizations="K8sResourcePoolDetailsW" adminOnlyCE>
@@ -119,7 +124,7 @@ function TableActions({
       />
 
       <AddButton color="secondary" data-cy="add-namespace-form-button">
-        Add with form
+        {t('kubernetes.namespace.addWithForm')}
       </AddButton>
 
       <CreateFromManifestButton data-cy="k8s-namespaces-deploy-button" />
@@ -150,20 +155,24 @@ function TableActions({
           // notify user of success and errors
           if (errors.length > 0) {
             notifyError(
-              'Error',
+              t('errors.error'),
               new Error(
-                `Failed to delete ${erroredNamespacePlural}: ${errors
-                  .map((err) => `${err.namespaceName}: ${err.error}`)
-                  .join(', ')}`
+                t('kubernetes.namespace.failedToDelete', {
+                  item: erroredNamespacePlural,
+                  errors: errors
+                    .map((err) => `${err.namespaceName}: ${err.error}`)
+                    .join(', '),
+                })
               )
             );
           }
           if (deletedNamespaces.length > 0) {
             notifySuccess(
-              'Success',
-              `Successfully deleted ${deletedNamespacePlural}: ${deletedNamespaces.join(
-                ', '
-              )}`
+              t('success.success'),
+              t('kubernetes.namespace.successfullyDeleted', {
+                item: deletedNamespacePlural,
+                names: deletedNamespaces.join(', '),
+              })
             );
           }
 

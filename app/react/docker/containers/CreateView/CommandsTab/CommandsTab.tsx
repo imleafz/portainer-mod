@@ -1,4 +1,5 @@
 import { FormikErrors } from 'formik';
+import { useTranslation } from 'react-i18next';
 
 import { FormControl } from '@@/form-components/FormControl';
 import { Input } from '@@/form-components/Input';
@@ -19,10 +20,12 @@ export function CommandsTab({
   setFieldValue: (field: string, value: unknown) => void;
   errors?: FormikErrors<Values>;
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="mt-3">
       <FormControl
-        label="Command"
+        label={t('docker.container.command')}
         inputId="command-input"
         size="xsmall"
         errors={errors?.cmd}
@@ -31,28 +34,28 @@ export function CommandsTab({
           value={values.cmd}
           onChange={(cmd) => setFieldValue('cmd', cmd)}
           id="command-input"
-          placeholder="e.g. '-logtostderr' '--housekeeping_interval=5s' or /usr/bin/nginx -t -c /mynginx.conf"
+          placeholder={t('docker.container.commandPlaceholder')}
         />
       </FormControl>
 
       <FormControl
-        label="Entrypoint"
+        label={t('docker.container.entrypoint')}
         inputId="entrypoint-input"
         size="xsmall"
-        tooltip="When container entrypoint is entered as part of the Command field, set Entrypoint to Override mode and leave blank, else it will revert to default."
+        tooltip={t('docker.container.entrypointTooltip')}
         errors={errors?.entrypoint}
       >
         <OverridableInput
           value={values.entrypoint}
           onChange={(entrypoint) => setFieldValue('entrypoint', entrypoint)}
           id="entrypoint-input"
-          placeholder="e.g. /bin/sh -c"
+          placeholder={t('docker.container.entrypointPlaceholder')}
         />
       </FormControl>
 
       <div className="flex justify-between gap-4">
         <FormControl
-          label="Working Dir"
+          label={t('docker.container.workingDir')}
           inputId="working-dir-input"
           className="w-1/2"
           errors={errors?.workingDir}
@@ -60,12 +63,12 @@ export function CommandsTab({
           <Input
             value={values.workingDir}
             onChange={(e) => setFieldValue('workingDir', e.target.value)}
-            placeholder="e.g. /myapp"
+            placeholder={t('docker.container.workingDirPlaceholder')}
             data-cy="working-dir-input"
           />
         </FormControl>
         <FormControl
-          label="User"
+          label={t('docker.container.user')}
           inputId="user-input"
           className="w-1/2"
           errors={errors?.user}
@@ -73,7 +76,7 @@ export function CommandsTab({
           <Input
             value={values.user}
             onChange={(e) => setFieldValue('user', e.target.value)}
-            placeholder="e.g. nginx"
+            placeholder={t('docker.container.userPlaceholder')}
             data-cy="user-input"
           />
         </FormControl>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Network } from 'lucide-react';
 
 import { TableContainer, TableTitle } from '@@/datatables';
@@ -10,6 +11,7 @@ type Props = {
 };
 
 export function NetworkOptionsTable({ options }: Props) {
+  const { t } = useTranslation();
   const networkEntries = Object.entries(options);
 
   if (networkEntries.length === 0) {
@@ -18,7 +20,7 @@ export function NetworkOptionsTable({ options }: Props) {
 
   return (
     <TableContainer>
-      <TableTitle label="Network options" icon={Network} />
+      <TableTitle label={t('docker.networks.networkOptions')} icon={Network} />
       <DetailsTable dataCy="networkDetails-networkOptionsTable">
         {networkEntries.map(([key, value]) => (
           <DetailsTable.Row key={key} label={key}>

@@ -2,9 +2,16 @@ import { DeviceRequest } from 'docker-types/generated/1.44';
 
 import { computeDockerGPUCommand } from './GpuRow';
 
+const mockTranslate = (key: string) => {
+  const translations: Record<string, string> = {
+    'docker.container.noGpuConfigFound': 'No GPU config found',
+  };
+  return translations[key] || key;
+};
+
 describe('computeDockerGPUCommand', () => {
   it('should return "No GPU config found" when deviceRequests is empty', () => {
-    const result = computeDockerGPUCommand([]);
+    const result = computeDockerGPUCommand([], mockTranslate);
     expect(result).toBe('No GPU config found');
   });
 
@@ -18,7 +25,7 @@ describe('computeDockerGPUCommand', () => {
         Options: {},
       },
     ];
-    const result = computeDockerGPUCommand(deviceRequests);
+    const result = computeDockerGPUCommand(deviceRequests, mockTranslate);
     expect(result).toBe('No GPU config found');
   });
 
@@ -32,7 +39,7 @@ describe('computeDockerGPUCommand', () => {
         Options: {},
       },
     ];
-    const result = computeDockerGPUCommand(deviceRequests);
+    const result = computeDockerGPUCommand(deviceRequests, mockTranslate);
     expect(result).toBe('all,"capabilities=gpu,utility"');
   });
 
@@ -46,7 +53,7 @@ describe('computeDockerGPUCommand', () => {
         Options: {},
       },
     ];
-    const result = computeDockerGPUCommand(deviceRequests);
+    const result = computeDockerGPUCommand(deviceRequests, mockTranslate);
     expect(result).toBe('"device=0,1","capabilities=gpu,compute"');
   });
 
@@ -60,7 +67,7 @@ describe('computeDockerGPUCommand', () => {
         Options: {},
       },
     ];
-    const result = computeDockerGPUCommand(deviceRequests);
+    const result = computeDockerGPUCommand(deviceRequests, mockTranslate);
     expect(result).toBe('all,"capabilities=gpu"');
   });
 
@@ -74,7 +81,7 @@ describe('computeDockerGPUCommand', () => {
         Options: {},
       },
     ];
-    const result = computeDockerGPUCommand(deviceRequests);
+    const result = computeDockerGPUCommand(deviceRequests, mockTranslate);
     expect(result).toBe('all,');
   });
 
@@ -88,7 +95,7 @@ describe('computeDockerGPUCommand', () => {
         Options: {},
       },
     ];
-    const result = computeDockerGPUCommand(deviceRequests);
+    const result = computeDockerGPUCommand(deviceRequests, mockTranslate);
     expect(result).toBe(
       '"device=GPU-0,GPU-1,GPU-2","capabilities=gpu,utility,compute"'
     );
@@ -111,7 +118,7 @@ describe('computeDockerGPUCommand', () => {
         Options: {},
       },
     ];
-    const result = computeDockerGPUCommand(deviceRequests);
+    const result = computeDockerGPUCommand(deviceRequests, mockTranslate);
     expect(result).toBe('all,"capabilities=gpu"');
   });
 
@@ -125,7 +132,7 @@ describe('computeDockerGPUCommand', () => {
         Options: {},
       },
     ];
-    const result = computeDockerGPUCommand(deviceRequests);
+    const result = computeDockerGPUCommand(deviceRequests, mockTranslate);
     expect(result).toBe('all,"capabilities="');
   });
 });

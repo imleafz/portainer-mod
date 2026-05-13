@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ArrowRight } from 'lucide-react';
 import { PortMap } from 'docker-types/generated/1.44';
 
@@ -8,6 +9,7 @@ interface PortConfigurationRowProps {
 }
 
 export function PortConfigurationRow({ ports }: PortConfigurationRowProps) {
+  const { t } = useTranslation();
   const bindings = transformPortBindings(ports);
 
   if (bindings.length === 0) {
@@ -15,7 +17,7 @@ export function PortConfigurationRow({ ports }: PortConfigurationRowProps) {
   }
 
   return (
-    <DetailsTable.Row label="Port configuration">
+    <DetailsTable.Row label={t('docker.container.portConfiguration')}>
       {bindings.map((binding, index) => (
         <div key={index} className="flex items-center gap-2">
           {binding.host} <ArrowRight size={13} />

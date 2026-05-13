@@ -1,6 +1,7 @@
 import { Formik, Form } from 'formik';
 import { X, CheckSquare } from 'lucide-react';
 import { useRouter } from '@uirouter/react';
+import { useTranslation } from 'react-i18next';
 
 import { ServiceViewModel } from '@/docker/models/service';
 import { useUpdateServiceMutation } from '@/react/docker/services/queries/useUpdateServiceMutation';
@@ -17,6 +18,7 @@ export function ScaleForm({
   onClose: () => void;
   service: ServiceViewModel;
 }) {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const mutation = useUpdateServiceMutation(environmentId);
   const router = useRouter();
@@ -59,7 +61,7 @@ export function ScaleForm({
               values.replicas < 0 ||
               Number.isNaN(values.replicas)
             }
-            loadingText="Scaling..."
+            loadingText={t('docker.services.scaling')}
             color="none"
             icon={CheckSquare}
             type="submit"
@@ -91,8 +93,8 @@ export function ScaleForm({
         onSuccess() {
           onClose();
           notifySuccess(
-            'Service successfully scaled',
-            `New replica count: ${replicas}`
+            t('docker.services.scaleSuccess'),
+            t('docker.services.scaleSuccessMessage', { replicas })
           );
           router.stateService.reload();
         },

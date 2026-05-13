@@ -8,6 +8,7 @@ import (
 	portainer "github.com/portainer/portainer/api"
 	httperrors "github.com/portainer/portainer/api/http/errors"
 	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	"github.com/portainer/portainer/api/internal/authorization"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
 	"github.com/portainer/portainer/pkg/libhttp/request"
@@ -74,12 +75,8 @@ func (handler *Handler) authenticate(rw http.ResponseWriter, r *http.Request) *h
 		if settings.AuthenticationMethod == portainer.AuthenticationInternal ||
 			settings.AuthenticationMethod == portainer.AuthenticationOAuth ||
 			(settings.AuthenticationMethod == portainer.AuthenticationLDAP && !settings.LDAPSettings.AutoCreateUsers) {
-			// avoid username enumeration timing attack by creating a fake user
-			// https://en.wikipedia.org/wiki/Timing_attack
-			user = &portainer.User{
-				Username: "portainer-fake-username",
-				Password: "$2a$10$abcdefghijklmnopqrstuvwx..ABCDEFGHIJKLMNOPQRSTUVWXYZ12", // fake but valid format bcrypt hash
-			}
+			activitylog.LogAuthFailure(payload.Username, int(settings.AuthenticationMethod), r.RemoteAddr)
+			return httperror.NewError(http.StatusUnprocessableEntity, "Invalid credentials", httperrors.ErrUnauthorized)
 		}
 	}
 
@@ -89,7 +86,7 @@ func (handler *Handler) authenticate(rw http.ResponseWriter, r *http.Request) *h
 	}
 
 	if user != nil && isUserInitialAdmin(user) || settings.AuthenticationMethod == portainer.AuthenticationInternal {
-		return handler.authenticateInternal(rw, user, payload.Password)
+		return handler.authenticateInternal(rw, user, payload.Password, settings.AuthenticationMethod, r.RemoteAddr)
 	}
 
 	if settings.AuthenticationMethod == portainer.AuthenticationOAuth {
@@ -97,7 +94,7 @@ func (handler *Handler) authenticate(rw http.ResponseWriter, r *http.Request) *h
 	}
 
 	if settings.AuthenticationMethod == portainer.AuthenticationLDAP {
-		return handler.authenticateLDAP(rw, user, payload.Username, payload.Password, &settings.LDAPSettings)
+		return handler.authenticateLDAP(rw, user, payload.Username, payload.Password, &settings.LDAPSettings, r.RemoteAddr)
 	}
 
 	return httperror.NewError(http.StatusUnprocessableEntity, "Login method is not supported", httperrors.ErrUnauthorized)
@@ -107,19 +104,23 @@ func isUserInitialAdmin(user *portainer.User) bool {
 	return int(user.ID) == 1
 }
 
-func (handler *Handler) authenticateInternal(w http.ResponseWriter, user *portainer.User, password string) *httperror.HandlerError {
+func (handler *Handler) authenticateInternal(w http.ResponseWriter, user *portainer.User, password string, authMethod portainer.AuthenticationMethod, origin string) *httperror.HandlerError {
 	if err := handler.CryptoService.CompareHashAndData(user.Password, password); err != nil {
+		activitylog.LogAuthFailure(user.Username, int(authMethod), origin)
 		return httperror.NewError(http.StatusUnprocessableEntity, "Invalid credentials", httperrors.ErrUnauthorized)
 	}
 
 	forceChangePassword := !handler.passwordStrengthChecker.Check(password)
 
+	activitylog.LogAuthSuccess(user.Username, int(authMethod), origin)
+
 	return handler.writeToken(w, user, forceChangePassword)
 }
 
-func (handler *Handler) authenticateLDAP(w http.ResponseWriter, user *portainer.User, username, password string, ldapSettings *portainer.LDAPSettings) *httperror.HandlerError {
+func (handler *Handler) authenticateLDAP(w http.ResponseWriter, user *portainer.User, username, password string, ldapSettings *portainer.LDAPSettings, origin string) *httperror.HandlerError {
 	if err := handler.LDAPService.AuthenticateUser(username, password, ldapSettings); err != nil {
 		if errors.Is(err, httperrors.ErrUnauthorized) {
+			activitylog.LogAuthFailure(username, int(portainer.AuthenticationLDAP), origin)
 			return httperror.NewError(http.StatusUnprocessableEntity, "Invalid credentials", httperrors.ErrUnauthorized)
 		}
 
@@ -141,6 +142,8 @@ func (handler *Handler) authenticateLDAP(w http.ResponseWriter, user *portainer.
 	if err := handler.syncUserTeamsWithLDAPGroups(user, ldapSettings); err != nil {
 		log.Warn().Err(err).Msg("unable to automatically sync user teams with ldap")
 	}
+
+	activitylog.LogAuthSuccess(username, int(portainer.AuthenticationLDAP), origin)
 
 	return handler.writeToken(w, user, false)
 }

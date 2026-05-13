@@ -1,6 +1,7 @@
 import { array, boolean, object, SchemaOf, string } from 'yup';
 import { FormikErrors } from 'formik';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { ComposePathField } from '@/react/portainer/gitops/ComposePathField';
 import { RefField } from '@/react/portainer/gitops/RefField';
@@ -53,10 +54,11 @@ export function GitForm({
   createdFromCustomTemplateId,
   isAutoUpdateVisible = true,
 }: Props) {
+  const { t } = useTranslation();
   const [value, setValue] = useState(initialValue); // TODO: remove this state when form is not inside angularjs
 
   return (
-    <FormSection title="Git repository">
+    <FormSection title={t('git.title')}>
       <AuthFieldset
         value={value}
         onChange={handleChange}
@@ -78,12 +80,12 @@ export function GitForm({
       <div className="form-group">
         <div className="col-sm-12">
           <SwitchField
-            label="Skip TLS Verification"
+            label={t('git.skipTlsVerification')}
             data-cy="gitops-skip-tls-verification-switch"
             checked={value.TLSSkipVerify || false}
             onChange={(value) => handleChange({ TLSSkipVerify: value })}
             name="TLSSkipVerify"
-            tooltip="Enabling this will allow skipping TLS validation for any self-signed certificate."
+            tooltip={t('git.skipTlsVerificationTooltip')}
             labelClass="col-sm-3 col-lg-2"
           />
         </div>

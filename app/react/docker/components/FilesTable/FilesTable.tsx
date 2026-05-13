@@ -1,5 +1,6 @@
 import { CornerLeftUp, File as FileIcon, Upload } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Authorized } from '@/react/hooks/useUser';
 
@@ -29,7 +30,7 @@ interface Props {
   onFileSelectedForUpload: (file: File) => void;
 }
 
-function goToParent(onClick: () => void): FileData {
+function goToParent(onClick: () => void, t: ReturnType<typeof useTranslation>): FileData {
   return {
     custom: (
       <Button
@@ -39,7 +40,7 @@ function goToParent(onClick: () => void): FileData {
         className="!m-0 !p-0"
         data-cy="component-goToParentButton"
       >
-        Go to parent
+        {t('docker.goToParent')}
       </Button>
     ),
     Dir: true,
@@ -62,6 +63,7 @@ export function FilesTable({
   isUploadAllowed,
   onFileSelectedForUpload,
 }: Props) {
+  const { t } = useTranslation();
   const [isEditState, setIsEditState] = useState(
     Object.fromEntries(dataset.map((f) => [f.Name, false]))
   );
@@ -78,7 +80,7 @@ export function FilesTable({
     <Datatable<FileData>
       title={title}
       titleIcon={FileIcon}
-      dataset={isRoot ? dataset : [goToParent(onGoToParent), ...dataset]}
+      dataset={isRoot ? dataset : [goToParent(onGoToParent, t), ...dataset]}
       settingsManager={tableState}
       columns={columns}
       getRowId={(row) => row.Name}

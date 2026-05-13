@@ -9,6 +9,8 @@ import (
 	portainer "github.com/portainer/portainer/api"
 	"github.com/portainer/portainer/api/dataservices"
 	"github.com/portainer/portainer/api/filesystem"
+	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	"github.com/portainer/portainer/api/internal/edge"
 	"github.com/portainer/portainer/pkg/libhelm"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
@@ -53,6 +55,8 @@ type settingsUpdatePayload struct {
 	EnforceEdgeID *bool `example:"false"`
 	// EdgePortainerURL is the URL that is exposed to edge agents
 	EdgePortainerURL *string `json:"EdgePortainerURL"`
+	// Whether activity logging is enabled
+	EnableActivityLog *bool `json:"EnableActivityLog"`
 }
 
 func (payload *settingsUpdatePayload) Validate(r *http.Request) error {
@@ -120,6 +124,17 @@ func (handler *Handler) settingsUpdate(w http.ResponseWriter, r *http.Request) *
 		return httperror.BadRequest("Invalid request payload", err)
 	}
 
+	tokenData, _ := security.RetrieveTokenData(r)
+	operatorUsername := ""
+	operatorUserID := 0
+	if tokenData != nil {
+		operatorUserID = int(tokenData.ID)
+		operator, err := handler.DataStore.User().Read(tokenData.ID)
+		if err == nil {
+			operatorUsername = operator.Username
+		}
+	}
+
 	var settings *portainer.Settings
 	if err = handler.DataStore.UpdateTx(func(tx dataservices.DataStoreTx) error {
 		settings, err = handler.updateSettings(tx, payload)
@@ -130,6 +145,19 @@ func (handler *Handler) settingsUpdate(w http.ResponseWriter, r *http.Request) *
 	}
 
 	hideFields(settings)
+
+	activitylog.NewActivityLogBuilder(
+		activitylog.ActionUpdate,
+		activitylog.ContextPortainer,
+		activitylog.ResourceTypeSettings,
+	).
+		WithUser(operatorUserID, operatorUsername).
+		WithResource("0", "application-settings").
+		WithDetails(map[string]interface{}{
+			"enableActivityLog": settings.EnableActivityLog,
+		}).
+		Log()
+
 	return response.JSON(w, settings)
 }
 
@@ -226,9 +254,13 @@ func (handler *Handler) updateSettings(tx dataservices.DataStoreTx, payload sett
 
 	settings.KubectlShellImage = *cmp.Or(payload.KubectlShellImage, &settings.KubectlShellImage)
 
+	settings.EnableActivityLog = *cmp.Or(payload.EnableActivityLog, &settings.EnableActivityLog)
+
 	if err := tx.Settings().UpdateSettings(settings); err != nil {
 		return nil, httperror.InternalServerError("Unable to persist settings changes inside the database", err)
 	}
+
+	activitylog.SetEnabledGlobal(settings.EnableActivityLog)
 
 	return settings, nil
 }

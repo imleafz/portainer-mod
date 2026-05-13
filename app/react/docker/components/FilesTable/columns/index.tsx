@@ -3,6 +3,7 @@ import {
   ColumnDef,
   ColumnDefTemplate,
 } from '@tanstack/react-table';
+import { useTranslation } from 'react-i18next';
 
 import { humanize, isoDateFromTimestamp } from '@/portainer/filters/filters';
 
@@ -14,19 +15,39 @@ import { ActionsCell } from './ActionsCell';
 
 export const columns = [
   columnHelper.accessor('Name', {
-    header: 'Name',
+    id: 'name',
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation();
+      return t('docker.files.name');
+    },
     cell: NameCell,
   }),
   columnHelper.accessor('Size', {
-    header: 'Size',
+    id: 'size',
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation();
+      return t('docker.files.size');
+    },
     cell: hideIfCustom(({ getValue }) => humanize(getValue())),
   }),
   columnHelper.accessor('ModTime', {
-    header: 'Last modification',
+    id: 'lastModification',
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation();
+      return t('docker.files.lastModification');
+    },
     cell: hideIfCustom(({ getValue }) => isoDateFromTimestamp(getValue())),
   }),
   columnHelper.display({
-    header: 'Actions',
+    id: 'actions',
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation();
+      return t('docker.files.actions');
+    },
     cell: hideIfCustom(ActionsCell),
   }),
   columnHelper.accessor('Dir', {}), // workaround, to enable sorting by Dir (put directory first)

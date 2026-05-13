@@ -1,6 +1,7 @@
 import { Formik } from 'formik';
 import { Copy } from 'lucide-react';
 import { useRouter } from '@uirouter/react';
+import { useTranslation } from 'react-i18next';
 
 import { notifyError, notifySuccess } from '@/portainer/services/notifications';
 import { Stack } from '@/react/common/stacks/types';
@@ -38,6 +39,7 @@ export function StackDuplicationForm({
   currentEnvironmentId,
   stack,
 }: StackDuplicationFormProps) {
+  const { t } = useTranslation();
   const router = useRouter();
   const duplicateMutation = useDuplicateStackMutation();
   const migrateMutation = useMigrateStackMutation();
@@ -49,7 +51,7 @@ export function StackDuplicationForm({
 
   return (
     <Widget>
-      <WidgetTitle title="Stack duplication / migration" icon={Copy} />
+      <WidgetTitle title={t('docker.stacks.duplicateOrMigrate')} icon={Copy} />
       <WidgetBody>
         <Formik
           initialValues={initialValues}
@@ -88,9 +90,9 @@ export function StackDuplicationForm({
     const errors = await validateForm(() => schema, { environmentId, name });
     if (errors) {
       notifyError(
-        'Validation Error',
+        t('docker.stacks.validationError'),
         undefined,
-        'Please fix the errors and try again.'
+        t('docker.stacks.fixErrorsAndTryAgain')
       );
       return;
     }
@@ -105,11 +107,18 @@ export function StackDuplicationForm({
       },
       {
         onSuccess() {
-          notifySuccess('Success', 'Stack successfully duplicated');
+          notifySuccess(
+            t('common.success'),
+            t('docker.stacks.stackDuplicatedSuccessfully')
+          );
           router.stateService.go('docker.stacks', {}, { reload: true });
         },
         onError(error) {
-          notifyError('Failure', error as Error, 'Unable to duplicate stack');
+          notifyError(
+            t('common.failure'),
+            error as Error,
+            t('docker.stacks.unableToDuplicateStack')
+          );
         },
       }
     );
@@ -122,13 +131,13 @@ export function StackDuplicationForm({
     const isRename = environmentId === currentEnvironmentId;
 
     const confirmed = await confirm({
-      title: 'Are you sure?',
+      title: t('docker.stacks.confirmMigrateTitle'),
       modalType: ModalType.Warn,
       message: isRename
-        ? 'This action will deploy a new instance of this stack with the new name that will replace the current stack. Please note that this does NOT migrate the content of any persistent volumes that may be attached to this stack.'
-        : 'This action will deploy a new instance of this stack on the target environment, please note that this does NOT relocate the content of any persistent volumes that may be attached to this stack.',
+        ? t('docker.stacks.confirmRenameMessage')
+        : t('docker.stacks.confirmMigrateMessage'),
       confirmButton: buildConfirmButton(
-        isRename ? 'Rename' : 'Migrate',
+        isRename ? t('docker.stacks.rename') : t('docker.stacks.migrate'),
         'danger'
       ),
     });
@@ -145,9 +154,9 @@ export function StackDuplicationForm({
 
     if (errors) {
       notifyError(
-        'Validation Error',
+        t('docker.stacks.validationError'),
         undefined,
-        'Please fix the errors and try again.'
+        t('docker.stacks.fixErrorsAndTryAgain')
       );
       return;
     }
@@ -163,11 +172,18 @@ export function StackDuplicationForm({
       },
       {
         onSuccess() {
-          notifySuccess('Stack successfully migrated', name || stack.Name);
+          notifySuccess(
+            t('common.success'),
+            t('docker.stacks.stackMigratedSuccessfully')
+          );
           router.stateService.go('docker.stacks', {}, { reload: true });
         },
         onError(error) {
-          notifyError('Failure', error as Error, 'Unable to migrate stack');
+          notifyError(
+            t('common.failure'),
+            error as Error,
+            t('docker.stacks.unableToMigrateStack')
+          );
         },
       }
     );

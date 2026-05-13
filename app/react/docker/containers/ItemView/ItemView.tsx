@@ -1,4 +1,5 @@
 import { useCurrentStateAndParams } from '@uirouter/react';
+import { useTranslation } from 'react-i18next';
 
 import { AccessControlPanel } from '@/react/portainer/access-control/AccessControlPanel';
 import { ContainerDetailsViewModel } from '@/docker/models/containerDetails';
@@ -22,6 +23,7 @@ import { ContainerNetworksDatatable } from './ContainerNetworksDatatable';
 import { HealthStatus } from './HealthStatus';
 
 export function ItemView() {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const {
     params: { id: containerId, nodeName },
@@ -55,7 +57,7 @@ export function ItemView() {
   return (
     <>
       <PageHeader
-        title="Container details"
+        title={t('docker.container.containerDetails')}
         breadcrumbs={[
           { label: 'Containers', link: 'docker.containers' },
           containerName,

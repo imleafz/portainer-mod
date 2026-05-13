@@ -7,6 +7,7 @@ import {
   FileText,
   Bell,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { usePublicSettings } from '@/react/portainer/settings/queries';
 import { isBE } from '@/react/portainer/feature-flags/feature-flags.service';
@@ -26,6 +27,7 @@ export function SettingsSidebar({
   isAdmin,
   isTeamLeader = false,
 }: Props) {
+  const { t } = useTranslation();
   const teamSyncQuery = usePublicSettings<boolean>({
     select: (settings) => settings.TeamSync,
   });
@@ -35,10 +37,10 @@ export function SettingsSidebar({
   const showUsersSection = !window.ddExtension && isPureAdminOrTeamLeader;
 
   return (
-    <SidebarSection title="Administration">
+    <SidebarSection title={t('sidebar.administration')}>
       {showUsersSection && (
         <SidebarParent
-          label="User-related"
+          label={t('sidebar.userRelated')}
           icon={Users}
           to="portainer.users"
           pathOptions={{ includePaths: ['portainer.teams', 'portainer.roles'] }}
@@ -47,31 +49,22 @@ export function SettingsSidebar({
         >
           <SidebarItem
             to="portainer.users"
-            label="Users"
+            label={t('sidebar.users')}
             isSubMenu
             data-cy="portainerSidebar-users"
           />
           <SidebarItem
             to="portainer.teams"
-            label="Teams"
+            label={t('sidebar.teams')}
             isSubMenu
             data-cy="portainerSidebar-teams"
           />
-
-          {isPureAdmin && (
-            <SidebarItem
-              to="portainer.roles"
-              label="Roles"
-              isSubMenu
-              data-cy="portainerSidebar-roles"
-            />
-          )}
         </SidebarParent>
       )}
       {isPureAdmin && (
         <>
           <SidebarParent
-            label="Environment-related"
+            label={t('sidebar.environmentRelated')}
             icon={HardDrive}
             to="portainer.endpoints"
             pathOptions={{
@@ -85,7 +78,7 @@ export function SettingsSidebar({
             listId="portainer-environments"
           >
             <SidebarItem
-              label="Environments"
+              label={t('sidebar.environments')}
               to="portainer.endpoints"
               ignorePaths={['portainer.endpoints.updateSchedules']}
               includePaths={['portainer.wizard.endpoints']}
@@ -94,13 +87,13 @@ export function SettingsSidebar({
             />
             <SidebarItem
               to="portainer.groups"
-              label="Groups"
+              label={t('sidebar.groups')}
               isSubMenu
               data-cy="portainerSidebar-environmentGroups"
             />
             <SidebarItem
               to="portainer.tags"
-              label="Tags"
+              label={t('sidebar.tags')}
               isSubMenu
               data-cy="portainerSidebar-environmentTags"
             />
@@ -108,7 +101,7 @@ export function SettingsSidebar({
           </SidebarParent>
 
           <SidebarItem
-            label="Registries"
+            label={t('sidebar.registries')}
             to="portainer.registries"
             icon={Radio}
             data-cy="portainerSidebar-registries"
@@ -117,14 +110,14 @@ export function SettingsSidebar({
           {isBE && (
             <SidebarItem
               to="portainer.licenses"
-              label="Licenses"
+              label={t('sidebar.licenses')}
               icon={Award}
               data-cy="portainerSidebar-licenses"
             />
           )}
 
           <SidebarParent
-            label="Logs"
+            label={t('sidebar.logs')}
             to="portainer.authLogs"
             icon={FileText}
             pathOptions={{
@@ -134,14 +127,14 @@ export function SettingsSidebar({
             listId="k8sSidebar-logs"
           >
             <SidebarItem
-              label="Authentication"
+              label={t('sidebar.authentication')}
               to="portainer.authLogs"
               isSubMenu
               data-cy="portainerSidebar-authLogs"
             />
             <SidebarItem
               to="portainer.activityLogs"
-              label="Activity"
+              label={t('sidebar.activity')}
               isSubMenu
               data-cy="portainerSidebar-activityLogs"
             />
@@ -150,7 +143,7 @@ export function SettingsSidebar({
       )}
       {isBE && !isPureAdmin && isAdmin && (
         <SidebarParent
-          label="Environment-related"
+          label={t('sidebar.environmentRelated')}
           icon={HardDrive}
           to="portainer.endpoints.updateSchedules"
           data-cy="portainerSidebar-environments-area"
@@ -163,20 +156,20 @@ export function SettingsSidebar({
       <SidebarItem
         to="portainer.notifications"
         icon={Bell}
-        label="Notifications"
+        label={t('sidebar.notifications')}
         data-cy="portainerSidebar-notifications"
       />
       {isPureAdmin && (
         <SidebarParent
           to="portainer.settings"
-          label="Settings"
+          label={t('sidebar.settings')}
           icon={Settings}
           data-cy="portainerSidebar-settings"
           listId="portainer-settings"
         >
           <SidebarItem
             to="portainer.settings"
-            label="General"
+            label={t('sidebar.general')}
             isSubMenu
             ignorePaths={[
               'portainer.settings.authentication',
@@ -188,7 +181,7 @@ export function SettingsSidebar({
           {!window.ddExtension && (
             <SidebarItem
               to="portainer.settings.authentication"
-              label="Authentication"
+              label={t('sidebar.authentication')}
               isSubMenu
               data-cy="portainerSidebar-authentication"
             />
@@ -196,7 +189,7 @@ export function SettingsSidebar({
           {isBE && (
             <SidebarItem
               to="portainer.settings.sharedcredentials"
-              label="Shared Credentials"
+              label={t('sidebar.sharedCredentials')}
               isSubMenu
               data-cy="portainerSidebar-cloud"
             />
@@ -204,12 +197,12 @@ export function SettingsSidebar({
 
           <SidebarItem
             to="portainer.settings.edgeCompute"
-            label="Edge Compute"
+            label={t('sidebar.edgeCompute')}
             isSubMenu
             data-cy="portainerSidebar-edgeCompute"
           />
 
-          <SidebarItem.Wrapper label="Get Help">
+          <SidebarItem.Wrapper label={t('sidebar.getHelp')}>
             <a
               href={
                 process.env.PORTAINER_EDITION === 'CE'
@@ -220,7 +213,7 @@ export function SettingsSidebar({
               rel="noreferrer"
               className="hover:!underline focus:no-underline text-sm flex h-8 w-full items-center rounded px-3 transition-colors duration-200 hover:bg-blue-5/20 be:hover:bg-gray-5/20 th-dark:hover:bg-gray-true-5/20"
             >
-              Get Help
+              {t('sidebar.getHelp')}
             </a>
           </SidebarItem.Wrapper>
         </SidebarParent>
@@ -230,6 +223,7 @@ export function SettingsSidebar({
 }
 
 function EdgeUpdatesSidebarItem() {
+  const { t } = useTranslation();
   const settingsQuery = usePublicSettings();
 
   if (!isBE || !settingsQuery.data?.EnableEdgeComputeFeatures) {
@@ -239,7 +233,7 @@ function EdgeUpdatesSidebarItem() {
   return (
     <SidebarItem
       to="portainer.endpoints.updateSchedules"
-      label="Update & Rollback"
+      label={t('sidebar.updateAndRollback')}
       isSubMenu
       data-cy="portainerSidebar-updateSchedules"
     />

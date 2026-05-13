@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
@@ -18,6 +19,7 @@ export function DeleteConfigButton({
 }: {
   selectedItems: Array<ConfigViewModel>;
 }) {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const mutation = useDeleteConfigListMutation(environmentId);
 
@@ -30,18 +32,14 @@ export function DeleteConfigButton({
           {
             onSuccess() {
               notifySuccess(
-                `${pluralize(
-                  selectedItems.length,
-                  'Config'
-                )} successfully removed`,
-                // log the item name if it's only one config
+                t('docker.configs.successfullyRemoved'),
                 selectedItems.length === 1 ? selectedItems[0].Name : ''
               );
             },
           }
         );
       }}
-      confirmMessage="Do you want to remove the selected config(s)?"
+      confirmMessage={t('docker.configs.removeConfirm')}
       disabled={selectedItems.length === 0}
     />
   );

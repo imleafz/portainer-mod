@@ -203,7 +203,7 @@ func (d *stackDeployer) remoteStack(stack *portainer.Stack, endpoint *portainer.
 
 	log.Debug().
 		Str("image", unpackerImg).
-		Str("cmd", strings.Join(cmd, " ")).
+		Str("cmd", strings.Join(sanitizeCmd(cmd), " ")).
 		Msg("running unpacker")
 
 	unpackerContainer, err := cli.ContainerCreate(ctx, &container.Config{
@@ -362,4 +362,25 @@ func getTargetSocketBindContainer(osType string) string {
 // `LocalNodeStateInactive` means the node is not in a swarm cluster
 func isNotInASwarm(info *system.Info) bool {
 	return info.Swarm.LocalNodeState == swarm.LocalNodeStateInactive
+}
+
+// sanitizeCmd removes sensitive information from command arguments for safe logging
+func sanitizeCmd(cmd []string) []string {
+	sanitized := make([]string, 0, len(cmd))
+	for i, arg := range cmd {
+		switch {
+		case arg == "-p" && i+1 < len(cmd):
+			sanitized = append(sanitized, "-p", "***")
+		case strings.HasPrefix(arg, "--registry="):
+			parts := strings.Split(arg, ":")
+			if len(parts) >= 3 {
+				sanitized = append(sanitized, fmt.Sprintf("--registry=%s:***:%s", parts[1], parts[len(parts)-1]))
+			} else {
+				sanitized = append(sanitized, "***")
+			}
+		default:
+			sanitized = append(sanitized, arg)
+		}
+	}
+	return sanitized
 }

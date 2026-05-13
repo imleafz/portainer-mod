@@ -18,6 +18,8 @@ class KubernetesNodeStatsController {
 
     this.onInit = this.onInit.bind(this);
     this.initCharts = this.initCharts.bind(this);
+    this.stopRepeater = this.stopRepeater.bind(this);
+    this.stopChartsFinder = this.stopChartsFinder.bind(this);
   }
 
   changeUpdateRepeater() {
@@ -41,10 +43,16 @@ class KubernetesNodeStatsController {
   }
 
   stopRepeater() {
-    var repeater = this.repeater;
-    if (angular.isDefined(repeater)) {
-      this.$interval.cancel(repeater);
+    if (angular.isDefined(this.repeater)) {
+      this.$interval.cancel(this.repeater);
       this.repeater = undefined;
+    }
+  }
+
+  stopChartsFinder() {
+    if (this.findCharts) {
+      clearInterval(this.findCharts);
+      this.findCharts = undefined;
     }
   }
 
@@ -64,7 +72,7 @@ class KubernetesNodeStatsController {
   }
 
   initCharts() {
-    const findCharts = setInterval(() => {
+    this.findCharts = setInterval(() => {
       let cpuChartCtx = $('#cpuChart');
       let memoryChartCtx = $('#memoryChart');
       if (cpuChartCtx.length !== 0 && memoryChartCtx.length !== 0) {
@@ -75,7 +83,7 @@ class KubernetesNodeStatsController {
         this.updateCPUChart();
         this.updateMemoryChart();
         this.setUpdateRepeater();
-        clearInterval(findCharts);
+        this.stopChartsFinder();
       }
     }, 200);
   }
@@ -101,6 +109,7 @@ class KubernetesNodeStatsController {
 
   $onDestroy() {
     this.stopRepeater();
+    this.stopChartsFinder();
   }
 
   async onInit() {

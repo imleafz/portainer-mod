@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { CellContext } from '@tanstack/react-table';
 
 import { ServiceViewModel } from '@/docker/models/service';
@@ -5,24 +6,18 @@ import { ImageStatus } from '@/react/docker/components/ImageStatus';
 import { hideShaSum } from '@/docker/filters/utils';
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
 import { ResourceType } from '@/react/docker/components/ImageStatus/types';
-import { ImageUpToDateTooltip } from '@/react/docker/components/datatable/TableColumnHeaderImageUpToDate';
 
 import { columnHelper } from './helper';
 
 export const image = columnHelper.accessor((item) => item.Image, {
   id: 'image',
-  header: Header,
+  header: () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { t } = useTranslation();
+    return t('docker.services.image');
+  },
   cell: Cell,
 });
-
-function Header() {
-  return (
-    <>
-      Image
-      <ImageUpToDateTooltip />
-    </>
-  );
-}
 
 function Cell({
   getValue,

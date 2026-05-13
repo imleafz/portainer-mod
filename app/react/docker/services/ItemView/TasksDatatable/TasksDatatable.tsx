@@ -1,4 +1,5 @@
 import { List } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Datatable } from '@@/datatables';
 import { mergeOptions } from '@@/datatables/extend-options/mergeOptions';
@@ -17,8 +18,7 @@ import { DecoratedTask } from './types';
 const storageKey = 'docker-service-tasks';
 
 interface TableSettings
-  extends BasicTableSettings,
-    FilteredColumnsTableSettings {}
+  extends BasicTableSettings, FilteredColumnsTableSettings {}
 
 export function TasksDatatable({
   dataset,
@@ -29,6 +29,7 @@ export function TasksDatatable({
   isSlotColumnVisible: boolean;
   serviceName: string;
 }) {
+  const { t } = useTranslation();
   const tableState = useTableStateWithStorage<TableSettings>(
     storageKey,
     undefined,
@@ -40,7 +41,7 @@ export function TasksDatatable({
 
   return (
     <Datatable
-      title="Tasks"
+      title={t('docker.services.tasks')}
       titleIcon={List}
       settingsManager={tableState}
       columns={columns}

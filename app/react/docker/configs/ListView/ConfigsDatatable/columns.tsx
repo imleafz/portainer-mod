@@ -7,6 +7,9 @@ import { buildNameColumnFromObject } from '@@/datatables/buildNameColumn';
 
 import { ConfigViewModel } from '../../model';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { useTranslation } = require('react-i18next');
+
 const columnHelper = createColumnHelper<ConfigViewModel>();
 
 export const columns = [
@@ -16,7 +19,11 @@ export const columns = [
     dataCy: 'docker-configs-name',
   }),
   columnHelper.accessor('CreatedAt', {
-    header: 'Creation Date',
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation();
+      return t('docker.configs.creationDate');
+    },
     cell: ({ getValue }) => {
       const date = getValue();
       return <time dateTime={date}>{isoDate(date)}</time>;

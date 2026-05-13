@@ -1,5 +1,6 @@
 import { Field, Form, useFormikContext } from 'formik';
 import { Copy, ArrowRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { EnvironmentId } from '@/react/portainer/environments/types';
 
@@ -25,6 +26,7 @@ export function StackDuplicationFormInner({
   currentStackName,
   isLoading,
 }: Props) {
+  const { t } = useTranslation();
   const { values, errors, setFieldValue, submitForm } =
     useFormikContext<FormSubmitValues>();
 
@@ -51,16 +53,16 @@ export function StackDuplicationFormInner({
   return (
     <Form>
       <TextTip color="blue">
-        <p>This feature allows you to duplicate or migrate this stack. </p>
-        <p>To rename the stack, choose the same environment when migrating.</p>
+        <p>{t('docker.stacks.duplicateOrMigrateDescription')} </p>
+        <p>{t('docker.stacks.duplicateOrMigrateDescription2')}</p>
       </TextTip>
 
       <div className="form-group">
         <Field
           as={Input}
           type="text"
-          placeholder="Stack name (optional for migration)"
-          aria-label="Stack name"
+          placeholder={t('docker.stacks.stackNameOptional')}
+          aria-label={t('docker.stacks.stackName')}
           name="newName"
           data-cy="stack-duplicate-name-input"
         />
@@ -86,15 +88,17 @@ export function StackDuplicationFormInner({
           isLoading={isMigrateInProgress}
           loadingText={
             values.environmentId === currentEnvironmentId
-              ? 'Renaming in progress...'
-              : 'Migration in progress...'
+              ? t('docker.stacks.renaming')
+              : t('docker.stacks.migration')
           }
           onClick={() => handleAction('migrate')}
           icon={ArrowRight}
           data-cy="stack-migrate-button"
           className="!ml-0"
         >
-          {values.environmentId === currentEnvironmentId ? 'Rename' : 'Migrate'}
+          {values.environmentId === currentEnvironmentId
+            ? t('docker.stacks.rename')
+            : t('docker.stacks.migrate')}
         </LoadingButton>
 
         <LoadingButton
@@ -103,17 +107,21 @@ export function StackDuplicationFormInner({
           size="small"
           disabled={isDuplicateDisabled}
           isLoading={isDuplicateInProgress}
-          loadingText="Duplication in progress..."
+          loadingText={t('docker.stacks.duplication')}
           onClick={() => handleAction('duplicate')}
           icon={Copy}
           data-cy="stack-duplicate-button"
         >
-          Duplicate
+          {t('docker.stacks.duplicate')}
         </LoadingButton>
       </div>
 
       {yamlError && isEnvSelected && (
-        <div className="form-group" role="alert" aria-label="Yaml Error">
+        <div
+          className="form-group"
+          role="alert"
+          aria-label={t('docker.stacks.yamlError')}
+        >
           <div>
             <span className="text-danger small">{yamlError}</span>
           </div>

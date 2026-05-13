@@ -206,7 +206,7 @@ describe('CreateStackForm - Webhook ID Integration', () => {
     await user.type(editor, 'services:\n  web:\n    image: nginx');
 
     const webhookToggle = await screen.findByRole('checkbox', {
-      name: /create a stack webhook/i,
+      name: /create stack webhook/i,
     });
     await user.click(webhookToggle);
 

@@ -1,13 +1,14 @@
 #!/bin/bash
-set -euo pipefail
+# set -euo pipefail
 
 PORTAINER_DATA=${PORTAINER_DATA:-/tmp/portainer}
 PORTAINER_PROJECT=${PORTAINER_PROJECT:-$(pwd)}
 PORTAINER_FLAGS=${PORTAINER_FLAGS:-}
 
+docker kill portainer
 docker rm -f portainer
 
-docker run -d \
+docker run -d --rm \
   -p 8000:8000 \
   -p 9000:9000 \
   -p 9443:9443 \

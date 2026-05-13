@@ -225,7 +225,7 @@ describe('HelmApplicationView', () => {
     const { findByText, findAllByText } = renderComponent();
 
     // Check for the page header
-    expect(await findByText('Helm details')).toBeInTheDocument();
+    expect(await findByText('kubernetes.helm.title')).toBeInTheDocument();
 
     // Check for the details content - these values should appear somewhere in the card
     expect(await findByText('default')).toBeInTheDocument(); // namespace
@@ -268,7 +268,7 @@ describe('HelmApplicationView', () => {
     // Wait for the error message to appear
     expect(
       await screen.findByText(
-        'Failed to load Helm application details',
+        'kubernetes.helm.failedToLoad',
         {},
         { timeout: 6500 }
       )
@@ -287,7 +287,7 @@ describe('HelmApplicationView', () => {
 
     const { findByText } = renderComponent();
 
-    expect(await findByText('Helm details')).toBeInTheDocument();
+    expect(await findByText('kubernetes.helm.title')).toBeInTheDocument();
 
     await waitFor(() => {
       // Look for specific tab text

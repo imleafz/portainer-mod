@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { CellContext, Column } from '@tanstack/react-table';
 import { Search } from 'lucide-react';
 
@@ -17,13 +18,17 @@ import { columnHelper } from './helper';
 
 export const name = columnHelper.accessor('Name', {
   id: 'name',
-  header: 'Name',
+  header: () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { t } = useTranslation();
+    return t('docker.volumes.name');
+  },
   cell: Cell,
   enableColumnFilter: true,
   filterFn: (
     { original: { dangling } },
     columnId,
-    filterValue: Array<'Used' | 'Unused'>
+    filterValue: Array<string>
   ) => {
     if (filterValue.length === 0) {
       return true;
@@ -49,7 +54,8 @@ function FilterByUsage<TData extends { Used: boolean }>({
 }: {
   column: Column<TData>;
 }) {
-  const options = ['Used', 'Unused'];
+  const { t } = useTranslation();
+  const options = [t('docker.image.used'), t('docker.image.unused')];
 
   const value = getFilterValue();
 
@@ -61,7 +67,7 @@ function FilterByUsage<TData extends { Used: boolean }>({
       filterKey={id}
       value={valueAsArray}
       onChange={setFilterValue}
-      menuTitle="Filter by usage"
+      menuTitle={t('docker.image.filterByUsage')}
     />
   );
 }

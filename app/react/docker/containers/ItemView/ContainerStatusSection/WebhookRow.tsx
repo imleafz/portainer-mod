@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { EnvironmentId } from '@/react/portainer/environments/types';
 import { ContainerId } from '@/react/docker/containers/types';
 import { useAuthorizations } from '@/react/hooks/useUser';
@@ -33,6 +35,7 @@ export function WebhookRow({
   onSuccess = () => {},
   partOfSwarmService,
 }: Props) {
+  const { t } = useTranslation();
   const shouldDisplayWebhook = useCanRecreateContainer({
     autoRemove,
     partOfSwarmService,
@@ -81,7 +84,7 @@ export function WebhookRow({
         },
         {
           onSuccess: () => {
-            notifySuccess('Success', 'Webhook created successfully');
+            notifySuccess('Success', t('docker.container.webhookCreated'));
             onSuccess();
           },
         }
@@ -91,7 +94,7 @@ export function WebhookRow({
         { webhookId: webhook.Id },
         {
           onSuccess: () => {
-            notifySuccess('Success', 'Webhook deleted successfully');
+            notifySuccess('Success', t('docker.container.webhookDeleted'));
             onSuccess();
           },
         }
@@ -103,7 +106,7 @@ export function WebhookRow({
     <tr>
       <td>
         <SwitchField
-          label="Container webhook"
+          label={t('docker.container.containerWebhook')}
           checked={webhookExists}
           disabled={isDisabled}
           onChange={handleWebhookChange}
@@ -122,7 +125,7 @@ export function WebhookRow({
               copyText={webhookUrl}
               data-cy="container-webhook-copy-button"
             >
-              Copy link
+              {t('docker.container.copyLink')}
             </CopyButton>
           </div>
         )}

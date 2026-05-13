@@ -303,10 +303,10 @@ describe('KubectlShellView', () => {
     expect(mockTerminalInstance.focus).toHaveBeenCalled();
     expect(vi.mocked(fit)).toHaveBeenCalledWith(mockTerminalInstance);
     expect(mockTerminalInstance.writeln).toHaveBeenCalledWith(
-      '#Run kubectl commands inside here'
+      '# Run kubectl commands inside here'
     );
     expect(mockTerminalInstance.writeln).toHaveBeenCalledWith(
-      '#e.g. kubectl get all'
+      '# e.g. kubectl get all'
     );
     expect(mockTerminalInstance.writeln).toHaveBeenCalledWith('');
   });

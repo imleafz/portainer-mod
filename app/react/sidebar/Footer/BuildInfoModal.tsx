@@ -10,6 +10,7 @@ import {
   Wrench,
 } from 'lucide-react';
 import clsx from 'clsx';
+import { useTranslation } from 'react-i18next';
 
 import { useSystemStatus } from '@/react/portainer/system/useSystemStatus';
 import { useSystemVersion } from '@/react/portainer/system/useSystemVersion';
@@ -21,6 +22,7 @@ import { Button } from '@@/buttons';
 import styles from './Footer.module.css';
 
 export function BuildInfoModalButton() {
+  const { t } = useTranslation();
   const [isBuildInfoVisible, setIsBuildInfoVisible] = useState(false);
   const statusQuery = useSystemStatus();
   const versionQuery = useSystemVersion();
@@ -39,7 +41,7 @@ export function BuildInfoModalButton() {
         data-cy="portainerSidebar-versionNumber"
         className="btn-none hover:underline"
         onClick={() => setIsBuildInfoVisible(true)}
-        title="About Portainer"
+        title={t('footer.aboutPortainer')}
       >
         {`${Version} ${VersionSupport}`}
       </button>
@@ -51,6 +53,7 @@ export function BuildInfoModalButton() {
 }
 
 function BuildInfoModal({ closeModal }: { closeModal: () => void }) {
+  const { t } = useTranslation();
   const { isAdmin } = useIsEdgeAdmin({ noEnvScope: true });
   const versionQuery = useSystemVersion();
   const statusQuery = useSystemStatus();
@@ -80,13 +83,16 @@ function BuildInfoModal({ closeModal }: { closeModal: () => void }) {
                 <td>
                   <span className="inline-flex items-center flex-wrap">
                     <Server size="13" className="space-right" />
-                    Server Version: {ServerVersion} {VersionSupport}
+                    {t('footer.serverVersion', {
+                      version: ServerVersion,
+                      support: VersionSupport,
+                    })}
                   </span>
                 </td>
                 <td>
                   <span className="inline-flex items-center flex-wrap">
                     <Database size="13" className="space-right" />
-                    Database Version: {DatabaseVersion}
+                    {t('footer.databaseVersion', { version: DatabaseVersion })}
                   </span>
                 </td>
               </tr>
@@ -94,13 +100,13 @@ function BuildInfoModal({ closeModal }: { closeModal: () => void }) {
                 <td>
                   <span className="inline-flex items-center flex-wrap">
                     <Hash size="13" className="space-right" />
-                    CI Build Number: {Build.BuildNumber}
+                    {t('footer.ciBuildNumber', { number: Build.BuildNumber })}
                   </span>
                 </td>
                 <td>
                   <span className="inline-flex items-center flex-wrap">
                     <Tag size="13" className="space-right" />
-                    Image Tag: {Build.ImageTag}
+                    {t('footer.imageTag', { tag: Build.ImageTag })}
                   </span>
                 </td>
               </tr>
@@ -108,7 +114,7 @@ function BuildInfoModal({ closeModal }: { closeModal: () => void }) {
                 <td>
                   <span className="inline-flex items-center flex-wrap">
                     <GitCommit size="13" className="space-right" />
-                    Git Commit: {Build.GitCommit}
+                    {t('footer.gitCommit', { commit: Build.GitCommit })}
                   </span>
                 </td>
                 <td />
@@ -119,7 +125,7 @@ function BuildInfoModal({ closeModal }: { closeModal: () => void }) {
         <div className={styles.toolsList}>
           <span className="inline-flex items-center">
             <Wrench size="13" className="space-right" />
-            Compilation tools:
+            {t('footer.compilationTools')}
           </span>
 
           <div className={styles.tools}>
@@ -137,7 +143,7 @@ function BuildInfoModal({ closeModal }: { closeModal: () => void }) {
         <div className={clsx(styles.toolsList, 'mt-3')}>
           <span className="inline-flex items-center">
             <LinkIcon size="13" className="space-right" />
-            Dependencies:
+            {t('footer.dependencies')}
           </span>
 
           <div className={styles.tools}>
@@ -160,7 +166,7 @@ function BuildInfoModal({ closeModal }: { closeModal: () => void }) {
           <div className={clsx(styles.toolsList, 'mt-3')}>
             <span className="inline-flex items-center ">
               <Variable size="13" className="space-right" />
-              Environment Variables
+              {t('footer.environmentVariables')}
             </span>
 
             <div
@@ -181,7 +187,7 @@ function BuildInfoModal({ closeModal }: { closeModal: () => void }) {
           onClick={closeModal}
           data-cy="portainerBuildInfoModal-CloseButton"
         >
-          Ok
+          {t('footer.ok')}
         </Button>
       </Modal.Footer>
     </Modal>

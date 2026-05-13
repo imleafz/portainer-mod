@@ -1,4 +1,5 @@
 import { Form, useFormikContext } from 'formik';
+import { useTranslation } from 'react-i18next';
 
 import { Stack, StackType } from '@/react/common/stacks/types';
 import { baseStackWebhookUrl } from '@/portainer/helpers/webhookHelper';
@@ -29,6 +30,7 @@ export function InnerForm({
   isSaveLoading: boolean;
   isDeployLoading: boolean;
 }) {
+  const { t } = useTranslation();
   const envId = useEnvironmentId();
   const apiVersion = useApiVersion(envId);
   const { values, setFieldValue, errors, dirty, isValid } =
@@ -42,7 +44,7 @@ export function InnerForm({
 
   return (
     <Form className="form-horizontal my-8">
-      <FormSection title="Redeploy from git repository">
+      <FormSection title={t('docker.stacks.redeployFromGit')}>
         <InfoPanel
           className="text-muted small"
           url={gitConfig.URL}

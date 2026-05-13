@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import {
   EnvVarValues,
   EnvironmentVariablesPanel,
@@ -13,11 +15,13 @@ export function EnvVarsTab({
   onChange(value: EnvVarValues): void;
   errors?: ArrayError<EnvVarValues>;
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="form-group">
       <EnvironmentVariablesPanel
         values={values}
-        explanation="These values will be applied to the container when deployed"
+        explanation={t('docker.container.envVarsExplanation')}
         onChange={handleChange}
         errors={errors}
       />

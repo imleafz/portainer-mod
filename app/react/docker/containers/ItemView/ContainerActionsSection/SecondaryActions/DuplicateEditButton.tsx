@@ -1,4 +1,5 @@
 import { Copy } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from '@@/buttons';
 import { Link } from '@@/Link';
@@ -16,6 +17,8 @@ export function DuplicateEditButton({
   nodeName,
   isPortainer,
 }: DuplicateEditButtonProps) {
+  const { t } = useTranslation();
+
   return (
     <Button
       color="light"
@@ -32,7 +35,7 @@ export function DuplicateEditButton({
         },
       }}
     >
-      Duplicate/Edit
+      {t('docker.container.duplicateEdit')}
     </Button>
   );
 }

@@ -1,4 +1,5 @@
 import { array, string } from 'yup';
+import { useTranslation } from 'react-i18next';
 
 import { FormError } from '@@/form-components/FormError';
 import { InputLabeled } from '@@/form-components/Input/InputLabeled';
@@ -18,9 +19,11 @@ export function HostsFileEntries({
   onChange: (values: string[]) => void;
   errors?: ArrayError<string>;
 }) {
+  const { t } = useTranslation();
+
   return (
     <InputList
-      label="Hosts file entries"
+      label={t('docker.container.hostsFileEntries')}
       value={values}
       onChange={(hostsFileEntries) => onChange(hostsFileEntries)}
       errors={errors}
@@ -39,10 +42,12 @@ function HostsFileEntryItem({
   readOnly,
   index,
 }: ItemProps<string>) {
+  const { t } = useTranslation();
+
   return (
     <div>
       <InputLabeled
-        label="value"
+        label={t('docker.container.value')}
         value={item}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}

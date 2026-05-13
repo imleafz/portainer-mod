@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useNamespacesQuery } from '@/react/kubernetes/namespaces/queries/useNamespacesQuery';
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
@@ -13,6 +14,7 @@ import { FormSection } from '@@/form-components/FormSection';
 import { HelmTemplates } from '../HelmTemplates/HelmTemplates';
 
 export function HelmInstallView() {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const [namespace, setNamespace] = useState('');
   const [name, setName] = useState('');
@@ -39,13 +41,17 @@ export function HelmInstallView() {
 
   return (
     <>
-      <PageHeader title="Helm install" breadcrumbs="Helm install" reload />
+      <PageHeader
+        title={t('kubernetes.helm.installHelm')}
+        breadcrumbs={t('kubernetes.helm.installHelm')}
+        reload
+      />
       <div className="row">
         <div className="col-sm-12 form-horizontal">
           <Widget>
             <WidgetBody>
-              <FormSection title="Deploy to">
-                <FormControl label="Namespace" required>
+              <FormSection title={t('kubernetes.helm.deployTo')}>
+                <FormControl label={t('kubernetes.helm.namespace')} required>
                   <PortainerSelect
                     value={namespace}
                     onChange={setNamespace}
@@ -54,7 +60,7 @@ export function HelmInstallView() {
                   />
                 </FormControl>
 
-                <FormControl label="Release name" required>
+                <FormControl label={t('kubernetes.helm.releaseName')} required>
                   <Input
                     value={name}
                     onChange={(e) => setName(e.target.value)}

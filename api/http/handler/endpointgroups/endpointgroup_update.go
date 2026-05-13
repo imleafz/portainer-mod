@@ -3,9 +3,12 @@ package endpointgroups
 import (
 	"net/http"
 	"reflect"
+	"strconv"
 
 	portainer "github.com/portainer/portainer/api"
 	"github.com/portainer/portainer/api/dataservices"
+	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	"github.com/portainer/portainer/api/internal/endpointutils"
 	"github.com/portainer/portainer/api/pendingactions/handlers"
 	"github.com/portainer/portainer/api/tag"
@@ -66,6 +69,30 @@ func (handler *Handler) endpointGroupUpdate(w http.ResponseWriter, r *http.Reque
 		endpointGroup, err = handler.updateEndpointGroup(tx, portainer.EndpointGroupID(endpointGroupID), payload)
 		return err
 	})
+
+	if err != nil {
+		return response.TxResponse(w, endpointGroup, err)
+	}
+
+	tokenData, _ := security.RetrieveTokenData(r)
+	operatorUsername := ""
+	operatorUserID := 0
+	if tokenData != nil {
+		operatorUserID = int(tokenData.ID)
+		operator, _ := handler.DataStore.User().Read(tokenData.ID)
+		if operator != nil {
+			operatorUsername = operator.Username
+		}
+	}
+
+	activitylog.NewActivityLogBuilder(
+		activitylog.ActionUpdate,
+		activitylog.ContextPortainer,
+		activitylog.ResourceTypeEndpointGroup,
+	).
+		WithUser(operatorUserID, operatorUsername).
+		WithResource(strconv.Itoa(endpointGroupID), endpointGroup.Name).
+		Log()
 
 	return response.TxResponse(w, endpointGroup, err)
 }

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { baseStackWebhookUrl } from '@/portainer/helpers/webhookHelper';
 import { Authorized, useAuthorizations } from '@/react/hooks/useUser';
@@ -52,15 +53,17 @@ export function AuthorizedWebhook({
   disabled?: boolean;
   webhookId: string;
 }) {
+  const { t } = useTranslation();
+
   return (
-    <FormSection title="Webhooks">
+    <FormSection title={t('docker.stacks.webhooks')}>
       <SwitchField
         name="enableWebhook"
         checked={value}
         onChange={(checked) => onChange(checked)}
         labelClass="col-sm-2"
-        tooltip="Create a webhook (or callback URI) to automate the update of this stack. Sending a POST request to this callback URI (without requiring any authentication) will pull the most up-to-date version of the associated image and re-deploy this stack."
-        label="Create a Stack webhook"
+        tooltip={t('docker.stacks.webhookDescription')}
+        label={t('docker.stacks.createStackWebhook')}
         featureId={FeatureId.STACK_WEBHOOK}
         data-cy="stack-webhook-switch"
         disabled={disabled}

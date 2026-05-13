@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { TextTip } from '@@/Tip/TextTip';
 
 interface Props {
@@ -6,14 +8,20 @@ interface Props {
 }
 
 export function DeploymentInfo({ isSwarm, composeSyntaxMaxVersion }: Props) {
+  const { t } = useTranslation();
+
   if (isSwarm) {
     return (
       <div className="form-group">
         <div className="col-sm-12">
-          <span className="text-muted small">
-            This stack will be deployed using the equivalent of the{' '}
-            <code>docker stack deploy</code> command.
-          </span>
+          <span
+            className="text-muted small"
+            dangerouslySetInnerHTML={{
+              __html: t('docker.stacks.swarmDeployInfo', {
+                interpolation: { escapeValue: false },
+              }),
+            }}
+          />
         </div>
       </div>
     );
@@ -23,15 +31,16 @@ export function DeploymentInfo({ isSwarm, composeSyntaxMaxVersion }: Props) {
     return (
       <div className="form-group">
         <div className="col-sm-12">
-          <div className="text-muted small mb-2">
-            This stack will be deployed using the equivalent of{' '}
-            <code>docker compose</code>. Only Compose file format version{' '}
-            <b>2</b> is supported at the moment.
-          </div>
+          <div
+            className="text-muted small mb-2"
+            dangerouslySetInnerHTML={{
+              __html: t('docker.stacks.composeV2DeployInfo', {
+                interpolation: { escapeValue: false },
+              }),
+            }}
+          />
           <TextTip color="orange">
-            Note: Due to a limitation of libcompose, the name of the stack will
-            be standardized to remove all special characters and uppercase
-            letters.
+            {t('docker.stacks.composeV2DeployWarning')}
           </TextTip>
         </div>
       </div>
@@ -41,9 +50,14 @@ export function DeploymentInfo({ isSwarm, composeSyntaxMaxVersion }: Props) {
   return (
     <div className="form-group">
       <div className="col-sm-12">
-        <span className="text-muted small">
-          This stack will be deployed using <code>docker compose</code>.
-        </span>
+        <span
+          className="text-muted small"
+          dangerouslySetInnerHTML={{
+            __html: t('docker.stacks.composeDeployInfo', {
+              interpolation: { escapeValue: false },
+            }),
+          }}
+        />
       </div>
     </div>
   );

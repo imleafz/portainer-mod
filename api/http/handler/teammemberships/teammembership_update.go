@@ -3,10 +3,12 @@ package teammemberships
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	portainer "github.com/portainer/portainer/api"
 	httperrors "github.com/portainer/portainer/api/http/errors"
 	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
 	"github.com/portainer/portainer/pkg/libhttp/request"
 	"github.com/portainer/portainer/pkg/libhttp/response"
@@ -89,6 +91,46 @@ func (handler *Handler) teamMembershipUpdate(w http.ResponseWriter, r *http.Requ
 	}
 
 	defer handler.updateUserServiceAccounts(membership)
+
+	user, _ := handler.DataStore.User().Read(membership.UserID)
+	team, _ := handler.DataStore.Team().Read(membership.TeamID)
+
+	tokenData, _ := security.RetrieveTokenData(r)
+	operatorUsername := ""
+	operatorUserID := 0
+	if tokenData != nil {
+		operatorUserID = int(tokenData.ID)
+		operator, _ := handler.DataStore.User().Read(tokenData.ID)
+		if operator != nil {
+			operatorUsername = operator.Username
+		}
+	}
+
+	userName := ""
+	teamName := ""
+	if user != nil {
+		userName = user.Username
+	}
+	if team != nil {
+		teamName = team.Name
+	}
+
+	activitylog.NewActivityLogBuilder(
+		activitylog.ActionUpdate,
+		activitylog.ContextPortainer,
+		activitylog.ResourceTypeTeamMembership,
+	).
+		WithUser(operatorUserID, operatorUsername).
+		WithResource(strconv.Itoa(int(membership.ID)), teamName+"/"+userName).
+		WithTeam(teamName).
+		WithDetails(map[string]interface{}{
+			"userID":   membership.UserID,
+			"userName": userName,
+			"teamID":   membership.TeamID,
+			"teamName": teamName,
+			"role":     membership.Role,
+		}).
+		Log()
 
 	return response.JSON(w, membership)
 }

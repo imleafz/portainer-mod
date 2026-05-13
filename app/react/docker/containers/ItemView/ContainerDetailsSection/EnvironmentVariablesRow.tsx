@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { DetailsTable } from '@@/DetailsTable';
 
 interface EnvironmentVariablesRowProps {
@@ -7,16 +9,13 @@ interface EnvironmentVariablesRowProps {
 export function EnvironmentVariablesRow({
   variables,
 }: EnvironmentVariablesRowProps) {
-  if (!variables || variables?.length === 0) {
-    return null;
-  }
-
+  const { t } = useTranslation();
   const sortedEnv = [...variables].sort((a, b) =>
     a.toLowerCase().localeCompare(b.toLowerCase())
   );
 
   return (
-    <DetailsTable.Row label="ENV">
+    <DetailsTable.Row label={t('docker.container.env')}>
       <table className="table table-bordered table-condensed !m-0">
         <tbody>
           {sortedEnv.map((envVar, index) => {

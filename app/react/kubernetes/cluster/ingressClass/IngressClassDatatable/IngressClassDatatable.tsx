@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import Route from '@/assets/ico/route.svg?c';
 
 import { confirm } from '@@/modals/confirm';
@@ -35,6 +37,7 @@ export function IngressClassDatatable({
   noIngressControllerLabel,
   view,
 }: Props) {
+  const { t } = useTranslation();
   const tableState = useTableState(settingsStore, storageKey);
 
   return (
@@ -44,7 +47,7 @@ export function IngressClassDatatable({
         dataset={values || []}
         columns={columns}
         isLoading={isLoading}
-        title="Ingress Controllers"
+        title={t('kubernetes.cluster.ingressControllers')}
         titleIcon={Route}
         getRowId={(row) => `${row.Name}-${row.ClassName}-${row.Type}`}
         renderTableActions={(selectedRows) => renderTableActions(selectedRows)}
@@ -70,7 +73,7 @@ export function IngressClassDatatable({
               updateIngressControllers(selectedRows, values || [], false)
             }
           >
-            Disallow selected
+            {t('kubernetes.cluster.disallowSelected')}
           </Button>
           <Button
             data-cy="allow-ingress-controllers-button"
@@ -84,7 +87,7 @@ export function IngressClassDatatable({
               updateIngressControllers(selectedRows, values || [], true)
             }
           >
-            Allow selected
+            {t('kubernetes.cluster.allowSelected')}
           </Button>
         </ButtonGroup>
       </div>
@@ -102,7 +105,7 @@ export function IngressClassDatatable({
           {initialValues &&
             values &&
             isUnsavedChanges(initialValues, values) && (
-              <TextTip>Unsaved changes.</TextTip>
+              <TextTip>{t('kubernetes.cluster.unsavedChanges')}</TextTip>
             )}
         </div>
       </div>
@@ -145,26 +148,23 @@ export function IngressClassDatatable({
 
       if (usedControllersToDisallow.length > 0) {
         const confirmed = await confirm({
-          title: 'Disallow in-use ingress controllers?',
+          title: t('kubernetes.cluster.disallowInUseTitle'),
           modalType: ModalType.Warn,
           message: (
             <div>
-              <p>
-                There are ingress controllers you want to disallow that are in
-                use:
-              </p>
+              <p>{t('kubernetes.cluster.disallowInUseMessage')}</p>
               <ul className="ml-6">
                 {usedControllersToDisallow.map((controller) => (
                   <li key={controller.ClassName}>{controller.ClassName}</li>
                 ))}
               </ul>
-              <p>
-                No new ingress rules can be created for the disallowed
-                controllers.
-              </p>
+              <p>{t('kubernetes.cluster.noNewIngressRules')}</p>
             </div>
           ),
-          confirmButton: buildConfirmButton('Disallow', 'warning'),
+          confirmButton: buildConfirmButton(
+            t('kubernetes.cluster.disallowSelected'),
+            'warning'
+          ),
         });
 
         if (!confirmed) {

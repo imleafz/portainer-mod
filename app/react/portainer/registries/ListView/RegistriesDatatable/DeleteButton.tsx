@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { pluralize } from '@/portainer/helpers/strings';
 import { notifySuccess } from '@/portainer/services/notifications';
 
@@ -8,9 +10,10 @@ import { Registry } from '../../types/registry';
 import { useDeleteRegistriesMutation } from './useDeleteRegistriesMutation';
 
 export function DeleteButton({ selectedItems }: { selectedItems: Registry[] }) {
+  const { t } = useTranslation();
   const mutation = useDeleteRegistriesMutation();
 
-  const confirmMessage = getMessage(selectedItems.length);
+  const confirmMessage = getMessage(selectedItems.length, t);
 
   return (
     <BaseDeleteButton
@@ -26,15 +29,14 @@ export function DeleteButton({ selectedItems }: { selectedItems: Registry[] }) {
       selectedItems.map((item) => item.Id),
       {
         onSuccess() {
-          notifySuccess('Success', 'Registries removed');
+          notifySuccess(t('common.success'), t('registries.removed'));
         },
       }
     );
   }
 }
 
-function getMessage(selectedCount: number) {
-  const regAttrMsg = selectedCount > 1 ? 'hese' : 'his';
-  const registriesMsg = pluralize(selectedCount, 'registry', 'registries');
-  return `T${regAttrMsg} ${registriesMsg} might be used by applications inside one or more environments. Removing the ${registriesMsg} could lead to a service interruption for the applications using t${regAttrMsg} ${registriesMsg}. Do you want to remove the selected ${registriesMsg}?`;
+function getMessage(selectedCount: number, t: ReturnType<typeof useTranslation>) {
+  const registriesMsg = pluralize(selectedCount, t('registries.registry'), t('registries.registries'));
+  return t('registries.removeConfirm', { registries: registriesMsg });
 }

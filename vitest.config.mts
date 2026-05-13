@@ -12,6 +12,7 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: [
+      './app/setup-tests/i18n.ts',
       './app/setup-tests/setup-websocket.ts',
       './app/setup-tests/setup-rtl.ts',
       './app/setup-tests/setup-msw.ts',

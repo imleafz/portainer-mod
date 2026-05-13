@@ -2,13 +2,16 @@ package stacks
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 
 	portainer "github.com/portainer/portainer/api"
+	alog "github.com/portainer/portainer/api/dataservices/activitylog"
 	"github.com/portainer/portainer/api/git"
 	gittypes "github.com/portainer/portainer/api/git/types"
 	httperrors "github.com/portainer/portainer/api/http/errors"
 	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	k "github.com/portainer/portainer/api/kubernetes"
 	"github.com/portainer/portainer/api/stacks/deployments"
 	"github.com/portainer/portainer/api/stacks/stackutils"
@@ -197,6 +200,26 @@ func (handler *Handler) stackGitRedeploy(w http.ResponseWriter, r *http.Request)
 		// Sanitize password in the http response to minimise possible security leaks
 		stack.GitConfig.Authentication.Password = ""
 	}
+
+	username := ""
+	if user != nil {
+		username = user.Username
+	}
+
+	activitylog.NewActivityLogBuilder(
+		alog.ActionRedeploy,
+		alog.ContextDocker,
+		alog.ResourceTypeDockerStack,
+	).
+		WithUser(int(securityContext.UserID), username).
+		WithResource(strconv.Itoa(int(stack.ID)), stack.Name).
+		WithDetails(map[string]interface{}{
+			"description": "重新部署 Docker 堆栈成功",
+			"stackName":   stack.Name,
+			"stackType":   stack.Type,
+			"endpoint":    endpoint.Name,
+		}).
+		Log()
 
 	return response.JSON(w, stack)
 }

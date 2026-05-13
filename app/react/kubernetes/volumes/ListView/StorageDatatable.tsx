@@ -1,5 +1,6 @@
 import { createColumnHelper } from '@tanstack/react-table';
 import { HardDrive } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
 import { humanize } from '@/portainer/filters/filters';
@@ -36,6 +37,7 @@ const columns = [
 ];
 
 export function StorageDatatable() {
+  const { t } = useTranslation();
   const tableState = useTableStateWithStorage<TableSettings>(
     'kubernetes.volumes.storages',
     'Name',
@@ -55,7 +57,7 @@ export function StorageDatatable() {
       disableSelect
       dataset={storages}
       columns={columns}
-      title="Storage"
+      title={t('kubernetes.volumes.storage')}
       titleIcon={HardDrive}
       settingsManager={tableState}
       isLoading={storagesQuery.isLoading}

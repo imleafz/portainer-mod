@@ -84,9 +84,10 @@ describe('initial rendering', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(/Only Compose file format version/)
+        screen.getByText(
+          /Currently only Compose file format version 2 is supported/
+        )
       ).toBeVisible();
-      expect(screen.getByText(/2/)).toBeVisible();
     });
   });
 
@@ -381,7 +382,7 @@ describe('form submission', () => {
     renderComponent({ isSubmitting: true }, {});
 
     await waitFor(() => {
-      expect(screen.getByText(/Deployment in progress.../)).toBeInTheDocument();
+      expect(screen.getByText(/Deploying.../)).toBeInTheDocument();
     });
   });
 

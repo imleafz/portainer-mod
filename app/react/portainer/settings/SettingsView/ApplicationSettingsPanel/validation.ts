@@ -35,5 +35,6 @@ export function validation(): SchemaOf<Values> {
         'Must be a valid URL',
         (value) => !value || isValidUrl(value)
       ),
+    enableActivityLog: boolean().default(false),
   });
 }

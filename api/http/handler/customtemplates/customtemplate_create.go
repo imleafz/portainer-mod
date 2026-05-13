@@ -11,6 +11,7 @@ import (
 	"github.com/portainer/portainer/api/filesystem"
 	gittypes "github.com/portainer/portainer/api/git/types"
 	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	"github.com/portainer/portainer/api/internal/authorization"
 	"github.com/portainer/portainer/api/stacks/stackutils"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
@@ -62,6 +63,21 @@ func (handler *Handler) customTemplateCreate(w http.ResponseWriter, r *http.Requ
 	}
 
 	customTemplate.ResourceControl = resourceControl
+
+	activitylog.NewActivityLogBuilder(
+		activitylog.ActionCreate,
+		activitylog.ContextPortainer,
+		activitylog.ResourceTypeCustomTemplate,
+	).
+		WithUser(int(tokenData.ID), tokenData.Username).
+		WithResource(strconv.Itoa(int(customTemplate.ID)), customTemplate.Title).
+		WithDetails(map[string]interface{}{
+			"description":   "创建自定义模板成功",
+			"templateTitle": customTemplate.Title,
+			"templateType":  strconv.Itoa(int(customTemplate.Type)),
+			"platform":      strconv.Itoa(int(customTemplate.Platform)),
+		}).
+		Log()
 
 	return response.JSON(w, customTemplate)
 }

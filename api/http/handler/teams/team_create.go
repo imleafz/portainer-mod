@@ -3,9 +3,12 @@ package teams
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	portainer "github.com/portainer/portainer/api"
 	"github.com/portainer/portainer/api/dataservices"
+	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
 	"github.com/portainer/portainer/pkg/libhttp/request"
 	"github.com/portainer/portainer/pkg/libhttp/response"
@@ -47,12 +50,41 @@ func (handler *Handler) teamCreate(w http.ResponseWriter, r *http.Request) *http
 		return httperror.BadRequest("Invalid request payload", err)
 	}
 
+	tokenData, _ := security.RetrieveTokenData(r)
+	operatorUsername := ""
+	operatorUserID := 0
+	if tokenData != nil {
+		operatorUserID = int(tokenData.ID)
+		operator, _ := handler.DataStore.User().Read(tokenData.ID)
+		if operator != nil {
+			operatorUsername = operator.Username
+		}
+	}
+
 	var team *portainer.Team
 	var err error
 	err = handler.DataStore.UpdateTx(func(tx dataservices.DataStoreTx) error {
 		team, err = createTeam(tx, payload)
 		return err
 	})
+
+	if err != nil {
+		return response.TxResponse(w, team, err)
+	}
+
+	activitylog.NewActivityLogBuilder(
+		activitylog.ActionCreate,
+		activitylog.ContextPortainer,
+		activitylog.ResourceTypeTeam,
+	).
+		WithUser(operatorUserID, operatorUsername).
+		WithResource(strconv.Itoa(int(team.ID)), team.Name).
+		WithDetails(map[string]interface{}{
+			"description": "创建团队成功",
+			"teamName":    team.Name,
+			"teamLeaders": payload.TeamLeaders,
+		}).
+		Log()
 
 	return response.TxResponse(w, team, err)
 }

@@ -14,7 +14,7 @@ import { StackDuplicationForm } from './StackDuplicationForm';
 it('should render Widget with title and inner component', async () => {
   const { getByText } = renderComponent();
 
-  expect(getByText('Stack duplication / migration')).toBeVisible();
+  expect(getByText('Duplicate / Migrate stack')).toBeVisible();
   await waitFor(() => {
     expect(
       getByText('This feature allows you to duplicate or migrate this stack.')
@@ -40,7 +40,7 @@ it('should display rename help text', async () => {
   await waitFor(() => {
     expect(
       getByText(
-        'To rename the stack, choose the same environment when migrating.'
+        'To rename a stack, select the same environment during migration.'
       )
     ).toBeVisible();
   });

@@ -1,5 +1,6 @@
 import { FormikErrors } from 'formik';
 import { ArrowRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { ButtonSelector } from '@@/form-components/ButtonSelector/ButtonSelector';
 import { FormError } from '@@/form-components/FormError';
@@ -33,13 +34,15 @@ export function PortsMappingField({
   disabled,
   readOnly,
 }: Props) {
+  const { t } = useTranslation();
+
   return (
     <>
       <InputList<PortMapping>
-        label="Port mapping"
+        label={t('docker.container.portMapping')}
         value={value}
         onChange={onChange}
-        addLabel="Map additional port"
+        addLabel={t('docker.container.mapAdditionalPort')}
         itemBuilder={() => ({
           hostPort: '',
           containerPort: '',
@@ -49,7 +52,7 @@ export function PortsMappingField({
         errors={errors}
         disabled={disabled}
         readOnly={readOnly}
-        tooltip="When a range of ports on the host and a single port on the container is specified, Docker will randomly choose a single available port in the defined range and forward that to the container port."
+        tooltip={t('docker.container.portMappingTooltip')}
         data-cy="docker-containers-ports-mapping"
       />
       {typeof errors === 'string' && (
@@ -69,6 +72,8 @@ function Item({
   readOnly,
   index,
 }: ItemProps<PortMapping>) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col">
       <div className="flex items-center gap-2">
@@ -79,8 +84,8 @@ function Item({
           readOnly={readOnly}
           value={item.hostPort}
           onChange={(e) => handleChange('hostPort', e.target.value)}
-          label="Host"
-          placeholder="e.g. 80"
+          label={t('docker.container.host')}
+          placeholder={t('docker.container.hostPathPlaceholder')}
           className="w-1/2"
           id={`hostPort-${index}`}
         />
@@ -95,8 +100,8 @@ function Item({
           readOnly={readOnly}
           value={item.containerPort}
           onChange={(e) => handleChange('containerPort', e.target.value)}
-          label="Container"
-          placeholder="e.g. 80"
+          label={t('docker.container.container')}
+          placeholder={t('docker.container.containerPathPlaceholder')}
           className="w-1/2"
           id={`containerPort-${index}`}
           data-cy={`containerPort-${index}`}
@@ -106,8 +111,8 @@ function Item({
           onChange={(value) => handleChange('protocol', value)}
           value={item.protocol}
           options={[
-            { value: 'tcp', label: 'TCP' },
-            { value: 'udp', label: 'UDP' },
+            { value: 'tcp', label: t('docker.container.tcp') },
+            { value: 'udp', label: t('docker.container.udp') },
           ]}
           disabled={disabled}
           readOnly={readOnly}

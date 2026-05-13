@@ -17,13 +17,11 @@ angular.module('portainer.app').controller('InitAdminController', [
     $scope.uploadBackup = uploadBackup;
 
     $scope.logo = StateManager.getState().application.logo;
-    $scope.RESTORE_FORM_TYPES = { S3: 's3', FILE: 'file' };
 
     $scope.formValues = {
       Username: 'admin',
       Password: '',
       ConfirmPassword: '',
-      restoreFormType: $scope.RESTORE_FORM_TYPES.FILE,
     };
 
     $scope.state = {
@@ -38,13 +36,6 @@ angular.module('portainer.app').controller('InitAdminController', [
       $scope.state.showInitPassword = !$scope.state.showInitPassword;
       $scope.state.showRestorePortainer = !$scope.state.showRestorePortainer;
     };
-
-    $scope.onChangeRestoreType = onChangeRestoreType;
-    function onChangeRestoreType(value) {
-      $scope.$evalAsync(() => {
-        $scope.formValues.restoreFormType = value;
-      });
-    }
 
     $scope.createAdminUser = function () {
       var username = $scope.formValues.Username;

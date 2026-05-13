@@ -3,6 +3,7 @@ import { useRouter } from '@uirouter/react';
 import _ from 'lodash';
 import { useState } from 'react';
 import uuidv4 from 'uuid/v4';
+import { useTranslation } from 'react-i18next';
 
 import { Stack, StackType } from '@/react/common/stacks/types';
 import { useDockerComposeSchema } from '@/react/hooks/useDockerComposeSchema/useDockerComposeSchema';
@@ -36,6 +37,7 @@ export function StackEditorTab({
   onSubmitSuccess = () => {},
   stack,
 }: StackEditorTabProps) {
+  const { t } = useTranslation();
   const versions = _.compact([
     stack.StackFileVersion,
     stack.PreviousDeploymentInfo?.FileVersion,
@@ -72,7 +74,7 @@ export function StackEditorTab({
       )}
       onSubmit={async (values) => {
         const response = await confirmStackUpdate(
-          'Do you want to force an update of the stack?',
+          t('docker.stack.forceUpdateStack'),
           stack.Type === StackType.DockerSwarm
         );
 
@@ -95,12 +97,19 @@ export function StackEditorTab({
           },
           {
             onSuccess() {
-              notifySuccess('Success', 'Stack successfully deployed');
+              notifySuccess(
+                t('docker.stack.success'),
+                t('docker.stack.stackSuccessfullyDeployed')
+              );
               router.stateService.reload();
               onSubmitSuccess();
             },
             onError(err) {
-              notifyError('Failure', err as Error, 'Unable to create stack');
+              notifyError(
+                t('docker.stack.failure'),
+                err as Error,
+                t('docker.stack.unableToCreateStack')
+              );
             },
           }
         );

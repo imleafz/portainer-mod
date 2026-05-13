@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { CellContext } from '@tanstack/react-table';
 
 import { ServiceViewModel } from '@/docker/models/service';
@@ -13,8 +14,12 @@ export const ports = columnHelper.accessor(
       .map((port) => `${port.PublishedPort}:${port.TargetPort}`)
       .join(','),
   {
-    header: 'Published Ports',
     id: 'ports',
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation();
+      return t('docker.services.publishedPorts');
+    },
     cell: Cell,
   }
 );

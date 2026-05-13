@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import { Home } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { useIsEdgeAdmin, useIsPureAdmin } from '@/react/hooks/useUser';
 import { useIsCurrentUserTeamLeader } from '@/portainer/users/queries';
@@ -13,7 +14,6 @@ import { SidebarItem } from './SidebarItem';
 import { Footer } from './Footer';
 import { Header } from './Header';
 import { SidebarProvider, useSidebarState } from './useSidebarState';
-import { UpgradeBEBannerWrapper } from './UpgradeBEBanner';
 
 export function Sidebar() {
   return (
@@ -25,6 +25,7 @@ export function Sidebar() {
 }
 
 function InnerSidebar() {
+  const { t } = useTranslation();
   const isPureAdmin = useIsPureAdmin();
   const isAdminQuery = useIsEdgeAdmin({ noEnvScope: true });
   const isTeamLeader = useIsCurrentUserTeamLeader();
@@ -42,7 +43,6 @@ function InnerSidebar() {
 
   return (
     <div className={clsx(styles.root, 'sidebar flex flex-col')}>
-      <UpgradeBEBannerWrapper />
       <nav
         className={clsx(
           styles.nav,
@@ -64,7 +64,7 @@ function InnerSidebar() {
             <SidebarItem
               to="portainer.home"
               icon={Home}
-              label="Home"
+              label={t('sidebar.home')}
               data-cy="portainerSidebar-home"
             />
             <EnvironmentSidebar />

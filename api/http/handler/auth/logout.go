@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	"github.com/portainer/portainer/api/logoutcontext"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
 	"github.com/portainer/portainer/pkg/libhttp/response"
@@ -27,6 +28,8 @@ func (handler *Handler) logout(w http.ResponseWriter, r *http.Request) *httperro
 		handler.KubernetesClientFactory.ClearUserClientCache(strconv.Itoa(int(tokenData.ID)))
 		logoutcontext.Cancel(tokenData.Token)
 		handler.bouncer.RevokeJWT(tokenData.Token)
+
+		activitylog.LogLogout(tokenData.Username, 1, r.RemoteAddr)
 	}
 
 	security.RemoveAuthCookie(w)

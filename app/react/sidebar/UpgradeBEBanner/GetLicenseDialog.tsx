@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { HubspotForm } from '@@/HubspotForm';
 import { Modal } from '@@/modals/Modal';
 
@@ -8,9 +10,7 @@ export function GetLicenseDialog({
   onDismiss: () => void;
   goToUploadLicense: (isSubmitted: boolean) => void;
 }) {
-  // form is loaded from hubspot, so it won't have the same styling as the rest of the app
-  // since it won't support darkmode, we enforce a white background and black text for the components we use
-  // (Modal, CloseButton, loading text)
+  const { t } = useTranslation();
 
   return (
     <Modal
@@ -28,7 +28,7 @@ export function GetLicenseDialog({
             onSubmitted={() => {
               goToUploadLicense(true);
             }}
-            loading={<div className="text-black">Loading...</div>}
+            loading={<div className="text-black">{t('upgradeBE.getLicense.loading')}</div>}
           />
         </div>
       </Modal.Body>

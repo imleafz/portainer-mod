@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { CellContext } from '@tanstack/react-table';
 
 import { useAuthorizations } from '@/react/hooks/useUser';
@@ -11,7 +12,11 @@ import { TableSettings } from '../types';
 import { columnHelper } from './helper';
 
 export const quickActions = columnHelper.display({
-  header: 'Quick Actions',
+  header: () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { t } = useTranslation();
+    return t('docker.container.quickActions');
+  },
   id: 'actions',
   cell: QuickActionsCell,
 });

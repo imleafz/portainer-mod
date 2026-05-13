@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { CellContext } from '@tanstack/react-table';
 import { Node } from 'docker-types';
 
@@ -12,7 +13,11 @@ import { matchesServiceConstraints } from './constraint-helper';
 import { ScaleServiceButton } from './ScaleServiceButton';
 
 export const schedulingMode = columnHelper.accessor('Mode', {
-  header: 'Scheduling Mode',
+  header: () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { t } = useTranslation();
+    return t('docker.services.schedulingMode');
+  },
   cell: Cell,
   enableHiding: false,
 });

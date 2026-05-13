@@ -1,4 +1,5 @@
 import { Square } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Authorized } from '@/react/hooks/useUser';
 import { EnvironmentId } from '@/react/portainer/environments/types';
@@ -26,6 +27,7 @@ export function StopButton({
   isPortainer,
   onSuccess = () => {},
 }: StopButtonProps) {
+  const { t } = useTranslation();
   const stopMutation = useStopContainer();
 
   function handleStop() {
@@ -33,7 +35,7 @@ export function StopButton({
       { environmentId, containerId, nodeName },
       {
         onSuccess() {
-          notifySuccess('Success', 'Container successfully stopped');
+          notifySuccess(t('common.success'), t('docker.container.containerStopped'));
           onSuccess();
         },
       }
@@ -48,11 +50,11 @@ export function StopButton({
         onClick={handleStop}
         disabled={!isRunning || isPortainer}
         isLoading={stopMutation.isLoading}
-        loadingText="Stopping..."
+        loadingText={t('docker.container.stopping')}
         data-cy="stop-container-button"
         icon={Square}
       >
-        Stop
+        {t('docker.container.stop')}
       </LoadingButton>
     </Authorized>
   );

@@ -4,9 +4,10 @@ import { FeatureId } from '@/react/portainer/feature-flags/enums';
 
 export default class AuthLogsViewController {
   /* @ngInject */
-  constructor($async, Notifications) {
+  constructor($async, Notifications, UserActivityService) {
     this.$async = $async;
     this.Notifications = Notifications;
+    this.UserActivityService = UserActivityService;
 
     this.limitedFeature = FeatureId.ACTIVITY_AUDIT;
     this.state = {
@@ -85,7 +86,20 @@ export default class AuthLogsViewController {
     return this.$async(async () => {
       this.state.logs = null;
       try {
-        const { logs, totalCount } = { logs: [], totalCount: 0 };
+        const params = {
+          offset: (this.state.page - 1) * this.state.limit,
+          limit: this.state.limit,
+          keyword: this.state.keyword,
+          date: {
+            from: this.state.date.from,
+            to: this.state.date.to,
+          },
+          sort: this.state.sort,
+          contexts: this.state.contextFilter,
+          types: this.state.typeFilter,
+        };
+
+        const { logs, totalCount } = await this.UserActivityService.authLogs(params.offset, params.limit, params.sort, params.keyword, params.date, params.contexts, params.types);
         this.state.logs = decorateLogs(logs);
         this.state.totalItems = totalCount;
       } catch (err) {

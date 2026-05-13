@@ -1,5 +1,6 @@
 import { Minimize2 } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { ServiceViewModel } from '@/docker/models/service';
 import { Authorized } from '@/react/hooks/useUser';
@@ -9,6 +10,7 @@ import { Button } from '@@/buttons';
 import { ScaleForm } from './ScaleForm';
 
 export function ScaleServiceButton({ service }: { service: ServiceViewModel }) {
+  const { t } = useTranslation();
   const [isEdit, setIsEdit] = useState(false);
 
   if (!isEdit) {
@@ -20,7 +22,7 @@ export function ScaleServiceButton({ service }: { service: ServiceViewModel }) {
           onClick={() => setIsEdit(true)}
           data-cy="scale-service-button"
         >
-          Scale
+          {t('docker.services.scale')}
         </Button>
       </Authorized>
     );

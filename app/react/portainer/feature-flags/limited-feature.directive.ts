@@ -33,6 +33,13 @@ export function limitedFeatureDirective(): IDirective {
     }
 
     if (state === FeatureState.VISIBLE) {
+      const limitedClass = limitedFeatureAttrs.find(
+        ([attr]) => attr === 'class'
+      );
+      if (limitedClass) {
+        const currentClass = elem.attr('class') || '';
+        elem.attr('class', currentClass.replace(/limited-be/g, '').trim());
+      }
       return;
     }
 

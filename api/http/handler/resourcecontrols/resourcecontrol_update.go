@@ -3,10 +3,12 @@ package resourcecontrols
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	portainer "github.com/portainer/portainer/api"
 	httperrors "github.com/portainer/portainer/api/http/errors"
 	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
 	"github.com/portainer/portainer/pkg/libhttp/request"
 	"github.com/portainer/portainer/pkg/libhttp/response"
@@ -109,6 +111,34 @@ func (handler *Handler) resourceControlUpdate(w http.ResponseWriter, r *http.Req
 	if err := handler.DataStore.ResourceControl().Update(resourceControl.ID, resourceControl); err != nil {
 		return httperror.InternalServerError("Unable to persist resource control changes inside the database", err)
 	}
+
+	tokenData, _ := security.RetrieveTokenData(r)
+	operatorUsername := ""
+	operatorUserID := 0
+	if tokenData != nil {
+		operatorUserID = int(tokenData.ID)
+		operator, _ := handler.DataStore.User().Read(tokenData.ID)
+		if operator != nil {
+			operatorUsername = operator.Username
+		}
+	}
+
+	activitylog.NewActivityLogBuilder(
+		activitylog.ActionUpdate,
+		activitylog.ContextPortainer,
+		activitylog.ResourceTypeResourceControl,
+	).
+		WithUser(operatorUserID, operatorUsername).
+		WithResource(strconv.Itoa(resourceControlID), resourceControl.ResourceID).
+		WithDetails(map[string]interface{}{
+			"resourceID":          resourceControl.ResourceID,
+			"resourceControlType": resourceControl.Type,
+			"public":              payload.Public,
+			"administratorsOnly":  payload.AdministratorsOnly,
+			"userAccesses":        payload.Users,
+			"teamAccesses":        payload.Teams,
+		}).
+		Log()
 
 	return response.JSON(w, resourceControl)
 }

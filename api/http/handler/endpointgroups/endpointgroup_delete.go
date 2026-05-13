@@ -3,9 +3,12 @@ package endpointgroups
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	portainer "github.com/portainer/portainer/api"
 	"github.com/portainer/portainer/api/dataservices"
+	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
 	"github.com/portainer/portainer/pkg/libhttp/request"
 	"github.com/portainer/portainer/pkg/libhttp/response"
@@ -34,9 +37,39 @@ func (handler *Handler) endpointGroupDelete(w http.ResponseWriter, r *http.Reque
 		return httperror.Forbidden("Unable to remove the default 'Unassigned' group", errors.New("Cannot remove the default environment group"))
 	}
 
+	endpointGroup, err := handler.DataStore.EndpointGroup().Read(portainer.EndpointGroupID(endpointGroupID))
+	if handler.DataStore.IsErrObjectNotFound(err) {
+		return httperror.NotFound("Unable to find an environment group with the specified identifier inside the database", err)
+	}
+	endpointGroupName := endpointGroup.Name
+
 	err = handler.DataStore.UpdateTx(func(tx dataservices.DataStoreTx) error {
 		return handler.deleteEndpointGroup(tx, portainer.EndpointGroupID(endpointGroupID))
 	})
+
+	if err != nil {
+		return response.TxEmptyResponse(w, err)
+	}
+
+	tokenData, _ := security.RetrieveTokenData(r)
+	operatorUsername := ""
+	operatorUserID := 0
+	if tokenData != nil {
+		operatorUserID = int(tokenData.ID)
+		operator, _ := handler.DataStore.User().Read(tokenData.ID)
+		if operator != nil {
+			operatorUsername = operator.Username
+		}
+	}
+
+	activitylog.NewActivityLogBuilder(
+		activitylog.ActionDelete,
+		activitylog.ContextPortainer,
+		activitylog.ResourceTypeEndpointGroup,
+	).
+		WithUser(operatorUserID, operatorUsername).
+		WithResource(strconv.Itoa(endpointGroupID), endpointGroupName).
+		Log()
 
 	return response.TxEmptyResponse(w, err)
 }

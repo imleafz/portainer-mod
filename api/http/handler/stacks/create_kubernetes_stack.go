@@ -5,7 +5,9 @@ import (
 	"net/http"
 
 	portainer "github.com/portainer/portainer/api"
+	alog "github.com/portainer/portainer/api/dataservices/activitylog"
 	"github.com/portainer/portainer/api/git/update"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	"github.com/portainer/portainer/api/internal/endpointutils"
 	"github.com/portainer/portainer/api/internal/registryutils"
 	k "github.com/portainer/portainer/api/kubernetes"
@@ -179,6 +181,27 @@ func (handler *Handler) createKubernetesStackFromFileContent(w http.ResponseWrit
 		Output: k8sStackBuilder.GetResponse(),
 	}
 
+	username := ""
+	if user != nil {
+		username = user.Username
+	}
+
+	activitylog.NewActivityLogBuilder(
+		alog.ActionCreate,
+		alog.ContextKubernetes,
+		alog.ResourceTypeK8sDeployment,
+	).
+		WithUser(int(userID), username).
+		WithResource(payload.StackName, payload.StackName).
+		WithDetails(map[string]interface{}{
+			"description": "创建 Kubernetes 堆栈成功",
+			"stackName":   payload.StackName,
+			"namespace":   payload.Namespace,
+			"endpoint":    endpoint.Name,
+			"method":      "string",
+		}).
+		Log()
+
 	return response.JSON(w, resp)
 }
 
@@ -248,6 +271,27 @@ func (handler *Handler) createKubernetesStackFromGitRepository(w http.ResponseWr
 		return err
 	}
 
+	username := ""
+	if user != nil {
+		username = user.Username
+	}
+
+	activitylog.NewActivityLogBuilder(
+		alog.ActionCreate,
+		alog.ContextKubernetes,
+		alog.ResourceTypeK8sDeployment,
+	).
+		WithUser(int(userID), username).
+		WithResource(payload.StackName, payload.StackName).
+		WithDetails(map[string]interface{}{
+			"description": "创建 Kubernetes 堆栈成功",
+			"stackName":   payload.StackName,
+			"namespace":   payload.Namespace,
+			"endpoint":    endpoint.Name,
+			"method":      "repository",
+		}).
+		Log()
+
 	return response.JSON(w, &createKubernetesStackResponse{
 		Output: k8sStackBuilder.GetResponse(),
 	})
@@ -293,6 +337,27 @@ func (handler *Handler) createKubernetesStackFromManifestURL(w http.ResponseWrit
 	if _, err := stackBuilderDirector.Build(&stackPayload, endpoint); err != nil {
 		return err
 	}
+
+	username := ""
+	if user != nil {
+		username = user.Username
+	}
+
+	activitylog.NewActivityLogBuilder(
+		alog.ActionCreate,
+		alog.ContextKubernetes,
+		alog.ResourceTypeK8sDeployment,
+	).
+		WithUser(int(userID), username).
+		WithResource(payload.StackName, payload.StackName).
+		WithDetails(map[string]interface{}{
+			"description": "创建 Kubernetes 堆栈成功",
+			"stackName":   payload.StackName,
+			"namespace":   payload.Namespace,
+			"endpoint":    endpoint.Name,
+			"method":      "url",
+		}).
+		Log()
 
 	return response.JSON(w, &createKubernetesStackResponse{
 		Output: k8sStackBuilder.GetResponse(),

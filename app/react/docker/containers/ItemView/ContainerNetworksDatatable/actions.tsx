@@ -1,4 +1,5 @@
 import { CellContext } from '@tanstack/react-table';
+import { useTranslation } from 'react-i18next';
 
 import { Authorized } from '@/react/hooks/useUser';
 import { useDisconnectContainer } from '@/react/docker/networks/queries/useDisconnectContainerMutation';
@@ -10,9 +11,17 @@ import { LoadingButton } from '@@/buttons';
 import { TableNetwork, isContainerNetworkTableMeta } from './types';
 import { columnHelper } from './helper';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { useTranslation: useTranslationActions } = require('react-i18next');
+
 export function buildActions({ nodeName }: { nodeName?: string } = {}) {
   return columnHelper.display({
-    header: 'Actions',
+    id: 'actions',
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslationActions();
+      return t('docker.container.actions');
+    },
     cell: Cell,
   });
 
@@ -24,6 +33,7 @@ export function buildActions({ nodeName }: { nodeName?: string } = {}) {
       options: { meta },
     },
   }: CellContext<TableNetwork, unknown>) {
+    const { t } = useTranslation();
     const environmentId = useEnvironmentId();
     const disconnectMutation = useDisconnectContainer({
       environmentId,
@@ -36,11 +46,11 @@ export function buildActions({ nodeName }: { nodeName?: string } = {}) {
           color="dangerlight"
           data-cy="disconnect-network-button"
           isLoading={disconnectMutation.isLoading}
-          loadingText="Leaving network..."
+          loadingText={t('docker.container.leavingNetwork')}
           type="button"
           onClick={handleSubmit}
         >
-          Leave network
+          {t('docker.container.leaveNetwork')}
         </LoadingButton>
       </Authorized>
     );
@@ -57,7 +67,10 @@ export function buildActions({ nodeName }: { nodeName?: string } = {}) {
         },
         {
           onSuccess() {
-            notifySuccess('Container successfully disconnected', networkId);
+            notifySuccess(
+              t('docker.networks.containerDisconnected'),
+              networkId
+            );
           },
         }
       );

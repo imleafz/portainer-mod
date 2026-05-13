@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
 import { useIsSwarm } from '@/react/docker/proxy/queries/useInfo';
 import { StackType } from '@/react/common/stacks/types';
@@ -11,6 +13,7 @@ import { TemplateViewType, useViewType } from '../useViewType';
 import { CreateForm } from './CreateForm';
 
 export function CreateView() {
+  const { t } = useTranslation();
   const viewType = useViewType();
   const environmentId = useEnvironmentId(false);
   const isSwarm = useIsSwarm(environmentId, {
@@ -21,10 +24,10 @@ export function CreateView() {
   return (
     <div>
       <PageHeader
-        title="Create Custom Template"
+        title={t('customTemplates.createCustomTemplate')}
         breadcrumbs={[
-          { label: 'Custom Templates', link: '^' },
-          'Create Custom Template',
+          { label: t('customTemplates.customTemplates'), link: '^' },
+          t('customTemplates.createCustomTemplate'),
         ]}
       />
 

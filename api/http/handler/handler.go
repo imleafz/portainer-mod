@@ -35,6 +35,7 @@ import (
 	"github.com/portainer/portainer/api/http/handler/teams"
 	"github.com/portainer/portainer/api/http/handler/templates"
 	"github.com/portainer/portainer/api/http/handler/upload"
+	"github.com/portainer/portainer/api/http/handler/useractivity"
 	"github.com/portainer/portainer/api/http/handler/users"
 	"github.com/portainer/portainer/api/http/handler/webhooks"
 	"github.com/portainer/portainer/api/http/handler/websocket"
@@ -78,6 +79,7 @@ type Handler struct {
 	WebSocketHandler       *websocket.Handler
 	WebhookHandler         *webhooks.Handler
 	UserHelmHandler        *helm.Handler
+	UserActivityHandler    *useractivity.Handler
 }
 
 // @title PortainerCE API
@@ -254,6 +256,10 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.StripPrefix("/api", h.WebSocketHandler).ServeHTTP(w, r)
 	case strings.HasPrefix(r.URL.Path, "/api/webhooks"):
 		http.StripPrefix("/api", h.WebhookHandler).ServeHTTP(w, r)
+	case strings.HasPrefix(r.URL.Path, "/api/useractivity"):
+		http.StripPrefix("/api", h.UserActivityHandler).ServeHTTP(w, r)
+	case strings.HasPrefix(r.URL.Path, "/useractivity"):
+		http.StripPrefix("", h.UserActivityHandler).ServeHTTP(w, r)
 	case strings.HasPrefix(r.URL.Path, "/storybook"):
 		http.StripPrefix("/storybook", h.StorybookHandler).ServeHTTP(w, r)
 	case strings.HasPrefix(r.URL.Path, "/"):

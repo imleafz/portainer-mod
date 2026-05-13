@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { sortBy } from 'lodash';
 
 import { useEnvironmentList } from '@/react/portainer/environments/queries';
@@ -21,6 +22,7 @@ export function EnvSelector({
   onChange: (value: number | undefined) => void;
   error?: string;
 }) {
+  const { t } = useTranslation();
   const envsQuery = useEnvironmentList();
   const groupsQuery = useGroups();
 
@@ -29,8 +31,8 @@ export function EnvSelector({
       return [];
     }
 
-    return getEnvironmentOptions(groupsQuery.data, envsQuery.environments);
-  }, [envsQuery.environments, groupsQuery.data]);
+    return getEnvironmentOptions(groupsQuery.data, envsQuery.environments, t);
+  }, [envsQuery.environments, groupsQuery.data, t]);
 
   if (!environmentOptions.length) {
     return null;
@@ -42,7 +44,7 @@ export function EnvSelector({
         value={value}
         onChange={onChange}
         options={environmentOptions}
-        placeholder="Select an environment"
+        placeholder={t('docker.stack.selectAnEnvironment')}
         data-cy="stack-duplicate-environment-select"
       />
       {error && (
@@ -60,13 +62,13 @@ export function EnvSelector({
 export function getEnvironmentOptions(
   groups: EnvironmentGroup[],
   environments: Environment[],
+  translateFn: (key: string) => string,
   currentEnvironmentId?: number
 ): GroupOption<number>[] {
   if (!groups || !environments) {
     return [];
   }
 
-  // Group environments by their GroupId
   const groupedEnvironments = environments.reduce<
     Record<number, Array<{ label: string; value: number }>>
   >((acc, environment) => {
@@ -94,7 +96,7 @@ export function getEnvironmentOptions(
     const group = groups.find((g) => g.Id === parsedGroupId);
 
     return {
-      label: group?.Name || 'Others',
+      label: group?.Name || translateFn('docker.stack.others'),
       options: sortBy(envOptions, 'label'),
     };
   });

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 
 import { NodeViewModel } from '@/docker/models/node';
@@ -5,7 +6,11 @@ import { NodeViewModel } from '@/docker/models/node';
 import { columnHelper } from './column-helper';
 
 export const availability = columnHelper.accessor('Availability', {
-  header: 'Availability',
+  header: () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { t } = useTranslation();
+    return t('docker.swarm.availability');
+  },
   cell({ getValue }) {
     const value = getValue();
     return (

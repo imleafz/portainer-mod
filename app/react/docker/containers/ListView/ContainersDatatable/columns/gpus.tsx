@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { CellContext } from '@tanstack/react-table';
 
 import type { ContainerListViewModel } from '@/react/docker/containers/types';
@@ -7,7 +8,11 @@ import { useContainerGpus } from '@/react/docker/containers/queries/gpus';
 import { columnHelper } from './helper';
 
 export const gpus = columnHelper.display({
-  header: 'GPUs',
+  header: () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { t } = useTranslation();
+    return t('gpu.title', 'GPUs');
+  },
   id: 'gpus',
   cell: GpusCell,
 });

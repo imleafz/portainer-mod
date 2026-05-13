@@ -1,5 +1,6 @@
 import { createColumnHelper } from '@tanstack/react-table';
 import { Lock } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { SecretViewModel } from '@/docker/models/secret';
 import { isoDate } from '@/portainer/filters/filters';
@@ -23,14 +24,6 @@ import { createOwnershipColumn } from '../../components/datatable/createOwnershi
 
 const columnHelper = createColumnHelper<SecretViewModel>();
 
-const columns = [
-  buildNameColumn<SecretViewModel>('Name', '.secret', 'docker-secrets-name'),
-  columnHelper.accessor((item) => isoDate(item.CreatedAt), {
-    header: 'Creation Date',
-  }),
-  createOwnershipColumn<SecretViewModel>(),
-];
-
 interface TableSettings extends BasicTableSettings, RefreshableTableSettings {}
 
 const storageKey = 'docker-secrets';
@@ -51,6 +44,7 @@ export function SecretsDatatable({
   onRemove(items: Array<SecretViewModel>): void;
   onRefresh(): Promise<void>;
 }) {
+  const { t } = useTranslation();
   const tableState = useTableState(store, storageKey);
   useRepeater(tableState.autoRefreshRate, onRefresh);
 
@@ -59,9 +53,18 @@ export function SecretsDatatable({
     'DockerSecretDelete',
   ]);
 
+  const columns = [
+    buildNameColumn<SecretViewModel>('Name', '.secret', 'docker-secrets-name'),
+    columnHelper.accessor((item) => isoDate(item.CreatedAt), {
+      header: () => t('docker.secrets.creationDate'),
+      id: 'created',
+    }),
+    createOwnershipColumn<SecretViewModel>(),
+  ];
+
   return (
     <Datatable
-      title="Secrets"
+      title={t('docker.secrets.title')}
       titleIcon={Lock}
       columns={columns}
       dataset={dataset || []}
@@ -93,19 +96,23 @@ function TableActions({
   selectedItems: Array<SecretViewModel>;
   onRemove(items: Array<SecretViewModel>): void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex items-center gap-2">
       <Authorized authorizations="DockerSecretDelete">
         <DeleteButton
           disabled={selectedItems.length === 0}
           onConfirmed={() => onRemove(selectedItems)}
-          confirmMessage="Do you want to remove the selected secret(s)?"
+          confirmMessage={t('docker.secrets.removeConfirm')}
           data-cy="secret-removeSecretButton"
         />
       </Authorized>
 
       <Authorized authorizations="DockerSecretCreate">
-        <AddButton data-cy="secret-addSecretButton">Add secret</AddButton>
+        <AddButton data-cy="secret-addSecretButton">
+          {t('docker.secrets.addSecret')}
+        </AddButton>
       </Authorized>
     </div>
   );

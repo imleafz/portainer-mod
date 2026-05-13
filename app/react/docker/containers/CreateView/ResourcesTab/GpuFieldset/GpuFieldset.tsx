@@ -6,6 +6,7 @@ import {
   OnChangeValue,
 } from 'react-select/dist/declarations/src/types';
 import { OptionProps } from 'react-select/dist/declarations/src/components/Option';
+import { useTranslation } from 'react-i18next';
 
 import { Select } from '@@/form-components/ReactSelect';
 import { Switch } from '@@/form-components/SwitchField/Switch';
@@ -35,7 +36,6 @@ export interface Props {
 }
 
 const NvidiaCapabilitiesOptions = [
-  // Taken from https://github.com/containerd/containerd/blob/master/contrib/nvidia/nvidia.go#L40
   {
     value: 'compute',
     label: 'compute',
@@ -66,7 +66,7 @@ const NvidiaCapabilitiesOptions = [
     label: 'display',
     description: 'required for leveraging X11 display',
   },
-] as const;
+];
 
 export function GpuFieldset({
   values,
@@ -76,22 +76,24 @@ export function GpuFieldset({
   usedAllGpus,
   enableGpuManagement,
 }: Props) {
+  const { t } = useTranslation();
+
   const options = useMemo(() => {
     const options = (gpus || []).map((gpu) => ({
       value: gpu.value,
       label:
         usedGpus.includes(gpu.value) || usedAllGpus
-          ? `${gpu.name} (in use)`
+          ? `${gpu.name} (${t('docker.container.inUse')})`
           : gpu.name,
     }));
 
     options.unshift({
       value: 'all',
-      label: 'Use All GPUs',
+      label: t('docker.container.useAllGpus'),
     });
 
     return options;
-  }, [gpus, usedGpus, usedAllGpus]);
+  }, [gpus, usedGpus, usedAllGpus, t]);
 
   const gpuCmd = useMemo(() => {
     const devices = values.selectedGPUs.join(',');
@@ -117,18 +119,16 @@ export function GpuFieldset({
   return (
     <div>
       <TextTip inline={false} color="blue">
-        <p>GPU support is currently limited to NVIDIA graphics cards only.</p>
+        <p>{t('docker.container.gpuSupportLimited')}</p>
       </TextTip>
 
       {!enableGpuManagement && (
-        <TextTip color="blue">
-          GPU in the UI is not currently enabled for this environment.
-        </TextTip>
+        <TextTip color="blue">{t('docker.container.gpuNotEnabled')}</TextTip>
       )}
 
       <div className="form-group">
         <div className="col-sm-3 col-lg-2 control-label text-left">
-          Enable GPU
+          {t('docker.container.enableGpu')}
           <Switch
             id="enabled"
             name="enabled"
@@ -162,8 +162,8 @@ export function GpuFieldset({
         <>
           <div className="form-group">
             <div className="col-sm-3 col-lg-2 control-label text-left">
-              Capabilities
-              <Tooltip message="‘compute’ and ‘utility’ capabilities are preselected by Portainer because they are used by default when you don’t explicitly specify capabilities with docker CLI ‘--gpus’ option." />
+              {t('docker.container.capabilities')}
+              <Tooltip message={t('docker.container.gpuCapabilitiesTooltip')} />
             </div>
             <div className="col-sm-9 col-lg-10 text-left">
               <Select<GpuOption, true>
@@ -181,8 +181,8 @@ export function GpuFieldset({
 
           <div className="form-group">
             <div className="col-sm-3 col-lg-2 control-label text-left">
-              Control
-              <Tooltip message="This is the generated equivalent of the '--gpus' docker CLI parameter based on your settings." />
+              {t('docker.container.control')}
+              <Tooltip message={t('docker.container.gpuGeneratedTooltip')} />
             </div>
             <div className="col-sm-9 col-lg-10">
               <code>{gpuCmd}</code>

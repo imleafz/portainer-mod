@@ -4,10 +4,12 @@ import (
 	"cmp"
 	"errors"
 	"net/http"
+	"strconv"
 
 	portainer "github.com/portainer/portainer/api"
 	httperrors "github.com/portainer/portainer/api/http/errors"
 	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	"github.com/portainer/portainer/api/internal/endpointutils"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
 	"github.com/portainer/portainer/pkg/libhttp/request"
@@ -173,11 +175,41 @@ func (handler *Handler) registryUpdate(w http.ResponseWriter, r *http.Request) *
 
 	registry.Quay = *cmp.Or(payload.Quay, &registry.Quay)
 
+	if payload.RegistryAccesses != nil {
+		registry.RegistryAccesses = *payload.RegistryAccesses
+	}
+
 	if err := handler.DataStore.Registry().Update(registry.ID, registry); err != nil {
 		return httperror.InternalServerError("Unable to persist registry changes inside the database", err)
 	}
 
 	hideFields(registry, true)
+
+	tokenData, _ := security.RetrieveTokenData(r)
+	operatorUsername := ""
+	operatorUserID := 0
+	if tokenData != nil {
+		operatorUserID = int(tokenData.ID)
+		operator, _ := handler.DataStore.User().Read(tokenData.ID)
+		if operator != nil {
+			operatorUsername = operator.Username
+		}
+	}
+
+	activitylog.NewActivityLogBuilder(
+		activitylog.ActionUpdate,
+		activitylog.ContextPortainer,
+		activitylog.ResourceTypeRegistry,
+	).
+		WithUser(operatorUserID, operatorUsername).
+		WithResource(strconv.Itoa(int(registry.ID)), registry.Name).
+		WithDetails(map[string]interface{}{
+			"description":  "更新注册表成功",
+			"registryName": registry.Name,
+			"registryType": registry.Type,
+			"registryURL":  registry.URL,
+		}).
+		Log()
 
 	return response.JSON(w, registry)
 }

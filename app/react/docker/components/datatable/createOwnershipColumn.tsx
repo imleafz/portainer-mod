@@ -1,5 +1,6 @@
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { Eye, EyeOff, Users } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { ResourceControlOwnership } from '@/react/portainer/access-control/types';
 
@@ -17,7 +18,11 @@ export function createOwnershipColumn<D extends IResource>(
   return {
     accessorFn: (row) =>
       row.ResourceControl?.Ownership || ResourceControlOwnership.ADMINISTRATORS,
-    header: 'Ownership',
+    header: () => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { t } = useTranslation();
+      return t('docker.ownership');
+    },
     id: 'ownership',
     cell: OwnershipCell,
     enableHiding,

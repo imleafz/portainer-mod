@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { confirmEnableTLSVerify } from '@/react/portainer/gitops/utils';
 
 import { SwitchField } from '@@/form-components/SwitchField';
@@ -9,15 +11,16 @@ interface Props {
 }
 
 export function TLSVerificationField({ value, initialValue, onChange }: Props) {
+  const { t } = useTranslation();
   return (
     <div className="form-group">
       <div className="col-sm-12">
         <SwitchField
           name="TLSSkipVerify"
           checked={value}
-          tooltip="Enabling this will allow skipping TLS validation for any self-signed certificate."
+          tooltip={t('docker.stack.skipTLSVerificationTooltip')}
           labelClass="col-sm-3 col-lg-2"
-          label="Skip TLS Verification"
+          label={t('docker.stack.skipTLSVerification')}
           onChange={async (newValue) => {
             if (initialValue && !newValue) {
               const confirmed = await confirmEnableTLSVerify();

@@ -1,4 +1,5 @@
 import { ExternalLink } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from '@@/buttons';
 import { Modal } from '@@/modals/Modal';
@@ -9,15 +10,16 @@ export function NonAdminUpgradeDialog({
 }: {
   onDismiss: () => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <Modal aria-label="Upgrade Portainer to Business Edition">
       <Modal.Header
-        title="Contact your administrator"
+        title={t('upgradeBE.nonAdmin.title')}
         modalType={ModalType.Warn}
       />
       <Modal.Body>
-        You need to be logged in as an admin to upgrade Portainer to Business
-        Edition.
+        {t('upgradeBE.nonAdmin.message')}
       </Modal.Body>
       <Modal.Footer>
         <div className="flex w-full gap-2">
@@ -28,7 +30,7 @@ export function NonAdminUpgradeDialog({
             className="w-1/3"
             onClick={() => onDismiss()}
           >
-            Cancel
+            {t('upgradeBE.nonAdmin.cancel')}
           </Button>
 
           <a
@@ -44,7 +46,7 @@ export function NonAdminUpgradeDialog({
               className="w-full"
               icon={ExternalLink}
             >
-              Learn about Business Edition
+              {t('upgradeBE.nonAdmin.learnAbout')}
             </Button>
           </a>
         </div>

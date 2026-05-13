@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Search, X } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -18,12 +19,13 @@ interface Props extends AutomationTestingProps {
 
 export function SearchBar({
   value,
-  placeholder = 'Search...',
+  placeholder,
   onChange,
   'data-cy': dataCy,
   className,
   children,
 }: Props) {
+  const { t } = useTranslation();
   const [searchValue, setSearchValue] = useDebounce(value, onChange);
 
   function onClear() {
@@ -41,8 +43,8 @@ export function SearchBar({
         className="searchInput"
         value={searchValue}
         onChange={(e) => setSearchValue(e.target.value)}
-        placeholder={placeholder}
-        aria-label="Search input"
+        placeholder={placeholder || t('datatable.searchPlaceholder')}
+        aria-label={t('datatable.searchInput')}
       />
       {children}
       <Button

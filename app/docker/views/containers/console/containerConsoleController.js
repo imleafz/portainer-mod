@@ -30,10 +30,19 @@ angular.module('portainer.docker').controller('ContainerConsoleController', [
     $scope.formValues = {};
     $scope.containerCommands = [];
 
-    // Ensure the socket is closed before leaving the view
+    // Ensure cleanup before leaving the view
     $scope.$on('$destroy', function () {
       $scope.disconnect();
+      if (resizeHandler) {
+        window.removeEventListener('resize', resizeHandler);
+      }
+      if (sidebarDeregister) {
+        sidebarDeregister();
+      }
     });
+
+    var resizeHandler;
+    var sidebarDeregister;
 
     $scope.connectAttach = function () {
       if ($scope.state > states.disconnected) {
@@ -208,12 +217,13 @@ angular.module('portainer.docker').controller('ContainerConsoleController', [
         term.focus();
         term.setOption('cursorBlink', true);
 
-        window.onresize = function () {
+        resizeHandler = function () {
           resizefun();
           $scope.$apply();
         };
+        window.addEventListener('resize', resizeHandler);
 
-        $scope.$watch(SidebarService.isSidebarOpen, function () {
+        sidebarDeregister = $scope.$watch(SidebarService.isSidebarOpen, function () {
           setTimeout(resizefun, 400);
         });
 

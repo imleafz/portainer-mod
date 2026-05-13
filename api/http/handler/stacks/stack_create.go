@@ -2,9 +2,12 @@ package stacks
 
 import (
 	"net/http"
+	"strconv"
 
 	portainer "github.com/portainer/portainer/api"
+	alog "github.com/portainer/portainer/api/dataservices/activitylog"
 	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	"github.com/portainer/portainer/api/internal/authorization"
 	"github.com/portainer/portainer/api/stacks/stackutils"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
@@ -112,7 +115,7 @@ func (handler *Handler) createKubernetesStack(w http.ResponseWriter, r *http.Req
 	return httperror.BadRequest("Invalid value for query parameter: method. Value must be one of: string or repository", errors.New(request.ErrInvalidQueryParameter))
 }
 
-func (handler *Handler) decorateStackResponse(w http.ResponseWriter, stack *portainer.Stack, userID portainer.UserID) *httperror.HandlerError {
+func (handler *Handler) decorateStackResponse(w http.ResponseWriter, r *http.Request, stack *portainer.Stack, userID portainer.UserID) *httperror.HandlerError {
 	var resourceControl *portainer.ResourceControl
 
 	isAdmin, err := handler.userIsAdmin(userID)
@@ -137,6 +140,33 @@ func (handler *Handler) decorateStackResponse(w http.ResponseWriter, stack *port
 		// sanitize password in the http response to minimise possible security leaks
 		stack.GitConfig.Authentication.Password = ""
 	}
+
+	user, err := handler.DataStore.User().Read(userID)
+	username := ""
+	if err == nil {
+		username = user.Username
+	}
+
+	endpoint, err := handler.DataStore.Endpoint().Endpoint(stack.EndpointID)
+	if err != nil {
+		endpoint = &portainer.Endpoint{Name: ""}
+	}
+
+	activitylog.NewActivityLogBuilder(
+		alog.ActionCreate,
+		alog.ContextDocker,
+		alog.ResourceTypeDockerStack,
+	).
+		WithUser(int(userID), username).
+		WithResource(strconv.Itoa(int(stack.ID)), stack.Name).
+		WithDetails(map[string]interface{}{
+			"description": "创建 Docker 堆栈成功",
+			"stackName":   stack.Name,
+			"stackType":   stack.Type,
+			"endpoint":    endpoint.Name,
+			"method":      "create",
+		}).
+		Log()
 
 	return response.JSON(w, stack)
 }

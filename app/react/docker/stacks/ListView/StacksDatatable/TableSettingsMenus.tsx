@@ -1,4 +1,5 @@
 import { Table } from '@tanstack/react-table';
+import { useTranslation } from 'react-i18next';
 
 import { Authorized } from '@/react/hooks/useUser';
 
@@ -17,6 +18,7 @@ export function TableSettingsMenus({
   tableInstance: Table<DecoratedStack>;
   tableState: TableSettings;
 }) {
+  const { t } = useTranslation();
   return (
     <>
       <ColumnVisibilityMenu<DecoratedStack>
@@ -31,7 +33,7 @@ export function TableSettingsMenus({
           <Checkbox
             id="setting_all_orphaned_stacks"
             data-cy="show-all-orphaned-stacks"
-            label="Show all orphaned stacks"
+            label={t('docker.stacks.showAllOrphanedStacks')}
             checked={tableState.showOrphanedStacks}
             onChange={(e) => {
               tableState.setShowOrphanedStacks(e.target.checked);

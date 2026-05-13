@@ -1,6 +1,7 @@
 import { Check, UserX } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import _ from 'lodash';
+import { useTranslation } from 'react-i18next';
 
 import {
   TeamAccessViewModel,
@@ -48,6 +49,7 @@ export function AccessDatatable({
   isUpdatingAccess,
   isLoading,
 }: Props) {
+  const { t } = useTranslation();
   const columns = useColumns({ showRoles, inheritFrom });
   const [store] = useState(() => createPersistedStore(tableKey));
   const tableState = useTableState(store, tableKey);
@@ -56,7 +58,7 @@ export function AccessDatatable({
   return (
     <Datatable
       data-cy="access-datatable"
-      title="Access"
+      title={t('accessControl.title')}
       titleIcon={UserX}
       dataset={dataset || []}
       isLoading={isLoading}
@@ -81,9 +83,9 @@ export function AccessDatatable({
               disabled={rolesState.count === 0}
               onClick={handleUpdate}
               isLoading={isUpdatingAccess}
-              loadingText="Updating..."
+              loadingText={t('accessControl.updating')}
             >
-              Update
+              {t('accessControl.update')}
             </LoadingButton>
           )}
         </>
@@ -92,21 +94,22 @@ export function AccessDatatable({
         <>
           {inheritFrom && (
             <div className="small text-muted">
-              <div>
-                Access tagged as <code>inherited</code> are inherited from the
-                group access. They cannot be removed or modified at the
-                environment level but they can be overridden.
-              </div>
-              <div>
-                Access tagged as <code>override</code> are overriding the group
-              </div>
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: t('accessControl.inheritDescription'),
+                }}
+              />
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: t('accessControl.overrideDescription'),
+                }}
+              />
             </div>
           )}
           {isBE && showWarning && isUpdateEnabled && (
             <TextTip>
               <div className="text-warning-9 th-highcontrast:text-warning-1 th-dark:text-warning-7">
-                Updating user access will require the affected user(s) to logout
-                and login for the changes to be taken into account.
+                {t('accessControl.logoutRequired')}
               </div>
             </TextTip>
           )}

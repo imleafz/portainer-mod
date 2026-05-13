@@ -1,4 +1,5 @@
 import { Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Authorized } from '@/react/hooks/useUser';
 import { EnvironmentId } from '@/react/portainer/environments/types';
@@ -25,14 +26,18 @@ export function RemoveButton({
   isRunning,
   isPortainer,
 }: RemoveButtonProps) {
+  const { t } = useTranslation();
   const removeMutation = useRemoveContainer();
 
   async function handleRemove() {
     const title = isRunning
-      ? 'You are about to remove a running container.'
-      : 'You are about to remove a container.';
+      ? t('docker.container.removeRunningContainer')
+      : t('docker.container.removeContainer');
 
-    const result = await confirmContainerDeletion(title);
+    const result = await confirmContainerDeletion(title, {
+      autoRemoveVolumesLabel: t('docker.container.autoRemoveVolumes'),
+      removeButtonLabel: t('docker.container.remove'),
+    });
 
     if (!result) {
       return;
@@ -47,7 +52,7 @@ export function RemoveButton({
       },
       {
         onSuccess() {
-          notifySuccess('Success', 'Container successfully removed');
+          notifySuccess(t('common.success'), t('docker.container.containerRemoved'));
         },
       }
     );
@@ -61,11 +66,11 @@ export function RemoveButton({
         onClick={handleRemove}
         disabled={isPortainer}
         isLoading={removeMutation.isLoading}
-        loadingText="Removing..."
+        loadingText={t('docker.container.removing')}
         data-cy="remove-container-button"
         icon={Trash2}
       >
-        Remove
+        {t('docker.container.remove')}
       </LoadingButton>
     </Authorized>
   );

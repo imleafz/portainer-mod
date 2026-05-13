@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { FileCode } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
 import { Authorized, useAuthorizations } from '@/react/hooks/useUser';
@@ -29,6 +30,7 @@ const storageKey = 'k8sConfigMapsDatatable';
 const settingsStore = createStore(storageKey);
 
 export function ConfigMapsDatatable() {
+  const { t } = useTranslation();
   const tableState = useTableState(settingsStore, storageKey);
   const { authorized: canWrite } = useAuthorizations(['K8sConfigMapsW']);
   const readOnly = !canWrite;
@@ -62,8 +64,8 @@ export function ConfigMapsDatatable() {
       columns={columns}
       settingsManager={tableState}
       isLoading={configMapsQuery.isLoading || namespacesQuery.isLoading}
-      emptyContentLabel="No ConfigMaps found"
-      title="ConfigMaps"
+      emptyContentLabel={t('kubernetes.configs.noConfigMapsFound')}
+      title={t('kubernetes.configs.configMaps')}
       titleIcon={FileCode}
       getRowId={(row) => row.UID ?? ''}
       isRowSelectable={({ original: configmap }) =>
@@ -98,9 +100,9 @@ function useConfigMapRowData(
         ...configMap,
         inUse: configMap.IsUsed,
         isSystem: namespaces
-          ? namespaces.find(
+          ? (namespaces.find(
               (namespace) => namespace.Name === configMap.Namespace
-            )?.IsSystem ?? false
+            )?.IsSystem ?? false)
           : false,
       })) || [],
     [configMaps, namespaces]
@@ -112,6 +114,7 @@ function TableActions({
 }: {
   selectedItems: ConfigMapRowData[];
 }) {
+  const { t } = useTranslation();
   const isAddConfigMapHidden = useIsDeploymentOptionHidden('form');
   const environmentId = useEnvironmentId();
   const deleteConfigMapMutation = useDeleteConfigMaps(environmentId);
@@ -121,10 +124,9 @@ function TableActions({
       <DeleteButton
         disabled={selectedItems.length === 0}
         onConfirmed={() => handleRemoveClick(selectedItems)}
-        confirmMessage={`Are you sure you want to remove the selected ${pluralize(
-          selectedItems.length,
-          'ConfigMap'
-        )}`}
+        confirmMessage={t('kubernetes.configs.removeConfirm', {
+          item: pluralize(selectedItems.length, 'ConfigMap'),
+        })}
         data-cy="k8sConfig-removeConfigButton"
       />
 
@@ -134,7 +136,7 @@ function TableActions({
           data-cy="k8sConfig-addConfigWithFormButton"
           color="secondary"
         >
-          Add with form
+          {t('kubernetes.configs.addWithForm')}
         </AddButton>
       )}
 

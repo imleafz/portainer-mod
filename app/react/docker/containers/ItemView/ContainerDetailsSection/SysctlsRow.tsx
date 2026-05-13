@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { DetailsTable } from '@@/DetailsTable';
 
 interface SysctlsRowProps {
@@ -5,12 +7,13 @@ interface SysctlsRowProps {
 }
 
 export function SysctlsRow({ sysctls }: SysctlsRowProps) {
+  const { t } = useTranslation();
   if (!sysctls || Object.keys(sysctls).length === 0) {
     return null;
   }
 
   return (
-    <DetailsTable.Row label="Sysctls">
+    <DetailsTable.Row label={t('docker.container.sysctls', 'Sysctls')}>
       <table className="table table-bordered table-condensed !m-0">
         <tbody>
           {Object.entries(sysctls).map(([key, value]) => (

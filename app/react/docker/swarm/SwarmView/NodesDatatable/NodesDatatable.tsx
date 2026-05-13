@@ -1,4 +1,5 @@
 import { Trello } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { NodeViewModel } from '@/docker/models/node';
 
@@ -40,6 +41,7 @@ export function NodesDatatable({
   haveAccessToNode: boolean;
   onRefresh(): Promise<void>;
 }) {
+  const { t } = useTranslation();
   const columns = useColumns(isIpColumnVisible);
   const tableState = useTableState(store, tableKey);
   useRepeater(tableState.autoRefreshRate, onRefresh);
@@ -47,7 +49,7 @@ export function NodesDatatable({
   return (
     <Datatable<NodeViewModel>
       disableSelect
-      title="Nodes"
+      title={t('docker.swarm.nodes')}
       titleIcon={Trello}
       columns={columns}
       dataset={dataset || []}

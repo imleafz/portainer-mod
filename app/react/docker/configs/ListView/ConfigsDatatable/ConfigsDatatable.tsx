@@ -1,4 +1,5 @@
 import { Clipboard } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Authorized, useAuthorizations } from '@/react/hooks/useUser';
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
@@ -19,6 +20,7 @@ const storageKey = 'docker_configs';
 const settingsStore = createStore(storageKey);
 
 export function ConfigsDatatable() {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const tableState = useTableState(settingsStore, storageKey);
 
@@ -32,18 +34,18 @@ export function ConfigsDatatable() {
     'DockerConfigDelete',
   ]);
 
+  const dataset = configListQuery.data;
+
   if (!configListQuery.data) {
     return null;
   }
 
-  const dataset = configListQuery.data;
-
   return (
     <Datatable
-      dataset={dataset}
+      dataset={dataset || []}
       columns={columns}
       settingsManager={tableState}
-      title="Configs"
+      title={t('docker.configs.title')}
       titleIcon={Clipboard}
       renderTableSettings={() => (
         <TableSettingsMenu>
@@ -64,7 +66,7 @@ export function ConfigsDatatable() {
 
             <Authorized authorizations="DockerConfigCreate">
               <AddButton data-cy="add-docker-config-button">
-                Add config
+                {t('docker.configs.addConfig')}
               </AddButton>
             </Authorized>
           </div>

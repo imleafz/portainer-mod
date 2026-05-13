@@ -1,6 +1,7 @@
 import { User } from 'lucide-react';
 import { useRouter } from '@uirouter/react';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
 import { Authorized } from '@/react/hooks/useUser';
@@ -28,10 +29,10 @@ import { useGetAllServiceAccountsQuery } from './queries/useGetAllServiceAccount
 
 const storageKey = 'serviceAccounts';
 interface TableSettings
-  extends KubeTableSettings,
-    FilteredColumnsTableSettings {}
+  extends KubeTableSettings, FilteredColumnsTableSettings {}
 
 export function ServiceAccountsDatatable() {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const tableState = useKubeStore<TableSettings>(
     storageKey,
@@ -57,8 +58,8 @@ export function ServiceAccountsDatatable() {
       columns={columns}
       settingsManager={tableState}
       isLoading={serviceAccountsQuery.isLoading}
-      emptyContentLabel="No service accounts found"
-      title="Service Accounts"
+      emptyContentLabel={t('kubernetes.serviceAccounts.noServiceAccountsFound')}
+      title={t('kubernetes.serviceAccounts.title')}
       titleIcon={User}
       getRowId={(row) => row.uid}
       isRowSelectable={(row) => !row.original.isSystem}
@@ -90,6 +91,7 @@ type TableActionsProps = {
 };
 
 function TableActions({ selectedItems }: TableActionsProps) {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const deleteServiceAccountsMutation =
     useDeleteServiceAccountsMutation(environmentId);
@@ -102,9 +104,7 @@ function TableActions({ selectedItems }: TableActionsProps) {
         onConfirmed={() => handleRemoveClick(selectedItems)}
         confirmMessage={
           <>
-            <p>
-              Are you sure you want to delete the selected service account(s)?
-            </p>
+            <p>{t('kubernetes.serviceAccounts.removeConfirm')}</p>
             <ul className="mt-2 max-h-96 list-inside overflow-hidden overflow-y-auto text-sm">
               {selectedItems.map((s, index) => (
                 <li key={index}>
@@ -133,14 +133,14 @@ function TableActions({ selectedItems }: TableActionsProps) {
       {
         onSuccess: () => {
           notifySuccess(
-            'Service account(s) successfully removed',
+            t('kubernetes.serviceAccounts.successfullyRemoved'),
             serviceAccounts.map((sa) => `${sa.namespace}/${sa.name}`).join(', ')
           );
           router.stateService.reload();
         },
         onError: (error) => {
           notifyError(
-            'Unable to delete service account(s)',
+            t('kubernetes.serviceAccounts.unableToDelete'),
             error as Error,
             serviceAccounts.map((sa) => `${sa.namespace}/${sa.name}`).join(', ')
           );

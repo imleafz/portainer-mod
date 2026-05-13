@@ -1,4 +1,5 @@
 import { Pause } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Authorized } from '@/react/hooks/useUser';
 import { EnvironmentId } from '@/react/portainer/environments/types';
@@ -28,6 +29,7 @@ export function PauseButton({
   isPortainer,
   onSuccess = () => {},
 }: PauseButtonProps) {
+  const { t } = useTranslation();
   const pauseMutation = usePauseContainer();
 
   function handlePause() {
@@ -35,7 +37,7 @@ export function PauseButton({
       { environmentId, containerId, nodeName },
       {
         onSuccess() {
-          notifySuccess('Success', 'Container successfully paused');
+          notifySuccess(t('common.success'), t('docker.container.containerPaused'));
           onSuccess();
         },
       }
@@ -50,11 +52,11 @@ export function PauseButton({
         onClick={handlePause}
         disabled={!isRunning || isPaused || isPortainer}
         isLoading={pauseMutation.isLoading}
-        loadingText="Pausing..."
+        loadingText={t('docker.container.pausing')}
         data-cy="pause-container-button"
         icon={Pause}
       >
-        Pause
+        {t('docker.container.pause')}
       </LoadingButton>
     </Authorized>
   );

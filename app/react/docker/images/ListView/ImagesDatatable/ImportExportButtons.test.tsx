@@ -166,7 +166,7 @@ describe('ImportExportButtons', () => {
 
       // Button should show loading state
       await waitFor(() => {
-        expect(screen.getByText('Export in progress...')).toBeVisible();
+        expect(screen.getByText('Exporting...')).toBeVisible();
       });
     });
   });
@@ -207,7 +207,7 @@ describe('ImportExportButtons', () => {
 
       expect(mockNotifyWarning).toHaveBeenCalledWith(
         '',
-        'Cannot download an untagged image'
+        'Cannot download untagged image'
       );
       expect(apiCalled).toBe(false);
       expect(mockConfirmImageExport).not.toHaveBeenCalled();
@@ -254,7 +254,7 @@ describe('ImportExportButtons', () => {
 
       expect(mockNotifyWarning).toHaveBeenCalledWith(
         '',
-        'Cannot download images from different nodes at the same time'
+        'Cannot download images from different nodes simultaneously'
       );
       expect(apiCalled).toBe(false);
       expect(mockConfirmImageExport).not.toHaveBeenCalled();

@@ -1,5 +1,6 @@
 import { MountPoint } from 'docker-types/generated/1.44';
 import { DatabaseIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Widget, WidgetBody } from '@@/Widget';
 import { DetailsTable } from '@@/DetailsTable';
@@ -12,17 +13,21 @@ interface Props {
 }
 
 export function VolumesSection({ volumes, nodeName }: Props) {
+  const { t } = useTranslation();
   if (!volumes || volumes.length === 0) {
     return null;
   }
 
   return (
     <Widget>
-      <Widget.Title icon={DatabaseIcon} title="Volumes" />
+      <Widget.Title icon={DatabaseIcon} title={t('docker.container.volumes')} />
       <WidgetBody className="no-padding">
         <DetailsTable
           dataCy="containerDetails-volumesTable"
-          headers={['Host/volume', 'Path in container']}
+          headers={[
+            t('docker.container.hostVolume'),
+            t('docker.container.containerPath'),
+          ]}
         >
           {volumes.map((volume) => (
             <VolumeRow

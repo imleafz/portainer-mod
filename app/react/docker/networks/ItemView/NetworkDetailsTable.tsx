@@ -1,5 +1,6 @@
 import { Fragment } from 'react';
 import { Network } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import DockerNetworkHelper from '@/docker/helpers/networkHelper';
 import { Authorized } from '@/react/hooks/useUser';
@@ -20,6 +21,7 @@ export function NetworkDetailsTable({
   network,
   onRemoveNetworkClicked,
 }: Props) {
+  const { t } = useTranslation();
   const allowRemoveNetwork = !isSystemNetwork(network.Name);
   const ipv4Configs: IPConfig[] = DockerNetworkHelper.getIPV4Configs(
     network.IPAM?.Config
@@ -30,11 +32,13 @@ export function NetworkDetailsTable({
 
   return (
     <TableContainer>
-      <TableTitle label="Network details" icon={Network} />
+      <TableTitle label={t('docker.networks.networkDetails')} icon={Network} />
       <DetailsTable dataCy="networkDetails-detailsTable">
         {/* networkRowContent */}
-        <DetailsTable.Row label="Name">{network.Name}</DetailsTable.Row>
-        <DetailsTable.Row label="Id">
+        <DetailsTable.Row label={t('docker.networks.name')}>
+          {network.Name}
+        </DetailsTable.Row>
+        <DetailsTable.Row label={t('docker.networks.id')}>
           {network.Id}
           {allowRemoveNetwork && (
             <span className="ml-2">
@@ -43,20 +47,24 @@ export function NetworkDetailsTable({
                   data-cy="networkDetails-deleteNetwork"
                   size="xsmall"
                   onConfirmed={onRemoveNetworkClicked}
-                  confirmMessage="Do you want to delete the network?"
+                  confirmMessage={t('docker.networks.removeConfirm')}
                 >
-                  Delete this network
+                  {t('docker.networks.deleteNetwork')}
                 </DeleteButton>
               </Authorized>
             </span>
           )}
         </DetailsTable.Row>
-        <DetailsTable.Row label="Driver">{network.Driver}</DetailsTable.Row>
-        <DetailsTable.Row label="Scope">{network.Scope}</DetailsTable.Row>
-        <DetailsTable.Row label="Attachable">
+        <DetailsTable.Row label={t('docker.networks.driver')}>
+          {network.Driver}
+        </DetailsTable.Row>
+        <DetailsTable.Row label={t('docker.networks.scope')}>
+          {network.Scope}
+        </DetailsTable.Row>
+        <DetailsTable.Row label={t('docker.networks.attachable')}>
           {String(network.Attachable)}
         </DetailsTable.Row>
-        <DetailsTable.Row label="Internal">
+        <DetailsTable.Row label={t('docker.networks.internal')}>
           {String(network.Internal)}
         </DetailsTable.Row>
 
@@ -64,14 +72,14 @@ export function NetworkDetailsTable({
         {ipv4Configs.map((config) => (
           <Fragment key={config.Subnet}>
             <DetailsTable.Row
-              label={`IPV4 Subnet${getConfigDetails(config.Subnet)}`}
+              label={`${t('docker.networks.ipv4Subnet')}${getConfigDetails(config.Subnet)}`}
             >
-              {`IPV4 Gateway${getConfigDetails(config.Gateway)}`}
+              {`${t('docker.networks.ipv4Gateway')}${getConfigDetails(config.Gateway)}`}
             </DetailsTable.Row>
             <DetailsTable.Row
-              label={`IPV4 IP Range${getConfigDetails(config.IPRange)}`}
+              label={`${t('docker.networks.ipv4IpRange')}${getConfigDetails(config.IPRange)}`}
             >
-              {`IPV4 Excluded IPs${getAuxiliaryAddresses(
+              {`${t('docker.networks.ipv4ExcludedIps')}${getAuxiliaryAddresses(
                 config.AuxiliaryAddresses
               )}`}
             </DetailsTable.Row>
@@ -82,14 +90,14 @@ export function NetworkDetailsTable({
         {ipv6Configs.map((config) => (
           <Fragment key={config.Subnet}>
             <DetailsTable.Row
-              label={`IPV6 Subnet${getConfigDetails(config.Subnet)}`}
+              label={`${t('docker.networks.ipv6Subnet')}${getConfigDetails(config.Subnet)}`}
             >
-              {`IPV6 Gateway${getConfigDetails(config.Gateway)}`}
+              {`${t('docker.networks.ipv6Gateway')}${getConfigDetails(config.Gateway)}`}
             </DetailsTable.Row>
             <DetailsTable.Row
-              label={`IPV6 IP Range${getConfigDetails(config.IPRange)}`}
+              label={`${t('docker.networks.ipv6IpRange')}${getConfigDetails(config.IPRange)}`}
             >
-              {`IPV6 Excluded IPs${getAuxiliaryAddresses(
+              {`${t('docker.networks.ipv6ExcludedIps')}${getAuxiliaryAddresses(
                 config.AuxiliaryAddresses
               )}`}
             </DetailsTable.Row>

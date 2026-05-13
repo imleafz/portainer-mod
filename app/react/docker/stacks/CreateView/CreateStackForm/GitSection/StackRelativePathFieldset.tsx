@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Info } from 'lucide-react';
 import { Field, useFormikContext } from 'formik';
 
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export function StackRelativePathFieldset({ isDockerStandalone }: Props) {
+  const { t } = useTranslation();
   const { values, setFieldValue, errors } = useFormikContext<FormValues>();
 
   const supportRelativePath = values.git.SupportRelativePath || false;
@@ -21,12 +23,12 @@ export function StackRelativePathFieldset({ isDockerStandalone }: Props) {
     <div className="form-group">
       <div className="col-sm-12 mb-3">
         <SwitchField
-          label="Enable relative path volumes"
+          label={t('docker.stack.enableRelativePathVolumes')}
           checked={supportRelativePath}
           onChange={(checked) =>
             setFieldValue('git.SupportRelativePath', checked)
           }
-          tooltip="Enabling this means you can specify relative path volumes in your Compose files, with Portainer pulling the content from your git repository to the environment the stack is deployed to."
+          tooltip={t('docker.stack.enableRelativePathVolumesTooltip')}
           labelClass="col-sm-3 col-lg-2"
           data-cy="enable-relative-paths"
         />
@@ -38,8 +40,7 @@ export function StackRelativePathFieldset({ isDockerStandalone }: Props) {
             <div className="col-sm-12">
               <p className="small text-muted flex items-center gap-1">
                 <Icon icon={Info} className="!mr-1 text-blue-8" />
-                For relative path volumes use with Docker Swarm, you must have a
-                network filesystem which all of your nodes can access.
+                {t('docker.stack.relativePathVolumesSwarmWarning')}
               </p>
             </div>
           )}
@@ -48,8 +49,8 @@ export function StackRelativePathFieldset({ isDockerStandalone }: Props) {
             <FormControl
               label={
                 isDockerStandalone
-                  ? 'Local filesystem path'
-                  : 'Network filesystem path'
+                  ? t('docker.stack.localFilesystemPath')
+                  : t('docker.stack.networkFilesystemPath')
               }
               inputId="filesystem-path"
               size="medium"

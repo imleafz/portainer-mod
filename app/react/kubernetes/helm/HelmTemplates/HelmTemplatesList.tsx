@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { PortainerSelect } from '@/react/components/form-components/PortainerSelect';
 
@@ -23,6 +24,7 @@ export function HelmTemplatesList({
   selectAction,
   selectedRegistry,
 }: Props) {
+  const { t } = useTranslation();
   const [textFilter, setTextFilter] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -40,20 +42,20 @@ export function HelmTemplatesList({
     <section className="datatable" aria-label="Helm charts">
       <div className="toolBar vertical-center relative w-full !gap-x-5 !gap-y-1 !px-0 overflow-auto">
         <div className="toolBarTitle vertical-center whitespace-nowrap">
-          Select a helm chart from {selectedRegistry?.name}
+          {t('helm.selectHelmChartFrom', { name: selectedRegistry?.name })}
         </div>
 
         <SearchBar
           value={textFilter}
           onChange={(value) => setTextFilter(value)}
-          placeholder="Search..."
+          placeholder={t('common.searchPlaceholder')}
           data-cy="helm-templates-search"
           className="!mr-0 h-9"
         />
 
         <div className="w-full sm:w-1/4 flex-none">
           <PortainerSelect
-            placeholder="Select a category"
+            placeholder={t('helm.selectCategory')}
             value={selectedCategory}
             options={categories}
             onChange={setSelectedCategory}
@@ -74,17 +76,19 @@ export function HelmTemplatesList({
         ))}
 
         {filteredCharts.length === 0 && textFilter && !isLoadingCharts && (
-          <div className="text-muted small mt-4">No Helm charts found</div>
+          <div className="text-muted small mt-4">
+            {t('helm.noHelmChartsFound')}
+          </div>
         )}
 
         {isLoadingCharts && (
           <div className="flex flex-col">
             <InlineLoader className="justify-center">
-              Loading helm charts...
+              {t('common.loadingHelmCharts')}
             </InlineLoader>
             {charts.length === 0 && (
               <div className="text-muted text-center">
-                Initial download of Helm charts can take a few minutes
+                {t('helm.initialDownloadNote')}
               </div>
             )}
           </div>
@@ -92,13 +96,13 @@ export function HelmTemplatesList({
 
         {isSelectedRegistryEmpty && (
           <div className="text-muted text-center">
-            No helm charts available in this repository.
+            {t('helm.noHelmChartsInRepository')}
           </div>
         )}
 
         {!selectedRegistry && (
           <div className="text-muted text-center">
-            Please select a repository to view available Helm charts.
+            {t('helm.selectRepositoryNote')}
           </div>
         )}
       </div>

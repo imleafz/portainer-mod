@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useCurrentStateAndParams, useRouter } from '@uirouter/react';
 import { v4 as uuidv4 } from 'uuid';
 import { debounce } from 'lodash';
@@ -42,6 +43,7 @@ import {
 } from './utils';
 
 export function CreateIngressView() {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const { params } = useCurrentStateAndParams();
   useNamespaceAccessRedirect(params.namespace, { to: 'kubernetes.ingresses' });
@@ -54,8 +56,12 @@ export function CreateIngressView() {
 
   useEffect(() => {
     if (!isAuthorizedToAddEdit) {
-      const message = `Not authorized to ${isEdit ? 'edit' : 'add'} ingresses`;
-      notifyError('Error', new Error(message));
+      const message = t('kubernetes.ingress.notAuthorized', {
+        action: isEdit
+          ? t('common.edit').toLowerCase()
+          : t('common.create').toLowerCase(),
+      });
+      notifyError(t('common.error'), new Error(message));
       router.stateService.go('kubernetes.ingresses');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -565,14 +571,20 @@ export function CreateIngressView() {
   return (
     <>
       <PageHeader
-        title={isEdit ? 'Edit ingress' : 'Create ingress'}
+        title={
+          isEdit
+            ? t('kubernetes.ingress.editIngress')
+            : t('kubernetes.ingress.createIngress')
+        }
         breadcrumbs={[
           {
             link: 'kubernetes.ingresses',
-            label: 'Ingresses',
+            label: t('kubernetes.ingress.ingresses'),
           },
           {
-            label: isEdit ? 'Edit ingress' : 'Create ingress',
+            label: isEdit
+              ? t('kubernetes.ingress.editIngress')
+              : t('kubernetes.ingress.createIngress'),
           },
         ]}
         reload
@@ -616,7 +628,9 @@ export function CreateIngressView() {
               data-cy="ingresses-create-button"
               disabled={Object.keys(errors).length > 0}
             >
-              {isEdit ? 'Update' : 'Create'}
+              {isEdit
+                ? t('kubernetes.ingress.update')
+                : t('kubernetes.ingress.create')}
             </Button>
           </div>
         )}
@@ -839,7 +853,10 @@ export function CreateIngressView() {
         { environmentId, ingress },
         {
           onSuccess: () => {
-            notifySuccess('Success', 'Ingress updated successfully');
+            notifySuccess(
+              t('common.success'),
+              t('kubernetes.ingress.ingressUpdated')
+            );
             router.stateService.go('kubernetes.ingresses');
           },
         }
@@ -849,7 +866,10 @@ export function CreateIngressView() {
         { environmentId, ingress },
         {
           onSuccess: () => {
-            notifySuccess('Success', 'Ingress created successfully');
+            notifySuccess(
+              t('common.success'),
+              t('kubernetes.ingress.ingressCreated')
+            );
             router.stateService.go('kubernetes.ingresses');
           },
         }

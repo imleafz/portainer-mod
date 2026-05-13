@@ -1,4 +1,5 @@
 import { CellContext } from '@tanstack/react-table';
+import { useTranslation } from 'react-i18next';
 
 import { ContainerQuickActions } from '@/react/docker/containers/components/ContainerQuickActions';
 import { useCurrentEnvironment } from '@/react/hooks/useCurrentEnvironment';
@@ -11,7 +12,12 @@ import { DecoratedTask } from '../types';
 import { columnHelper } from './helper';
 
 export const actions = columnHelper.display({
-  header: 'Actions',
+  id: 'actions',
+  header: () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { t } = useTranslation();
+    return t('docker.services.taskActions');
+  },
   cell: Cell,
 });
 

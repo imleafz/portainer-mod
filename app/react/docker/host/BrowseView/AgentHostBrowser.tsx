@@ -1,4 +1,5 @@
 import { ComponentProps } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { FilesTable } from '@/react/docker/components/FilesTable';
 
@@ -31,13 +32,14 @@ export function AgentHostBrowser({
   onGoToParent,
   onRename,
 }: Props) {
+  const { t } = useTranslation();
   const tableState = useTableState(settingsStore, tableKey);
 
   return (
     <FilesTable
       tableState={tableState}
       dataset={dataset}
-      title={`Host browser - ${relativePath}`}
+      title={`${t('docker.hostBrowser')} - ${relativePath}`}
       isRoot={isRoot}
       onRename={onRename}
       onBrowse={onBrowse}

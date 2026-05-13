@@ -5,6 +5,9 @@ import { TableNetwork } from './types';
 import { columnHelper } from './helper';
 import { buildActions } from './actions';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { useTranslation } = require('react-i18next');
+
 export function buildColumns({ nodeName }: { nodeName?: string } = {}) {
   return [
     buildExpandColumn<TableNetwork>(),
@@ -15,20 +18,36 @@ export function buildColumns({ nodeName }: { nodeName?: string } = {}) {
         dataCy: 'docker-networks-name',
         linkParamsBuilder: () => ({ nodeName }),
       }),
-      header: 'Network',
+      header: () => {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const { t } = useTranslation();
+        return t('docker.container.networkTableHeader');
+      },
     },
     columnHelper.accessor((item) => item.IPAddress || '-', {
-      header: 'IP Address',
+      header: () => {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const { t } = useTranslation();
+        return t('docker.container.ipAddressTableHeader');
+      },
       id: 'ip',
       enableSorting: false,
     }),
     columnHelper.accessor((item) => item.Gateway || '-', {
-      header: 'Gateway',
+      header: () => {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const { t } = useTranslation();
+        return t('docker.container.gatewayTableHeader');
+      },
       id: 'gateway',
       enableSorting: false,
     }),
     columnHelper.accessor((item) => item.MacAddress || '-', {
-      header: 'MAC Address',
+      header: () => {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const { t } = useTranslation();
+        return t('docker.container.macAddressTableHeader');
+      },
       id: 'macAddress',
       enableSorting: false,
     }),

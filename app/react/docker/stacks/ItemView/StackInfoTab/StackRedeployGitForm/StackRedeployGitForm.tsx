@@ -1,6 +1,7 @@
 import { Formik, FormikHelpers } from 'formik';
 import { useState } from 'react';
 import { useRouter } from '@uirouter/react';
+import { useTranslation } from 'react-i18next';
 
 import { GitStackPayload, Stack, StackType } from '@/react/common/stacks/types';
 import { createWebhookId } from '@/portainer/helpers/webhookHelper';
@@ -18,6 +19,7 @@ import { FormValues } from './types';
 import { InnerForm } from './InnerForm';
 
 export function StackRedeployGitForm({ stack }: { stack: Stack }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const deployMutation = useUpdateGitStack(stack.Id, stack.EndpointId);
   const updateSettingsMutation = useUpdateGitStackSettings();
@@ -97,10 +99,17 @@ export function StackRedeployGitForm({ stack }: { stack: Stack }) {
       },
       {
         onError(err) {
-          notifyError('Failure', err as Error, 'Unable to save stack settings');
+          notifyError(
+            t('common.error'),
+            err as Error,
+            t('docker.stacks.unableToSaveSettings')
+          );
         },
         onSuccess() {
-          notifySuccess('Success', 'Save stack settings successfully');
+          notifySuccess(
+            t('common.success'),
+            t('docker.stacks.saveSettingsSuccessfully')
+          );
           resetForm({ values });
         },
       }
@@ -110,7 +119,7 @@ export function StackRedeployGitForm({ stack }: { stack: Stack }) {
   async function handleDeploy(values: FormValues) {
     const isSwarmStack = stack.Type === StackType.DockerSwarm;
     const result = await confirmStackUpdate(
-      'Any changes to this stack or application made locally in Portainer will be overridden, which may cause service interruption. Do you wish to continue?',
+      t('docker.stacks.confirmRedeployMessage'),
       isSwarmStack
     );
 
@@ -133,10 +142,17 @@ export function StackRedeployGitForm({ stack }: { stack: Stack }) {
 
     deployMutation.mutate(payload, {
       onError(err) {
-        notifyError('Failure', err as Error, 'Failed redeploying stack');
+        notifyError(
+          t('common.failure'),
+          err as Error,
+          t('docker.stacks.failedRedeployingStack')
+        );
       },
       onSuccess() {
-        notifySuccess('Success', 'Pulled and redeployed stack successfully');
+        notifySuccess(
+          t('common.success'),
+          t('docker.stacks.pulledAndRedeployedSuccessfully')
+        );
         router.stateService.reload();
       },
     });

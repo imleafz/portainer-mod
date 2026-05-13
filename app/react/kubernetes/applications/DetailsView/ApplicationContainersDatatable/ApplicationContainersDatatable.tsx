@@ -2,6 +2,7 @@ import { Server } from 'lucide-react';
 import { useCurrentStateAndParams } from '@uirouter/react';
 import { useMemo } from 'react';
 import { Pod } from 'kubernetes-types/core/v1';
+import { useTranslation } from 'react-i18next';
 
 import { IndexOptional } from '@/react/kubernetes/configs/types';
 import { createStore } from '@/react/kubernetes/datatables/default-kube-datatable-store';
@@ -26,6 +27,7 @@ const storageKey = 'k8sContainersDatatable';
 const settingsStore = createStore(storageKey);
 
 export function ApplicationContainersDatatable() {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const useServerMetricsQuery = useEnvironment(
     environmentId,
@@ -67,7 +69,7 @@ export function ApplicationContainersDatatable() {
         podsQuery.isLoading ||
         useServerMetricsQuery.isLoading
       }
-      title="Application containers"
+      title={t('kubernetes.applications.applicationContainers')}
       titleIcon={Server}
       getRowId={(row) => row.podName} // use pod name because it's unique (name is not unique)
       disableSelect

@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { InputList } from '@@/form-components/InputList';
 import { ArrayError } from '@@/form-components/InputList/InputList';
 
@@ -13,9 +15,11 @@ export function LabelsTab({
   onChange: (values: Values) => void;
   errors?: ArrayError<Values>;
 }) {
+  const { t } = useTranslation();
+
   return (
     <InputList
-      label="Labels"
+      label={t('docker.container.labels')}
       onChange={handleChange}
       errors={errors}
       value={values}

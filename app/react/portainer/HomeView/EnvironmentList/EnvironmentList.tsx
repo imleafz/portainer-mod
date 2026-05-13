@@ -1,4 +1,5 @@
 import { ReactNode, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { HardDrive, RefreshCcw } from 'lucide-react';
 import _ from 'lodash';
 import { useStore } from 'zustand';
@@ -46,6 +47,7 @@ interface Props {
 const storageKey = 'home_endpoints';
 
 export function EnvironmentList({ onClickBrowse, onRefresh }: Props) {
+  const { t } = useTranslation();
   const isPureAdmin = useIsPureAdmin();
   const currentEnvStore = useStore(environmentStore);
 
@@ -148,10 +150,10 @@ export function EnvironmentList({ onClickBrowse, onRefresh }: Props) {
           <TableTitle
             className="!px-0"
             icon={HardDrive}
-            label="Environments"
+            label={t('environmentList.environments')}
             description={
               <div className="w-full text-sm text-gray-7">
-                Click on an environment to manage
+                {t('environmentList.clickToManage')}
               </div>
             }
           >
@@ -160,7 +162,7 @@ export function EnvironmentList({ onClickBrowse, onRefresh }: Props) {
                 className="!m-0 !min-w-[350px] !bg-transparent"
                 value={searchBarValue}
                 onChange={setSearchBarValue}
-                placeholder="Search by name, group, tag, status, URL..."
+                placeholder={t('environmentList.searchPlaceholder')}
                 data-cy="home-endpointsSearchInput"
               />
               {isPureAdmin && (
@@ -172,7 +174,7 @@ export function EnvironmentList({ onClickBrowse, onRefresh }: Props) {
                   icon={RefreshCcw}
                   className="!m-0"
                 >
-                  Refresh
+                  {t('common.refresh')}
                 </Button>
               )}
               <KubeconfigButton
@@ -216,6 +218,7 @@ export function EnvironmentList({ onClickBrowse, onRefresh }: Props) {
             role="list"
           >
             {renderItems(
+              t,
               isLoading,
               totalCount,
               environments.map((env) => (
@@ -365,6 +368,7 @@ export function EnvironmentList({ onClickBrowse, onRefresh }: Props) {
 }
 
 function renderItems(
+  t: (key: string) => string,
   isLoading: boolean,
   totalCount: number,
 
@@ -373,7 +377,7 @@ function renderItems(
   if (isLoading) {
     return (
       <div className="text-muted text-center" data-cy="home-loadingEndpoints">
-        Loading...
+        {t('common.loading')}
       </div>
     );
   }
@@ -381,7 +385,7 @@ function renderItems(
   if (!totalCount) {
     return (
       <div className="text-muted text-center" data-cy="home-noEndpoints">
-        No environments available.
+        {t('environmentList.noEnvironments')}
       </div>
     );
   }

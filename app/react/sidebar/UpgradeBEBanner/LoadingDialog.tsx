@@ -1,5 +1,6 @@
 import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useSystemStatus } from '@/react/portainer/system/useSystemStatus';
 
@@ -7,6 +8,7 @@ import { Modal } from '@@/modals/Modal';
 import { Icon } from '@@/Icon';
 
 export function LoadingDialog() {
+  const { t } = useTranslation();
   useWaitForServerStatus();
 
   return (
@@ -19,10 +21,10 @@ export function LoadingDialog() {
             aria-label="loading"
           />
 
-          <h1 className="!text-2xl">Upgrading Portainer...</h1>
+          <h1 className="!text-2xl">{t('upgradeBE.loading.upgrading')}</h1>
 
           <p className="text-center text-xl text-gray-6">
-            Please wait while we upgrade your Portainer to Business Edition.
+            {t('upgradeBE.loading.pleaseWait')}
           </p>
         </div>
       </Modal.Body>

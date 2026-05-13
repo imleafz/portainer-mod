@@ -1,5 +1,6 @@
 import { List } from 'lucide-react';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Authorized } from '@/react/hooks/useUser';
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
@@ -29,7 +30,8 @@ import { ImportExportButtons } from './ImportExportButtons';
 const tableKey = 'images';
 
 export interface TableSettings
-  extends BasicTableSettings,
+  extends
+    BasicTableSettings,
     RefreshableTableSettings,
     FilteredColumnsTableSettings {}
 
@@ -47,6 +49,7 @@ export function ImagesDatatable({
 }: {
   isHostColumnVisible: boolean;
 }) {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const tableState = useTableState(settingsStore, tableKey);
   const columns = useMemo(
@@ -59,7 +62,7 @@ export function ImagesDatatable({
 
   return (
     <Datatable
-      title="Images"
+      title={t('docker.images.title')}
       titleIcon={List}
       data-cy="docker-images-datatable"
       extendTableOptions={mergeOptions(
@@ -76,7 +79,7 @@ export function ImagesDatatable({
               to="docker.images.build"
               data-cy="image-buildImageButton"
             >
-              Build a new image
+              {t('docker.images.buildNewImage')}
             </AddButton>
           </Authorized>
         </div>

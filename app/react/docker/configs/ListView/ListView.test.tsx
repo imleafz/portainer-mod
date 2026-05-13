@@ -64,7 +64,7 @@ describe('ListView', () => {
     });
 
     expect(
-      screen.getByRole('heading', { name: 'Configs list', level: 1 })
+      screen.getByRole('heading', { name: 'Configs', level: 1 })
     ).toBeVisible();
   });
 });

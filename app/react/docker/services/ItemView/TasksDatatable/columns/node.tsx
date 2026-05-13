@@ -1,5 +1,6 @@
 import { Node } from 'docker-types';
 import { CellContext } from '@tanstack/react-table';
+import { useTranslation } from 'react-i18next';
 
 import { useNodes } from '@/react/docker/proxy/queries/nodes/useNodes';
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
@@ -9,7 +10,12 @@ import { DecoratedTask } from '../types';
 import { columnHelper } from './helper';
 
 export const node = columnHelper.accessor('NodeId', {
-  header: 'Node',
+  id: 'node',
+  header: () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { t } = useTranslation();
+    return t('docker.services.node');
+  },
   cell: Cell,
 });
 

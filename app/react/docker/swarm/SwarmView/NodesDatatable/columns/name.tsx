@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { CellContext } from '@tanstack/react-table';
 
 import { NodeViewModel } from '@/docker/models/node';
@@ -9,7 +10,11 @@ import { isTableMeta } from '../types';
 import { columnHelper } from './column-helper';
 
 export const name = columnHelper.accessor('Hostname', {
-  header: 'Name',
+  header: () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { t } = useTranslation();
+    return t('docker.swarm.name');
+  },
   cell: Cell,
 });
 

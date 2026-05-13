@@ -11,7 +11,7 @@ GOTESTSUM=go run gotest.tools/gotestsum@latest
 
 
 ##@ Building
-.PHONY: all init-dist build-storybook build build-client build-server build-image devops
+.PHONY: all init-dist build build-client build-server build-image devops
 init-dist:
 	@mkdir -p dist
 
@@ -26,10 +26,10 @@ build-server: init-dist ## Build the server binary
 	./build/build_binary.sh "$(PLATFORM)" "$(ARCH)"
 
 build-image: build-all ## Build the Portainer image locally
-	docker buildx build --load -t portainerci/portainer-ce:$(TAG) -f build/linux/Dockerfile .
+	docker buildx build --load -t portainer:$(TAG) -f build/linux/Dockerfile .
 
-build-storybook: ## Build and serve the storybook files
-	pnpm run storybook:build
+#build-storybook: ## Build and serve the storybook files
+	#pnpm run storybook:build
 
 ##@ Build dependencies
 .PHONY: deps server-deps client-deps tidy

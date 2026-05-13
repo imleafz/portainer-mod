@@ -1,4 +1,5 @@
 import { string } from 'yup';
+import { useTranslation } from 'react-i18next';
 
 import { FormControl } from '@@/form-components/FormControl';
 import { Input } from '@@/form-components/Input';
@@ -12,8 +13,9 @@ export function HostnameField({
   error?: string;
   onChange: (value: string) => void;
 }) {
+  const { t } = useTranslation();
   return (
-    <FormControl label="Hostname" errors={error}>
+    <FormControl label={t('docker.container.hostname')} errors={error}>
       <Input
         value={value}
         onChange={(e) => onChange(e.target.value)}

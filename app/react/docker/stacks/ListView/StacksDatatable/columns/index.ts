@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { useTranslation } from 'react-i18next';
 
 import { StackType } from '@/react/common/stacks/types';
 import { isoDateFromTimestamp } from '@/portainer/filters/filters';
@@ -12,13 +13,15 @@ import { imageNotificationColumn } from './image-notification';
 import { control } from './control';
 
 export function useColumns(isImageNotificationEnabled: boolean) {
+  const { t } = useTranslation();
+
   return _.compact([
     name,
     columnHelper.accessor(
       (item) => (item.Type === StackType.DockerCompose ? 'Compose' : 'Swarm'),
       {
         id: 'type',
-        header: 'Type',
+        header: (): string => t('docker.stacks.type'),
         enableHiding: false,
       }
     ),
@@ -26,7 +29,7 @@ export function useColumns(isImageNotificationEnabled: boolean) {
     control,
     columnHelper.accessor('CreationDate', {
       id: 'creationDate',
-      header: 'Created',
+      header: (): string => t('docker.stacks.created'),
       enableHiding: false,
       cell: ({ getValue, row: { original: item } }) => {
         const value = getValue();
@@ -40,7 +43,7 @@ export function useColumns(isImageNotificationEnabled: boolean) {
     }),
     columnHelper.accessor('UpdateDate', {
       id: 'updateDate',
-      header: 'Updated',
+      header: (): string => t('docker.stacks.updated'),
       cell: ({ getValue, row: { original: item } }) => {
         const value = getValue();
         if (!value) {

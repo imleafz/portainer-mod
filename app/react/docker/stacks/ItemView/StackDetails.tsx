@@ -1,5 +1,6 @@
 import { Edit2, List } from 'lucide-react';
 import _ from 'lodash';
+import { useTranslation } from 'react-i18next';
 
 import { useParamState } from '@/react/hooks/useParamState';
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
@@ -34,6 +35,7 @@ export function StackDetails({
   stackName: string;
   stack: Stack | undefined;
 }) {
+  const { t } = useTranslation();
   const envId = useEnvironmentId();
   const containerNamesQuery = useContainers(envId, {
     select: (containers) =>
@@ -67,7 +69,7 @@ export function StackDetails({
               options={_.compact([
                 {
                   id: 'info',
-                  label: 'Stack',
+                  label: t('docker.stack.stack'),
                   icon: List,
                   children: (
                     <StackInfoTab
@@ -90,7 +92,7 @@ export function StackDetails({
                   ? {
                       id: 'editor',
                       icon: Edit2,
-                      label: 'Editor',
+                      label: t('docker.stack.editor'),
                       children: (
                         <StackEditorTab
                           stack={stack}

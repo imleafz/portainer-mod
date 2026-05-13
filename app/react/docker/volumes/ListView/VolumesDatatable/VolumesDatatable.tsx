@@ -1,4 +1,5 @@
 import { Database } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Datatable, TableSettingsMenu } from '@@/datatables';
 import { TableSettingsMenuAutoRefresh } from '@@/datatables/TableSettingsMenuAutoRefresh';
@@ -22,7 +23,8 @@ import { TableActions } from './TableActions';
 import { useColumns } from './columns';
 
 interface TableSettings
-  extends BasicTableSettings,
+  extends
+    BasicTableSettings,
     RefreshableTableSettings,
     FilteredColumnsTableSettings {}
 
@@ -47,13 +49,14 @@ export function VolumesDatatable({
   onRefresh(): Promise<void>;
   isBrowseVisible: boolean;
 }) {
+  const { t } = useTranslation();
   const tableState = useTableState(store, storageKey);
   useRepeater(tableState.autoRefreshRate, onRefresh);
   const columns = useColumns();
 
   return (
     <Datatable
-      title="Volumes"
+      title={t('docker.container.volumes')}
       titleIcon={Database}
       columns={columns}
       dataset={dataset || []}

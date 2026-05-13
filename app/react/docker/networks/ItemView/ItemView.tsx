@@ -1,5 +1,6 @@
 import { useRouter, useCurrentStateAndParams } from '@uirouter/react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
 import { AccessControlPanel } from '@/react/portainer/access-control/AccessControlPanel/AccessControlPanel';
@@ -22,6 +23,7 @@ import { NetworkOptionsTable } from './NetworkOptionsTable';
 import { NetworkContainersTable } from './NetworkContainersTable';
 
 export function ItemView() {
+  const { t } = useTranslation();
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -55,7 +57,7 @@ export function ItemView() {
   return (
     <>
       <PageHeader
-        title="Network details"
+        title={t('docker.networks.networkDetails')}
         breadcrumbs={[
           { link: 'docker.networks', label: 'Networks' },
           {

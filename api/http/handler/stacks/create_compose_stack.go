@@ -152,7 +152,7 @@ func (handler *Handler) createComposeStackFromFileContent(w http.ResponseWriter,
 		return httpErr
 	}
 
-	return handler.decorateStackResponse(w, stack, userID)
+	return handler.decorateStackResponse(w, r, stack, userID)
 }
 
 type composeStackFromGitRepositoryPayload struct {
@@ -310,7 +310,7 @@ func (handler *Handler) createComposeStackFromGitRepository(w http.ResponseWrite
 		return httpErr
 	}
 
-	return handler.decorateStackResponse(w, stack, userID)
+	return handler.decorateStackResponse(w, r, stack, userID)
 }
 
 type composeStackFromFileUploadPayload struct {
@@ -415,5 +415,5 @@ func (handler *Handler) createComposeStackFromFileUpload(w http.ResponseWriter, 
 		return httpErr
 	}
 
-	return handler.decorateStackResponse(w, stack, userID)
+	return handler.decorateStackResponse(w, r, stack, userID)
 }

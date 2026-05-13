@@ -1,4 +1,5 @@
 import { array, object, string } from 'yup';
+import { useTranslation } from 'react-i18next';
 
 import { r2a } from '@/react-tools/react2angular';
 import { withControlledInput } from '@/react-tools/withControlledInput';
@@ -18,10 +19,11 @@ interface Props {
 }
 
 function Item({ item, onChange, index }: ItemProps<Gpu>) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-grow gap-2">
       <InputGroup size="small" className="flex-grow">
-        <InputGroup.Addon>GPU Name</InputGroup.Addon>
+        <InputGroup.Addon>{t('docker.host.gpuName')}</InputGroup.Addon>
         <InputGroup.Input
           placeholder="my-gpu"
           value={item.name}
@@ -33,7 +35,7 @@ function Item({ item, onChange, index }: ItemProps<Gpu>) {
       </InputGroup>
 
       <InputGroup size="small" className="flex-grow">
-        <InputGroup.Addon>Index or UUID</InputGroup.Addon>
+        <InputGroup.Addon>{t('docker.host.indexOrUuid')}</InputGroup.Addon>
         <InputGroup.Input
           placeholder="0 or GPU-6e2c7185-c3d3-ae22-da43-bc5267b89061"
           value={item.value}
@@ -48,14 +50,15 @@ function Item({ item, onChange, index }: ItemProps<Gpu>) {
 }
 
 export function GpusList({ value, onChange }: Props) {
+  const { t } = useTranslation();
   return (
     <InputList<Gpu>
-      label="GPUs"
-      tooltip="You may optionally set up the GPUs that will be selectable against containers, although 'All GPUs' will always be available."
+      label={t('docker.host.gpus')}
+      tooltip={t('docker.host.gpusTooltip')}
       value={value}
       onChange={onChange}
       itemBuilder={() => ({ value: '', name: '' })}
-      addLabel="Add GPU"
+      addLabel={t('docker.host.addGpu')}
       item={Item}
       data-cy="docker-containers-gpus"
     />

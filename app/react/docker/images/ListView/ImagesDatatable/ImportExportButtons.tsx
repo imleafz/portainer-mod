@@ -1,5 +1,6 @@
 import { Download, Upload } from 'lucide-react';
 import _ from 'lodash';
+import { useTranslation } from 'react-i18next';
 
 import { Authorized } from '@/react/hooks/useUser';
 import { notifyWarning } from '@/portainer/services/notifications';
@@ -16,6 +17,7 @@ export function ImportExportButtons({
 }: {
   selectedItems: Array<ImagesListResponse>;
 }) {
+  const { t } = useTranslation();
   const exportMutation = useExportMutation();
 
   return (
@@ -33,7 +35,7 @@ export function ImportExportButtons({
           }}
           aria-disabled={exportMutation.isLoading}
         >
-          Import
+          {t('docker.images.import')}
         </Button>
       </Authorized>
       <Authorized authorizations="DockerImageGet">
@@ -42,12 +44,12 @@ export function ImportExportButtons({
           color="light"
           icon={Download}
           isLoading={exportMutation.isLoading}
-          loadingText="Export in progress..."
+          loadingText={t('docker.images.exportInProgress')}
           data-cy="image-exportImageButton"
           onClick={() => handleExport()}
           disabled={selectedItems.length === 0}
         >
-          Export
+          {t('docker.images.export')}
         </LoadingButton>
       </Authorized>
     </ButtonGroup>
@@ -69,27 +71,24 @@ export function ImportExportButtons({
       nodeName: selectedItems[0].nodeName,
     });
   }
-}
 
-function isValidToDownload(selectedItems: Array<ImagesListResponse>) {
-  for (let i = 0; i < selectedItems.length; i++) {
-    const image = selectedItems[i];
+  function isValidToDownload(selectedItems: Array<ImagesListResponse>) {
+    for (let i = 0; i < selectedItems.length; i++) {
+      const image = selectedItems[i];
 
-    const untagged = image.tags?.find((item) => item.includes('<none>'));
+      const untagged = image.tags?.find((item) => item.includes('<none>'));
 
-    if (untagged) {
-      notifyWarning('', 'Cannot download an untagged image');
+      if (untagged) {
+        notifyWarning('', t('docker.images.cannotDownloadUntaggedImage'));
+        return false;
+      }
+    }
+
+    if (_.uniqBy(selectedItems, 'nodeName').length > 1) {
+      notifyWarning('', t('docker.images.cannotDownloadFromDifferentNodes'));
       return false;
     }
-  }
 
-  if (_.uniqBy(selectedItems, 'nodeName').length > 1) {
-    notifyWarning(
-      '',
-      'Cannot download images from different nodes at the same time'
-    );
-    return false;
+    return true;
   }
-
-  return true;
 }

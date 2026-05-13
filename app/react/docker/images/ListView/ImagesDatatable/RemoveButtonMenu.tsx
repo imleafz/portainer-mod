@@ -2,6 +2,7 @@ import { ChevronDown, Trash2 } from 'lucide-react';
 import { Menu, MenuButton, MenuItem, MenuPopover } from '@reach/menu-button';
 import { positionRight } from '@reach/popover';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 
 import { Authorized } from '@/react/hooks/useUser';
 import { withInvalidate } from '@/react-tools/react-query';
@@ -23,6 +24,7 @@ export function RemoveButtonMenu({
 }: {
   selectedItems: Array<ImagesListResponse>;
 }) {
+  const { t } = useTranslation();
   const deleteImageListMutation = useDeleteImageListMutation();
 
   return (
@@ -38,7 +40,7 @@ export function RemoveButtonMenu({
             handleRemove(false);
           }}
         >
-          Remove
+          {t('docker.images.remove')}
         </Button>
         <Menu>
           <MenuButton
@@ -58,7 +60,7 @@ export function RemoveButtonMenu({
                   handleRemove(true);
                 }}
               >
-                Force Remove
+                {t('docker.images.forceRemove')}
               </MenuItem>
             </div>
           </MenuPopover>
@@ -69,19 +71,23 @@ export function RemoveButtonMenu({
 
   function confirmForceRemove() {
     return confirmDestructive({
-      title: 'Are you sure?',
-      message:
-        "Forcing removal of an image will remove it even if it's used by stopped containers, and delete all associated tags. Are you sure you want to remove the selected image(s)?",
-      confirmButton: buildConfirmButton('Remove the image', 'danger'),
+      title: t('docker.images.areYouSure'),
+      message: t('docker.images.forceRemoveMessage'),
+      confirmButton: buildConfirmButton(
+        t('docker.images.removeImage'),
+        'danger'
+      ),
     });
   }
 
   function confirmRegularRemove() {
     return confirmDestructive({
-      title: 'Are you sure?',
-      message:
-        'Removing an image will also delete all associated tags. Are you sure you want to remove the selected image(s)?',
-      confirmButton: buildConfirmButton('Remove the image', 'danger'),
+      title: t('docker.images.areYouSure'),
+      message: t('docker.images.regularRemoveMessage'),
+      confirmButton: buildConfirmButton(
+        t('docker.images.removeImage'),
+        'danger'
+      ),
     });
   }
 
@@ -102,6 +108,7 @@ export function RemoveButtonMenu({
 }
 
 function useDeleteImageListMutation() {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const queryClient = useQueryClient();
 
@@ -114,7 +121,7 @@ function useDeleteImageListMutation() {
     } & Omit<Parameters<typeof deleteImage>[0], 'imageId' | 'environmentId'>) =>
       processItemsInBatches(imageIds, (imageId) =>
         deleteImage({ ...args, environmentId, imageId }).then(() =>
-          notifySuccess('Image successfully removed', imageId)
+          notifySuccess(t('docker.images.imageSuccessfullyRemoved'), imageId)
         )
       ),
     ...withInvalidate(queryClient, [queryKeys.base(environmentId)]),

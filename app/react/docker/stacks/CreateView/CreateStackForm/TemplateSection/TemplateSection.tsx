@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useFormikContext } from 'formik';
 import { JSONSchema7 } from 'json-schema';
+import { useTranslation } from 'react-i18next';
 
 import { CustomTemplatesVariablesField } from '@/react/portainer/custom-templates/components/CustomTemplatesVariablesField';
 import {
@@ -35,6 +36,7 @@ export function TemplateSection({
   schema?: JSONSchema7;
   isSaved: boolean;
 }) {
+  const { t } = useTranslation();
   const texts =
     textByType[isSwarm ? StackType.DockerSwarm : StackType.DockerCompose];
   const { values, errors, setFieldValue, isSubmitting } =
@@ -101,7 +103,7 @@ export function TemplateSection({
 
   return (
     <>
-      <FormSection title="Template">
+      <FormSection title={t('docker.stacks.templateSectionTitle')}>
         <CustomTemplateSelector
           value={values.template.selectedId}
           onChange={handleTemplateChange}
@@ -109,7 +111,7 @@ export function TemplateSection({
         />
 
         {!!values.template.selectedId && templateFileQuery.isLoading && (
-          <InlineLoader>Loading template...</InlineLoader>
+          <InlineLoader>{t('docker.stacks.loadingTemplate')}</InlineLoader>
         )}
       </FormSection>
 
@@ -130,21 +132,17 @@ export function TemplateSection({
             <TextTip color="orange">
               {isAdminOrEditor ? (
                 <>
-                  Custom template could not be loaded, please{' '}
+                  {t('docker.stacks.templateLoadErrorAdmin', { name: selectedTemplate.Id })}
                   <Link
                     to="kubernetes.templates.custom.edit"
                     params={{ id: selectedTemplate.Id }}
                     data-cy="template-error-edit-link"
                   >
-                    click here
-                  </Link>{' '}
-                  for configuration.
+                    {t('common.clickHere')}
+                  </Link>
                 </>
               ) : (
-                <>
-                  Custom template could not be loaded, please contact your
-                  administrator.
-                </>
+                <>{t('docker.stacks.templateLoadErrorUser')}</>
               )}
             </TextTip>
           )}

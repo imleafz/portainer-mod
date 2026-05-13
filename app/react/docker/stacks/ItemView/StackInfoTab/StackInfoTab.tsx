@@ -1,4 +1,5 @@
 import { AlertTriangle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { EnvironmentId } from '@/react/portainer/environments/types';
 import { Stack, StackStatus, StackType } from '@/react/common/stacks/types';
@@ -38,6 +39,7 @@ export function StackInfoTab({
   environmentId,
   yamlError,
 }: StackInfoTabProps) {
+  const { t } = useTranslation();
   const status = useStackStatus({
     status: stack?.Status,
     environmentId,
@@ -52,7 +54,7 @@ export function StackInfoTab({
         isOrphaned={isOrphaned || isOrphanedRunning}
       />
 
-      <FormSection title="Stack details">
+      <FormSection title={t('docker.stack.stackDetails')}>
         <div className="form-group">
           {stackName}
 
@@ -111,25 +113,23 @@ function ExternalOrphanedWarning({
   isExternal: boolean;
   isOrphaned: boolean;
 }) {
+  const { t } = useTranslation();
   if (!isExternal && !isOrphaned) return null;
 
   return (
-    <FormSection title="Information">
+    <FormSection title={t('docker.stack.information')}>
       <div className="form-group">
         <span className="small">
           <p className="text-muted flex items-start gap-1">
             <Icon icon={AlertTriangle} mode="warning" className="!mr-0" />
             {isExternal && (
               <span>
-                This stack was created outside of Portainer. Control over this
-                stack is limited.
+                {t('docker.stack.externalStackWarning')}
               </span>
             )}
             {isOrphaned && (
               <span>
-                This stack is orphaned. You can re-associate it with the current
-                environment using the &quot;Associate to this environment&quot;
-                feature.
+                {t('docker.stack.orphanedStackWarning')}
               </span>
             )}
           </p>

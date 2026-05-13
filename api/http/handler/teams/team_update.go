@@ -2,8 +2,11 @@ package teams
 
 import (
 	"net/http"
+	"strconv"
 
 	portainer "github.com/portainer/portainer/api"
+	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
 	"github.com/portainer/portainer/pkg/libhttp/request"
 	"github.com/portainer/portainer/pkg/libhttp/response"
@@ -41,6 +44,17 @@ func (handler *Handler) teamUpdate(w http.ResponseWriter, r *http.Request) *http
 		return httperror.BadRequest("Invalid team identifier route variable", err)
 	}
 
+	tokenData, _ := security.RetrieveTokenData(r)
+	operatorUsername := ""
+	operatorUserID := 0
+	if tokenData != nil {
+		operatorUserID = int(tokenData.ID)
+		operator, _ := handler.DataStore.User().Read(tokenData.ID)
+		if operator != nil {
+			operatorUsername = operator.Username
+		}
+	}
+
 	var payload teamUpdatePayload
 	if err := request.DecodeAndValidateJSONPayload(r, &payload); err != nil {
 		return httperror.BadRequest("Invalid request payload", err)
@@ -53,6 +67,7 @@ func (handler *Handler) teamUpdate(w http.ResponseWriter, r *http.Request) *http
 		return httperror.InternalServerError("Unable to find a team with the specified identifier inside the database", err)
 	}
 
+	oldName := team.Name
 	if payload.Name != "" {
 		team.Name = payload.Name
 	}
@@ -60,6 +75,21 @@ func (handler *Handler) teamUpdate(w http.ResponseWriter, r *http.Request) *http
 	if err := handler.DataStore.Team().Update(team.ID, team); err != nil {
 		return httperror.NotFound("Unable to persist team changes inside the database", err)
 	}
+
+	activitylog.NewActivityLogBuilder(
+		activitylog.ActionUpdate,
+		activitylog.ContextPortainer,
+		activitylog.ResourceTypeTeam,
+	).
+		WithUser(operatorUserID, operatorUsername).
+		WithResource(strconv.Itoa(teamID), team.Name).
+		WithDetails(map[string]interface{}{
+			"description": "更新团队成功",
+			"teamName":    team.Name,
+			"oldName":     oldName,
+			"newName":     payload.Name,
+		}).
+		Log()
 
 	return response.JSON(w, team)
 }

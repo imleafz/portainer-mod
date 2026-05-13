@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useCurrentStateAndParams } from '@uirouter/react';
 import { Pod } from 'kubernetes-types/core/v1';
 
@@ -28,6 +29,7 @@ import { ApplicationPersistentDataTable } from './ApplicationPersistentDataTable
 import { PlacementsTable } from './PlacementsTable';
 
 export function ApplicationDetailsWidget() {
+  const { t } = useTranslation();
   const stateAndParams = useCurrentStateAndParams();
   const {
     params: {
@@ -82,8 +84,8 @@ export function ApplicationDetailsWidget() {
                   ) : (
                     <EditButton to=".edit">
                       {externalApp
-                        ? 'Edit external application'
-                        : 'Edit this application'}
+                        ? t('kubernetes.applications.editExternalApplication')
+                        : t('kubernetes.applications.editThisApplication')}
                     </EditButton>
                   )}
                 </Authorized>
@@ -114,7 +116,7 @@ export function ApplicationDetailsWidget() {
                       fileContent: appStackFileContent,
                     }}
                   >
-                    Create template from application
+                    {t('kubernetes.applications.createTemplateFromApp')}
                   </AddButton>
                 )}
               </div>

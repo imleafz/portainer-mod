@@ -145,6 +145,7 @@ export interface Settings {
     AsyncMode: boolean;
     TunnelServerAddress: string;
   };
+  EnableActivityLog: boolean;
 }
 
 export interface GlobalDeploymentOptions {

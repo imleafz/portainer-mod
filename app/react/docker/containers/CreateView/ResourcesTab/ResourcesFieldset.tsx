@@ -1,5 +1,6 @@
 import { FormikErrors } from 'formik';
 import { object, SchemaOf } from 'yup';
+import { useTranslation } from 'react-i18next';
 
 import { useSystemLimits } from '@/react/docker/proxy/queries/useInfo';
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
@@ -29,12 +30,13 @@ export function ResourceFieldset({
   onChange: (values: Values) => void;
   errors: FormikErrors<Values> | undefined;
 }) {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const { maxCpu, maxMemory } = useSystemLimits(environmentId);
 
   return (
-    <FormSection title="Resources">
-      <FormControl label="Memory reservation (MB)" errors={errors?.reservation}>
+    <FormSection title={t('docker.container.resources')}>
+      <FormControl label={t('docker.container.memoryReservation')} errors={errors?.reservation}>
         <SliderWithInput
           visibleTooltip
           value={values.reservation}
@@ -45,7 +47,7 @@ export function ResourceFieldset({
         />
       </FormControl>
 
-      <FormControl label="Memory limit (MB)" errors={errors?.limit}>
+      <FormControl label={t('docker.container.memoryLimit')} errors={errors?.limit}>
         <SliderWithInput
           visibleTooltip
           value={values.limit}
@@ -56,7 +58,7 @@ export function ResourceFieldset({
         />
       </FormControl>
 
-      <FormControl label="Maximum CPU usage" errors={errors?.cpu}>
+      <FormControl label={t('docker.container.maxCpuUsage')} errors={errors?.cpu}>
         <Slider
           visibleTooltip
           value={values.cpu}

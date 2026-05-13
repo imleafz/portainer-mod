@@ -1,4 +1,5 @@
 import { Play } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Authorized } from '@/react/hooks/useUser';
 import { EnvironmentId } from '@/react/portainer/environments/types';
@@ -26,6 +27,7 @@ export function StartButton({
   isPortainer,
   onSuccess = () => {},
 }: StartButtonProps) {
+  const { t } = useTranslation();
   const startMutation = useStartContainer();
 
   function handleStart() {
@@ -33,7 +35,7 @@ export function StartButton({
       { environmentId, containerId, nodeName },
       {
         onSuccess() {
-          notifySuccess('Success', 'Container successfully started');
+          notifySuccess(t('common.success'), t('docker.container.containerStarted'));
           onSuccess();
         },
       }
@@ -48,11 +50,11 @@ export function StartButton({
         onClick={handleStart}
         disabled={isRunning || isPortainer}
         isLoading={startMutation.isLoading}
-        loadingText="Starting..."
+        loadingText={t('docker.container.starting')}
         data-cy="start-container-button"
         icon={Play}
       >
-        Start
+        {t('docker.container.start')}
       </LoadingButton>
     </Authorized>
   );

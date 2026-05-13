@@ -2,6 +2,7 @@ import { RefreshCw } from 'lucide-react';
 import { Form, Formik, useFormikContext } from 'formik';
 import { object } from 'yup';
 import { useRouter } from '@uirouter/react';
+import { useTranslation } from 'react-i18next';
 
 import { AccessControlForm } from '@/react/portainer/access-control';
 import { AccessControlFormData } from '@/react/portainer/access-control/types';
@@ -34,6 +35,7 @@ export function AssociateStackForm({
   stackId: number;
   isOrphanedRunning: boolean | undefined;
 }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const swarmIdQuery = useSwarmId(environmentId);
   const mutation = useAssociateStackToEnvironmentMutation();
@@ -45,10 +47,9 @@ export function AssociateStackForm({
   };
 
   return (
-    <FormSection title="Associate to this environment">
+    <FormSection title={t('docker.stack.associateToEnvironment')}>
       <p className="small text-muted">
-        This feature allows you to re-associate this stack to the current
-        environment.
+        {t('docker.stack.associateDescription')}
       </p>
 
       <Formik
@@ -64,7 +65,7 @@ export function AssociateStackForm({
             },
             {
               onSuccess() {
-                notifySuccess('Stack successfully associated', stackName);
+                notifySuccess(t('docker.stack.stackSuccessfullyAssociated'), stackName);
                 router.stateService.go('docker.stacks');
               },
             }
@@ -83,6 +84,7 @@ type FormValues = {
 };
 
 function InnerForm({ environmentId }: { environmentId: EnvironmentId }) {
+  const { t } = useTranslation();
   const { values, setFieldValue, errors, isSubmitting } =
     useFormikContext<FormValues>();
 
@@ -101,12 +103,12 @@ function InnerForm({ environmentId }: { environmentId: EnvironmentId }) {
             color="primary"
             size="small"
             isLoading={isSubmitting}
-            loadingText="Association in progress..."
+            loadingText={t('docker.stack.associationInProgress')}
             icon={RefreshCw}
             className="-ml-1.25"
             data-cy="stack-associate-btn"
           >
-            Associate
+            {t('docker.stack.associate')}
           </LoadingButton>
         </div>
       </div>

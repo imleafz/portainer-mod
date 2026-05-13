@@ -11,7 +11,10 @@ import (
 	"github.com/portainer/portainer/api/agent"
 	"github.com/portainer/portainer/api/crypto"
 	"github.com/portainer/portainer/api/dataservices"
+	activitylogds "github.com/portainer/portainer/api/dataservices/activitylog"
 	"github.com/portainer/portainer/api/http/client"
+	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	"github.com/portainer/portainer/api/internal/edge"
 	"github.com/portainer/portainer/api/internal/endpointutils"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
@@ -279,6 +282,32 @@ func (handler *Handler) endpointCreate(w http.ResponseWriter, r *http.Request) *
 	if err := handler.DataStore.EndpointRelation().Create(relationObject); err != nil {
 		return httperror.InternalServerError("Unable to persist the relation object inside the database", err)
 	}
+
+	tokenData, _ := security.RetrieveTokenData(r)
+	operatorUsername := ""
+	operatorUserID := 0
+	if tokenData != nil {
+		operatorUserID = int(tokenData.ID)
+		operator, _ := handler.DataStore.User().Read(tokenData.ID)
+		if operator != nil {
+			operatorUsername = operator.Username
+		}
+	}
+
+	activitylog.NewActivityLogBuilder(
+		activitylogds.ActionCreate,
+		activitylogds.ContextPortainer,
+		activitylogds.ResourceTypeEndpoint,
+	).
+		WithUser(operatorUserID, operatorUsername).
+		WithResource(strconv.Itoa(int(endpoint.ID)), endpoint.Name).
+		WithDetails(map[string]interface{}{
+			"description":  "创建环境成功",
+			"endpointName": endpoint.Name,
+			"endpointType": strconv.Itoa(int(endpoint.Type)),
+			"endpointURL":  endpoint.URL,
+		}).
+		Log()
 
 	return response.JSON(w, endpoint)
 }

@@ -151,7 +151,9 @@ describe('CreateImageSection', () => {
       await userEvent.type(imageInput, 'my-app:v1.0');
 
       // Submit form
-      const createButton = screen.getByRole('button', { name: /^create$/i });
+      const createButton = screen.getByRole('button', {
+        name: /^create image$/i,
+      });
 
       await waitFor(() => {
         expect(createButton).not.toBeDisabled();
@@ -193,7 +195,9 @@ describe('CreateImageSection', () => {
       const imageInput = screen.getByRole('combobox', { name: 'Image' });
       await userEvent.type(imageInput, 'my-app');
 
-      const createButton = screen.getByRole('button', { name: /^create$/i });
+      const createButton = screen.getByRole('button', {
+        name: /^create image$/i,
+      });
 
       await waitFor(() => {
         expect(createButton).not.toBeDisabled();
@@ -231,7 +235,9 @@ describe('CreateImageSection', () => {
       const imageInput = screen.getByRole('combobox', { name: 'Image' });
       await userEvent.type(imageInput, 'my-app');
 
-      const createButton = screen.getByRole('button', { name: /^create$/i });
+      const createButton = screen.getByRole('button', {
+        name: /^create image$/i,
+      });
 
       await waitFor(() => {
         expect(createButton).not.toBeDisabled();

@@ -1,4 +1,5 @@
 import { RefreshCw } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Authorized } from '@/react/hooks/useUser';
 import { EnvironmentId } from '@/react/portainer/environments/types';
@@ -26,6 +27,7 @@ export function RestartButton({
   isPortainer,
   onSuccess = () => {},
 }: RestartButtonProps) {
+  const { t } = useTranslation();
   const restartMutation = useRestartContainer();
 
   function handleRestart() {
@@ -33,7 +35,7 @@ export function RestartButton({
       { environmentId, containerId, nodeName },
       {
         onSuccess() {
-          notifySuccess('Success', 'Container successfully restarted');
+          notifySuccess(t('common.success'), t('docker.container.containerRestarted'));
           onSuccess();
         },
       }
@@ -48,11 +50,11 @@ export function RestartButton({
         onClick={handleRestart}
         disabled={!isRunning || isPortainer}
         isLoading={restartMutation.isLoading}
-        loadingText="Restarting..."
+        loadingText={t('docker.container.restarting')}
         data-cy="restart-container-button"
         icon={RefreshCw}
       >
-        Restart
+        {t('docker.container.restart')}
       </LoadingButton>
     </Authorized>
   );

@@ -66,7 +66,9 @@ it('should show confirmation dialog on click', async () => {
 
   await waitFor(() => {
     expect(
-      screen.getByText('Do you want to remove the selected config(s)?')
+      screen.getByText(
+        'Are you sure you want to remove the selected config(s)?'
+      )
     ).toBeVisible();
   });
 });

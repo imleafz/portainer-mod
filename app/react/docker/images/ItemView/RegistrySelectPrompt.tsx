@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Registry } from '@/react/portainer/registries/types/registry';
 
@@ -13,7 +14,8 @@ interface Props {
 }
 
 function RegistrySelectPrompt({ onSubmit, defaultValue, registries }: Props) {
-  const title = 'Which registry do you want to use?';
+  const { t } = useTranslation();
+  const title = t('docker.image.whichRegistry');
   const [registryId, setRegistryId] = useState(defaultValue);
   const options = registries2Options(registries);
 
@@ -35,14 +37,14 @@ function RegistrySelectPrompt({ onSubmit, defaultValue, registries }: Props) {
           color="default"
           data-cy="registry-select-cancel-button"
         >
-          Cancel
+          {t('docker.image.cancel')}
         </Button>
         <Button
           onClick={() => onSubmit(registryId)}
           color="primary"
           data-cy="registry-select-update-button"
         >
-          Update
+          {t('docker.image.update')}
         </Button>
       </Modal.Footer>
     </Modal>

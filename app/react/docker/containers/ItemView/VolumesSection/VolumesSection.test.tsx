@@ -25,8 +25,8 @@ describe('VolumesSection', () => {
     const table = screen.getByRole('table');
     expect(table).toBeVisible();
     expect(table).toHaveAttribute('data-cy', 'containerDetails-volumesTable');
-    expect(screen.getByText('Host/volume')).toBeVisible();
-    expect(screen.getByText('Path in container')).toBeVisible();
+    expect(screen.getByText('Host / Volume')).toBeVisible();
+    expect(screen.getByText('Container path')).toBeVisible();
   });
 
   it('should render multiple volumes', () => {

@@ -7,9 +7,11 @@ import (
 	"strconv"
 
 	portainer "github.com/portainer/portainer/api"
+	alog "github.com/portainer/portainer/api/dataservices/activitylog"
 	"github.com/portainer/portainer/api/filesystem"
 	httperrors "github.com/portainer/portainer/api/http/errors"
 	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	"github.com/portainer/portainer/api/stacks/deployments"
 	"github.com/portainer/portainer/api/stacks/stackutils"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
@@ -134,6 +136,28 @@ func (handler *Handler) stackDelete(w http.ResponseWriter, r *http.Request) *htt
 	if err := handler.FileService.RemoveDirectory(stack.ProjectPath); err != nil {
 		log.Warn().Err(err).Msg("Unable to remove stack files from disk")
 	}
+
+	user, err := handler.DataStore.User().Read(securityContext.UserID)
+	username := ""
+	if err == nil {
+		username = user.Username
+	}
+
+	activitylog.NewActivityLogBuilder(
+		alog.ActionDelete,
+		alog.ContextDocker,
+		alog.ResourceTypeDockerStack,
+	).
+		WithUser(int(securityContext.UserID), username).
+		WithResource(strconv.Itoa(int(stack.ID)), stack.Name).
+		WithDetails(map[string]interface{}{
+			"description": "删除 Docker 堆栈成功",
+			"stackName":   stack.Name,
+			"stackType":   stack.Type,
+			"endpoint":    endpoint.Name,
+			"endpointID":  stack.EndpointID,
+		}).
+		Log()
 
 	return response.Empty(w)
 }

@@ -2,6 +2,7 @@ import { Formik } from 'formik';
 import { useCurrentStateAndParams, useRouter } from '@uirouter/react';
 import { useState } from 'react';
 import uuidv4 from 'uuid/v4';
+import { useTranslation } from 'react-i18next';
 
 import { EnvironmentId } from '@/react/portainer/environments/types';
 import { notifySuccess } from '@/portainer/services/notifications';
@@ -24,6 +25,7 @@ interface Props {
 }
 
 export function CreateStackForm({ environmentId, isSwarm, swarmId }: Props) {
+  const { t } = useTranslation();
   const router = useRouter();
   const {
     params: { yaml },
@@ -88,7 +90,7 @@ export function CreateStackForm({ environmentId, isSwarm, swarmId }: Props) {
 
     createStackMutation.mutate(payload, {
       onSuccess: () => {
-        notifySuccess('Success', 'Stack successfully deployed');
+        notifySuccess(t('common.success'), t('docker.stacks.stackSuccessfullyDeployed'));
         router.stateService.go('docker.stacks');
       },
     });

@@ -3,6 +3,9 @@ package helm
 import (
 	"net/http"
 
+	"github.com/portainer/portainer/api/http/middlewares"
+	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	"github.com/portainer/portainer/pkg/libhelm/options"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
 	"github.com/portainer/portainer/pkg/libhttp/request"
@@ -50,6 +53,33 @@ func (handler *Handler) helmDelete(w http.ResponseWriter, r *http.Request) *http
 	if err != nil {
 		return httperror.InternalServerError("Helm returned an error", err)
 	}
+
+	endpoint, _ := middlewares.FetchEndpoint(r)
+	endpointName := ""
+	if endpoint != nil {
+		endpointName = endpoint.Name
+	}
+
+	tokenData, _ := security.RetrieveTokenData(r)
+	operatorUsername := ""
+	operatorUserID := 0
+	if tokenData != nil {
+		operatorUserID = int(tokenData.ID)
+		operatorUsername = tokenData.Username
+	}
+
+	namespace := q.Get("namespace")
+
+	activitylog.NewActivityLogBuilder(
+		activitylog.ActionDelete,
+		activitylog.ContextPortainer,
+		activitylog.ResourceTypeHelmRelease,
+	).
+		WithUser(operatorUserID, operatorUsername).
+		WithResource(release, endpointName+"/"+release).
+		WithEndpoint(endpointName).
+		WithNamespace(namespace).
+		Log()
 
 	return response.Empty(w)
 }

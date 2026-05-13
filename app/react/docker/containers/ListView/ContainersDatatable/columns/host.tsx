@@ -1,6 +1,12 @@
+import { useTranslation } from 'react-i18next';
+
 import { columnHelper } from './helper';
 
 export const host = columnHelper.accessor((row) => row.NodeName || '-', {
-  header: 'Host',
+  header: () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { t } = useTranslation();
+    return t('docker.container.host');
+  },
   id: 'host',
 });

@@ -1,19 +1,21 @@
+import { useTranslation } from 'react-i18next';
+
 import { PageHeader } from '@@/PageHeader';
 import { InformationPanel } from '@@/InformationPanel';
 
 import { RegistriesDatatable } from './RegistriesDatatable';
 
 export function ListView() {
+  const { t } = useTranslation();
   return (
     <>
-      <PageHeader title="Registries" breadcrumbs="Registry management" reload />
+      <PageHeader title={t('registries.title')} breadcrumbs={t('registries.management')} reload />
 
       <div className="row">
         <div className="col-sm-12">
-          <InformationPanel title="Information">
+          <InformationPanel title={t('common.info')}>
             <span className="small text-muted">
-              View registries via an environment to manage access for user(s)
-              and/or team(s)
+              {t('registries.infoMessage')}
             </span>
           </InformationPanel>
         </div>

@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { useInfo } from '@/react/docker/proxy/queries/useInfo';
 import { Environment } from '@/react/portainer/environments/types';
 import { isAgentEnvironment } from '@/react/portainer/environments/utils';
@@ -11,6 +13,7 @@ interface Props {
 }
 
 export function ListView({ endpoint: environment }: Props) {
+  const { t } = useTranslation();
   const isAgent = isAgentEnvironment(environment.Type);
 
   const envInfoQuery = useInfo(environment.Id, {
@@ -22,8 +25,8 @@ export function ListView({ endpoint: environment }: Props) {
   return (
     <>
       <PageHeader
-        title="Container list"
-        breadcrumbs={[{ label: 'Containers' }]}
+        title={t('docker.container.containerList')}
+        breadcrumbs={[{ label: t('docker.container.containers') }]}
         reload
       />
 

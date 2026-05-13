@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Trash2, CalendarCheck2 } from 'lucide-react';
 import { useRouter } from '@uirouter/react';
+import { useTranslation } from 'react-i18next';
 
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
 import { Authorized, useAuthorizations } from '@/react/hooks/useUser';
@@ -31,10 +32,10 @@ import { useDeleteJobsMutation } from './queries/useDeleteJobsMutation';
 const storageKey = 'jobs';
 
 interface TableSettings
-  extends KubeTableSettings,
-    FilteredColumnsTableSettings {}
+  extends KubeTableSettings, FilteredColumnsTableSettings {}
 
 export function JobsDatatable() {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const tableState = useKubeStore<TableSettings>(
     storageKey,
@@ -72,7 +73,7 @@ export function JobsDatatable() {
       columns={columns}
       settingsManager={tableState}
       isLoading={jobsQuery.isLoading}
-      title="Jobs"
+      title={t('kubernetes.jobs.title')}
       titleIcon={CalendarCheck2}
       getRowId={(row) => row.Id}
       isRowSelectable={(row) => !row.original.IsSystem}
@@ -107,6 +108,7 @@ type TableActionsProps = {
 };
 
 function TableActions({ selectedItems }: TableActionsProps) {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const deleteJobsMutation = useDeleteJobsMutation(environmentId);
   const router = useRouter();
@@ -120,10 +122,10 @@ function TableActions({ selectedItems }: TableActionsProps) {
         onClick={() => handleRemoveClick(selectedItems)}
         icon={Trash2}
         isLoading={deleteJobsMutation.isLoading}
-        loadingText="Removing jobs..."
+        loadingText={t('kubernetes.jobs.removing')}
         data-cy="k8s-jobs-removeJobButton"
       >
-        Remove
+        {t('common.delete')}
       </LoadingButton>
 
       <CreateFromManifestButton
@@ -136,7 +138,7 @@ function TableActions({ selectedItems }: TableActionsProps) {
   async function handleRemoveClick(jobs: SelectedJob[]) {
     const confirmed = await confirmDelete(
       <>
-        <p>Are you sure you want to delete the selected job(s)?</p>
+        <p>{t('kubernetes.jobs.removeConfirm')}</p>
         <ul className="mt-2 max-h-96 list-inside overflow-hidden overflow-y-auto text-sm">
           {jobs.map((s, index) => (
             <li key={index}>
@@ -161,14 +163,14 @@ function TableActions({ selectedItems }: TableActionsProps) {
       {
         onSuccess: () => {
           notifySuccess(
-            'Jobs successfully removed',
+            t('kubernetes.jobs.successfullyRemoved'),
             jobs.map((r) => `${r.Namespace}/${r.Name}`).join(', ')
           );
           router.stateService.reload();
         },
         onError: (error) => {
           notifyError(
-            'Unable to delete jobs',
+            t('kubernetes.jobs.unableToDelete'),
             error as Error,
             jobs.map((r) => `${r.Namespace}/${r.Name}`).join(', ')
           );

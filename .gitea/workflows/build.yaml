@@ -1,0 +1,106 @@
+name: Build and Push Release Image
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  GO_VERSION: '1.25.8'
+  PNPM_VERSION: '10.26.2'
+
+jobs:
+  build:
+    runs-on: public
+
+    env:
+      ENV: production
+      GOPROXY: https://goproxy.cn,direct
+      WEBPACK_CONFIG: webpack/webpack.production.js
+
+    steps:
+      - name: Checkout Code
+        uses: ${{ github.server_url }}/actions/checkout@v6
+
+      - name: Setup Go
+        uses: ${{ github.server_url }}/actions/setup-go@v6
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+          cache-dependency-path: api/go.sum
+          go-download-base-url: 'https://aka.ms/golang/release/latest'
+
+      - name: Setup pnpm
+        run: npm install -g pnpm@${{ env.PNPM_VERSION }}
+
+      - name: Cache pnpm modules
+        uses: ${{ github.server_url }}/actions/cache@v4
+        with:
+          path: /root/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
+      - name: Cache node_modules
+        uses: ${{ github.server_url }}/actions/cache@v5
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
+      - name: Tidy go.mod
+        run: make tidy
+
+      - name: Install server dependencies
+        run: make server-deps
+
+      - name: Install client dependencies
+        run: make client-deps
+
+      - name: Build server binary
+        run: make build-server
+
+      - name: Build client
+        run: |
+          export NODE_ENV=${{ env.ENV }}
+          pnpm run build --config ${{ env.WEBPACK_CONFIG }}
+
+      - name: Extract version and date
+        id: meta
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          DATE_SUFFIX=$(date +%Y%m%d)
+          VERSION_WITH_DATE="${VERSION}-${DATE_SUFFIX}"
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "version_with_date=$VERSION_WITH_DATE" >> $GITHUB_OUTPUT
+
+          echo "Base Version: $VERSION"
+          echo "Final Tag: $VERSION_WITH_DATE"
+
+      - name: Login to Gitea Registry
+        uses: ${{ github.server_url }}/actions/login-action@v4
+        with:
+          registry: ${{ github.server_url }}
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_TOKEN }}
+
+      - name: Get git commit hash
+        id: git_info
+        run: |
+          GIT_COMMIT_HASH=$(git rev-parse --short HEAD)
+          echo "git_commit=$GIT_COMMIT_HASH" >> $GITHUB_OUTPUT
+
+      - name: Build and push
+        uses: ${{ github.server_url }}/actions/build-push-action@v7
+        with:
+          context: .
+          file: build/linux/alpine.Dockerfile
+          push: true
+          build-args: |
+            GIT_COMMIT=${{ steps.git_info.outputs.git_commit }}
+            BUILD_DATE=${{ steps.meta.outputs.version_with_date }}
+          tags: |
+            ${{ github.server_url }}/${{ github.repository }}:${{ steps.meta.outputs.version }}
+            ${{ github.server_url }}/${{ github.repository }}:${{ steps.meta.outputs.version_with_date }}

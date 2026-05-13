@@ -1,6 +1,7 @@
 import { Formik } from 'formik';
 import { useRouter } from '@uirouter/react';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useIsEdgeAdmin, useIsEnvironmentAdmin } from '@/react/hooks/useUser';
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
@@ -28,13 +29,18 @@ import { CreateInnerForm } from './CreateInnerForm';
 import { toRequest } from './toRequest';
 
 export function CreateView() {
+  const { t } = useTranslation();
+
   return (
     <>
       <PageHeader
-        title="Create container"
+        title={t('docker.container.createContainer')}
         breadcrumbs={[
-          { label: 'Containers', link: 'docker.containers' },
-          'Add container',
+          {
+            label: t('docker.container.containers'),
+            link: 'docker.containers',
+          },
+          t('docker.container.addContainer'),
         ]}
         reload
       />
@@ -45,6 +51,7 @@ export function CreateView() {
 }
 
 function CreateForm() {
+  const { t } = useTranslation();
   const environmentId = useEnvironmentId();
   const router = useRouter();
   const isWindows = useIsWindows(environmentId);
@@ -98,15 +105,13 @@ function CreateForm() {
       {isDuplicating && (
         <div className="row">
           <div className="col-sm-12">
-            <InformationPanel title-text="Caution">
+            <InformationPanel title={t('docker.container.caution')}>
               <TextTip>
-                The new container may fail to start if the image is changed, and
-                settings from the previous container aren&apos;t compatible.
-                Common causes include entrypoint, cmd or{' '}
+                {t('docker.container.cautionMessage')}
                 <HelpLink docLink="/user/docker/containers/advanced">
-                  other settings
+                  {t('docker.container.otherSettings')}
                 </HelpLink>{' '}
-                set by an image.
+                {t('docker.container.setByImage')}
               </TextTip>
             </InformationPanel>
           </div>
@@ -133,10 +138,12 @@ function CreateForm() {
   async function handleSubmit(values: Values) {
     if (oldContainer) {
       const confirmed = await confirmDestructive({
-        title: 'Are you sure?',
-        message:
-          'A container with the same name already exists. Portainer can automatically remove it and re-create one. Do you want to replace it?',
-        confirmButton: buildConfirmButton('Replace', 'danger'),
+        title: t('docker.container.areYouSure'),
+        message: t('docker.container.containerExistsMessage'),
+        confirmButton: buildConfirmButton(
+          t('docker.container.replace'),
+          'danger'
+        ),
       });
 
       if (!confirmed) {
@@ -165,7 +172,10 @@ function CreateForm() {
       },
       {
         onSuccess() {
-          notifySuccess('Success', 'Container successfully created');
+          notifySuccess(
+            t('docker.container.success'),
+            t('docker.container.containerSuccessfullyCreated')
+          );
           router.stateService.go('docker.containers');
         },
       }

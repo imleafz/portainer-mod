@@ -1,6 +1,7 @@
 import { useFormikContext, Form } from 'formik';
 import { Settings } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useCurrentEnvironment } from '@/react/hooks/useCurrentEnvironment';
 import { useEnvironmentId } from '@/react/hooks/useEnvironmentId';
@@ -36,6 +37,7 @@ export function CreateInnerForm({
   onChangeName: (value: string) => void;
   onRateLimit: (limited?: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const { values, setFieldValue, errors, submitForm } =
     useFormikContext<Values>();
   const environmentId = useEnvironmentId();
@@ -68,7 +70,7 @@ export function CreateInnerForm({
             <div className="mt-4">
               <Widget>
                 <Widget.Title
-                  title="Advanced container settings"
+                  title={t('docker.container.advancedContainerSettings')}
                   icon={Settings}
                 />
                 <Widget.Body>
@@ -80,7 +82,7 @@ export function CreateInnerForm({
                     options={[
                       {
                         id: 'commands',
-                        label: 'Commands & logging',
+                        label: t('docker.container.commandsAndLogging'),
                         children: (
                           <CommandsTab
                             apiVersion={apiVersion}
@@ -93,7 +95,7 @@ export function CreateInnerForm({
                       },
                       {
                         id: 'volumes',
-                        label: 'Volumes',
+                        label: t('docker.container.volumesTab'),
                         children: (
                           <VolumesTab
                             values={values.volumes}
@@ -106,7 +108,7 @@ export function CreateInnerForm({
                       },
                       {
                         id: 'network',
-                        label: 'Network',
+                        label: t('docker.container.networkTab'),
                         children: (
                           <NetworkTab
                             values={values.network}
@@ -118,7 +120,7 @@ export function CreateInnerForm({
                       },
                       {
                         id: 'env',
-                        label: 'Env',
+                        label: t('docker.container.envTab'),
                         children: (
                           <EnvVarsTab
                             values={values.env}
@@ -129,7 +131,7 @@ export function CreateInnerForm({
                       },
                       {
                         id: 'labels',
-                        label: 'Labels',
+                        label: t('docker.container.labelsTab'),
                         children: (
                           <LabelsTab
                             values={values.labels}
@@ -140,7 +142,7 @@ export function CreateInnerForm({
                       },
                       {
                         id: 'restart',
-                        label: 'Restart policy',
+                        label: t('docker.container.restartPolicy'),
                         children: (
                           <RestartPolicyTab
                             values={values.restartPolicy}
@@ -152,7 +154,7 @@ export function CreateInnerForm({
                       },
                       {
                         id: 'runtime',
-                        label: 'Runtime & resources',
+                        label: t('docker.container.runtimeAndResources'),
                         children: (
                           <ResourcesTab
                             values={values.resources}
@@ -198,7 +200,7 @@ export function CreateInnerForm({
                       },
                       {
                         id: 'capabilities',
-                        label: 'Capabilities',
+                        label: t('docker.container.capabilitiesTab'),
                         hidden: hideCapabilities,
                         children: (
                           <CapabilitiesTab

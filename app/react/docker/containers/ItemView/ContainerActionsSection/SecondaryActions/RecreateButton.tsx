@@ -1,5 +1,6 @@
 import { RefreshCw } from 'lucide-react';
 import { useRouter } from '@uirouter/react';
+import { useTranslation } from 'react-i18next';
 
 import { EnvironmentId } from '@/react/portainer/environments/types';
 import { confirmContainerRecreation } from '@/react/docker/containers/ItemView/ConfirmRecreationModal';
@@ -25,6 +26,7 @@ export function RecreateButton({
   containerImage,
   isPortainer,
 }: RecreateButtonProps) {
+  const { t } = useTranslation();
   const recreateMutation = useRecreateContainer();
   const router = useRouter();
 
@@ -47,7 +49,7 @@ export function RecreateButton({
       },
       {
         onSuccess: () => {
-          notifySuccess('Success', 'Container successfully re-created');
+          notifySuccess(t('common.success'), t('docker.container.containerRecreated'));
           router.stateService.go('docker.containers', {}, { reload: true });
         },
       }
@@ -61,11 +63,11 @@ export function RecreateButton({
       onClick={handleRecreate}
       disabled={isPortainer}
       isLoading={recreateMutation.isLoading}
-      loadingText="Recreation in progress..."
+      loadingText={t('docker.container.recreating')}
       data-cy="recreate-container-button"
       icon={RefreshCw}
     >
-      Recreate
+      {t('docker.container.recreate')}
     </LoadingButton>
   );
 }

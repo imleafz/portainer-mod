@@ -20,24 +20,18 @@ export async function init(edition: Edition) {
     [FeatureId.K8S_CREATE_FROM_KUBECONFIG]: Edition.BE,
     [FeatureId.KAAS_PROVISIONING]: Edition.BE,
     [FeatureId.K8SINSTALL]: Edition.BE,
-    [FeatureId.ACTIVITY_AUDIT]: Edition.BE,
+    [FeatureId.ACTIVITY_AUDIT]: Edition.CE,
     [FeatureId.EXTERNAL_AUTH_LDAP]: Edition.BE,
     [FeatureId.HIDE_INTERNAL_AUTH]: Edition.BE,
     [FeatureId.HIDE_INTERNAL_AUTHENTICATION_PROMPT]: Edition.BE,
     [FeatureId.K8S_SETUP_DEFAULT]: Edition.BE,
     [FeatureId.RBAC_ROLES]: Edition.BE,
-    [FeatureId.REGISTRY_MANAGEMENT]: Edition.BE,
-    [FeatureId.S3_BACKUP_SETTING]: Edition.BE,
-    [FeatureId.S3_RESTORE]: Edition.BE,
     [FeatureId.TEAM_MEMBERSHIP]: Edition.BE,
     [FeatureId.FORCE_REDEPLOYMENT]: Edition.BE,
     [FeatureId.HIDE_AUTO_UPDATE_WINDOW]: Edition.BE,
-    [FeatureId.IMAGE_UP_TO_DATE_INDICATOR]: Edition.BE,
-    [FeatureId.STACK_PULL_IMAGE]: Edition.BE,
     [FeatureId.STACK_WEBHOOK]: Edition.BE,
     [FeatureId.CONTAINER_WEBHOOK]: Edition.BE,
     [FeatureId.POD_SECURITY_POLICY_CONSTRAINT]: Edition.BE,
-    [FeatureId.HIDE_DOCKER_HUB_ANONYMOUS]: Edition.BE,
     [FeatureId.CUSTOM_LOGIN_BANNER]: Edition.BE,
     [FeatureId.K8S_EDIT_YAML]: Edition.BE,
     [FeatureId.ENFORCE_DEPLOYMENT_OPTIONS]: Edition.BE,
@@ -58,7 +52,7 @@ export function selectShow(featureId?: FeatureId) {
     return FeatureState.VISIBLE;
   }
 
-  if (!state.features[featureId]) {
+  if (!(featureId in state.features)) {
     return FeatureState.HIDDEN;
   }
 

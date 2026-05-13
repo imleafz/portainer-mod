@@ -1,6 +1,7 @@
 import { useStore } from 'zustand';
 import { useCurrentStateAndParams, useRouter } from '@uirouter/react';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { environmentStore } from '@/react/hooks/current-environment-store';
 import { Environment } from '@/react/portainer/environments/types';
@@ -15,11 +16,11 @@ import { buildConfirmButton } from '@@/modals/utils';
 
 import { EnvironmentList } from './EnvironmentList';
 import { EdgeLoadingSpinner } from './EdgeLoadingSpinner';
-import { MotdPanel } from './MotdPanel';
 import { LicenseNodePanel } from './LicenseNodePanel';
 import { BackupFailedPanel } from './BackupFailedPanel';
 
 export function HomeView() {
+  const { t } = useTranslation();
   const { clear: clearStore } = useStore(environmentStore);
 
   const { params } = useCurrentStateAndParams();
@@ -32,9 +33,11 @@ export function HomeView() {
   useEffect(() => {
     async function redirect() {
       const options = {
-        title: `Failed connecting to ${params.environmentName}`,
-        message: `There was an issue connecting to edge agent via tunnel. Click 'Retry' below to retry now, or wait 10 seconds to automatically retry.`,
-        confirmButton: buildConfirmButton('Retry', 'primary', 10),
+        title: t('home.failedConnectingToEdge', {
+          name: params.environmentName,
+        }),
+        message: t('home.edgeAgentIssue'),
+        confirmButton: buildConfirmButton(t('home.retry'), 'primary', 10),
         modalType: ModalType.Destructive,
       };
 
@@ -56,19 +59,17 @@ export function HomeView() {
     if (params.redirect) {
       redirect();
     }
-  }, [params, setConnectingToEdgeEndpoint, router, clearStore]);
+  }, [params, setConnectingToEdgeEndpoint, router, clearStore, t]);
 
   return (
     <>
       <PageHeader
         reload
-        title="Home"
-        breadcrumbs={[{ label: 'Environments' }]}
+        title={t('home.title')}
+        breadcrumbs={[{ label: t('home.environments') }]}
       />
 
       {process.env.PORTAINER_EDITION !== 'CE' && <LicenseNodePanel />}
-
-      <MotdPanel />
 
       {process.env.PORTAINER_EDITION !== 'CE' && <BackupFailedPanel />}
 
@@ -90,13 +91,13 @@ export function HomeView() {
     }
     try {
       await snapshotEndpoints();
-      notifications.success('Success', 'Environments updated');
+      notifications.success(t('common.success'), t('home.environmentsUpdated'));
       router.stateService.reload();
     } catch (err) {
       notifications.error(
-        'Failure',
+        t('common.failure'),
         err as Error,
-        'An error occurred during environment snapshot'
+        t('home.snapshotError')
       );
     }
   }
@@ -106,13 +107,12 @@ export function HomeView() {
       setConnectingToEdgeEndpoint(true);
     }
   }
-}
 
-async function confirmEndpointSnapshot() {
-  return confirm({
-    title: 'Are you sure?',
-    modalType: ModalType.Warn,
-    message:
-      'Triggering a manual refresh will poll each environment to retrieve its information, this may take a few moments.',
-  });
+  async function confirmEndpointSnapshot() {
+    return confirm({
+      title: t('home.confirmSnapshot'),
+      modalType: ModalType.Warn,
+      message: t('home.snapshotWarning'),
+    });
+  }
 }

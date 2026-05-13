@@ -276,7 +276,7 @@ describe('StackDuplicationFormInner', () => {
       });
 
       await waitFor(() => {
-        const errorElement = screen.getByRole('alert', { name: 'Yaml Error' });
+        const errorElement = screen.getByRole('alert', { name: 'YAML error' });
         expect(errorElement).toBeVisible();
       });
     });
@@ -292,12 +292,13 @@ describe('StackDuplicationFormInner', () => {
         },
       });
       await waitFor(() => {
-        expect(screen.queryByRole('alert', { name: 'Yaml Error' })).toBeNull();
+        expect(screen.queryByRole('alert', { name: 'YAML error' })).toBeNull();
       });
     });
 
     it('should not display yamlError when no error exists', async () => {
       renderFormInner({
+        yamlError: undefined,
         initialValues: {
           environmentId: 2,
           newName: 'mystack',
@@ -306,7 +307,7 @@ describe('StackDuplicationFormInner', () => {
       });
 
       await waitFor(() => {
-        expect(screen.queryByRole('alert', { name: 'Yaml Error' })).toBeNull();
+        expect(screen.queryByRole('alert', { name: 'YAML error' })).toBeNull();
       });
     });
   });
@@ -317,7 +318,7 @@ describe('StackDuplicationFormInner', () => {
 
       expect(
         getByText(
-          'To rename the stack, choose the same environment when migrating.'
+          'To rename a stack, select the same environment during migration.'
         )
       ).toBeVisible();
     });
@@ -354,7 +355,7 @@ describe('StackDuplicationFormInner', () => {
       });
     });
 
-    it('should show "Renaming in progress..." loading text when renaming', async () => {
+    it('should show "Renaming..." loading text when renaming', async () => {
       const onSubmit = vi.fn().mockImplementation(() => new Promise(() => {})); // Never resolves
       const { getByRole } = renderFormInner({
         onSubmit,
@@ -369,12 +370,12 @@ describe('StackDuplicationFormInner', () => {
 
       await waitFor(() => {
         expect(
-          getByRole('button', { name: /renaming in progress/i })
+          getByRole('button', { name: /renaming\.\.\./i })
         ).toBeInTheDocument();
       });
     });
 
-    it('should show "Migration in progress..." loading text when migrating to different environment', async () => {
+    it('should show "Migrating..." loading text when migrating to different environment', async () => {
       const onSubmit = vi.fn().mockImplementation(() => new Promise(() => {})); // Never resolves
       const { getByRole } = renderFormInner({
         onSubmit,
@@ -389,7 +390,7 @@ describe('StackDuplicationFormInner', () => {
 
       await waitFor(() => {
         expect(
-          getByRole('button', { name: /migration in progress/i })
+          getByRole('button', { name: /migrating\.\.\./i })
         ).toBeInTheDocument();
       });
     });

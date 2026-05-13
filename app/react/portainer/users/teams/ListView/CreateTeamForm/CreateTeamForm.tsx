@@ -1,5 +1,6 @@
 import { Formik, Field, Form } from 'formik';
 import { useReducer } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plus } from 'lucide-react';
 
 import { User } from '@/portainer/users/types';
@@ -25,6 +26,7 @@ interface Props {
 }
 
 export function CreateTeamForm({ users, teams }: Props) {
+  const { t } = useTranslation();
   const addTeamMutation = useAddTeamMutation();
   const [formKey, incFormKey] = useReducer((state: number) => state + 1, 0);
   const teamSyncQuery = usePublicSettings<boolean>({
@@ -42,7 +44,7 @@ export function CreateTeamForm({ users, teams }: Props) {
         <Widget>
           <Widget.Title
             icon={Plus}
-            title="Add a new team"
+            title={t('users.teams.addNewTeam')}
             className="vertical-center"
           />
           <Widget.Body>
@@ -68,7 +70,7 @@ export function CreateTeamForm({ users, teams }: Props) {
                 >
                   <FormControl
                     inputId="team_name"
-                    label="Name"
+                    label={t('users.teams.name')}
                     errors={errors.name}
                     required
                   >
@@ -77,7 +79,7 @@ export function CreateTeamForm({ users, teams }: Props) {
                       name="name"
                       id="team_name"
                       required
-                      placeholder="e.g. development"
+                      placeholder={t('users.teams.namePlaceholder')}
                       data-cy="team-teamNameInput"
                     />
                   </FormControl>
@@ -85,8 +87,8 @@ export function CreateTeamForm({ users, teams }: Props) {
                   {users.length > 0 && (
                     <FormControl
                       inputId="users-input"
-                      label="Select team leader(s)"
-                      tooltip="You can assign one or more leaders to this team. Team leaders can manage their teams users and resources."
+                      label={t('users.teams.selectTeamLeaders')}
+                      tooltip={t('users.teams.teamLeadersTooltip')}
                       errors={errors.leaders}
                     >
                       <UsersSelector
@@ -97,7 +99,9 @@ export function CreateTeamForm({ users, teams }: Props) {
                         users={users}
                         dataCy="team-teamLeaderSelect"
                         inputId="users-input"
-                        placeholder="Select one or more team leaders"
+                        placeholder={t(
+                          'users.teams.selectTeamLeadersPlaceholder'
+                        )}
                         disabled={teamSyncQuery.data}
                       />
                     </FormControl>
@@ -107,8 +111,7 @@ export function CreateTeamForm({ users, teams }: Props) {
                     <div className="form-group">
                       <div className="col-sm-12">
                         <TextTip color="orange">
-                          The team leader feature is disabled as external
-                          authentication is currently enabled with team sync.
+                          {t('users.teams.teamLeaderDisabled')}
                         </TextTip>
                       </div>
                     </div>
@@ -120,11 +123,11 @@ export function CreateTeamForm({ users, teams }: Props) {
                         disabled={!isValid}
                         data-cy="team-createTeamButton"
                         isLoading={isSubmitting || addTeamMutation.isLoading}
-                        loadingText="Creating team..."
+                        loadingText={t('users.teams.creatingTeam')}
                         icon={Plus}
                         className="!ml-0"
                       >
-                        Create team
+                        {t('users.teams.createTeam')}
                       </LoadingButton>
                     </div>
                   </div>
@@ -141,7 +144,7 @@ export function CreateTeamForm({ users, teams }: Props) {
     addTeamMutation.mutate(values, {
       onSuccess() {
         incFormKey();
-        notifySuccess('Team successfully added', '');
+        notifySuccess(t('users.teams.teamAdded'), '');
       },
     });
   }

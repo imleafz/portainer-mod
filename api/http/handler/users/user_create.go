@@ -3,10 +3,13 @@ package users
 import (
 	"errors"
 	"net/http"
+	"strconv"
 	"strings"
 
 	portainer "github.com/portainer/portainer/api"
 	"github.com/portainer/portainer/api/dataservices"
+	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
 	"github.com/portainer/portainer/pkg/libhttp/request"
 	"github.com/portainer/portainer/pkg/libhttp/response"
@@ -61,6 +64,31 @@ func (handler *Handler) userCreate(w http.ResponseWriter, r *http.Request) *http
 		return err
 	})
 
+	if err == nil && user != nil {
+		tokenData, _ := security.RetrieveTokenData(r)
+		creatorUsername := ""
+		if tokenData != nil {
+			creator, _ := handler.DataStore.User().Read(tokenData.ID)
+			if creator != nil {
+				creatorUsername = creator.Username
+			}
+		}
+
+		activitylog.NewActivityLogBuilder(
+			activitylog.ActionCreate,
+			activitylog.ContextPortainer,
+			activitylog.ResourceTypeUser,
+		).
+			WithUser(int(tokenData.ID), creatorUsername).
+			WithResource(strconv.Itoa(int(user.ID)), user.Username).
+			WithDetails(map[string]interface{}{
+				"description": "创建用户成功",
+				"username":    user.Username,
+				"userRole":    roleToString(user.Role),
+			}).
+			Log()
+	}
+
 	return response.TxResponse(w, user, err)
 }
 
@@ -108,4 +136,11 @@ func (handler *Handler) createUser(tx dataservices.DataStoreTx, payload userCrea
 	hideFields(user)
 
 	return user, nil
+}
+
+func roleToString(role portainer.UserRole) string {
+	if role == portainer.AdministratorRole {
+		return "Administrator"
+	}
+	return "StandardUser"
 }

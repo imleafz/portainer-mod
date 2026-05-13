@@ -158,7 +158,7 @@ describe('form submission', () => {
 
     await waitFor(() => {
       expect(mockConfirm).toHaveBeenCalledWith(
-        'Do you want to force an update of the stack?',
+        'Are you sure you want to force update the stack?',
         false // stackType is DockerCompose
       );
     });
@@ -262,7 +262,7 @@ describe('form submission', () => {
     await waitFor(() => {
       expect(notifySuccess).toHaveBeenCalledWith(
         'Success',
-        'Stack successfully deployed'
+        'Stack deployed successfully'
       );
       expect(onSubmitSuccess).toHaveBeenCalled();
     });

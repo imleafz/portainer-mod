@@ -12,6 +12,7 @@ import (
 	gittypes "github.com/portainer/portainer/api/git/types"
 	httperrors "github.com/portainer/portainer/api/http/errors"
 	"github.com/portainer/portainer/api/http/security"
+	"github.com/portainer/portainer/api/internal/activitylog"
 	httperror "github.com/portainer/portainer/pkg/libhttp/error"
 	"github.com/portainer/portainer/pkg/libhttp/request"
 	"github.com/portainer/portainer/pkg/libhttp/response"
@@ -238,6 +239,32 @@ func (handler *Handler) customTemplateUpdate(w http.ResponseWriter, r *http.Requ
 	if err := handler.DataStore.CustomTemplate().Update(customTemplate.ID, customTemplate); err != nil {
 		return httperror.InternalServerError("Unable to persist custom template changes inside the database", err)
 	}
+
+	tokenData, _ := security.RetrieveTokenData(r)
+	operatorUsername := ""
+	operatorUserID := 0
+	if tokenData != nil {
+		operatorUserID = int(tokenData.ID)
+		operator, _ := handler.DataStore.User().Read(tokenData.ID)
+		if operator != nil {
+			operatorUsername = operator.Username
+		}
+	}
+
+	activitylog.NewActivityLogBuilder(
+		activitylog.ActionUpdate,
+		activitylog.ContextPortainer,
+		activitylog.ResourceTypeCustomTemplate,
+	).
+		WithUser(operatorUserID, operatorUsername).
+		WithResource(strconv.Itoa(customTemplateID), customTemplate.Title).
+		WithDetails(map[string]interface{}{
+			"description":   "更新自定义模板成功",
+			"templateTitle": customTemplate.Title,
+			"templateType":  strconv.Itoa(int(customTemplate.Type)),
+			"platform":      strconv.Itoa(int(customTemplate.Platform)),
+		}).
+		Log()
 
 	return response.JSON(w, customTemplate)
 }

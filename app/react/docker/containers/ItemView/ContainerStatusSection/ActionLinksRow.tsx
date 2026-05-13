@@ -1,4 +1,5 @@
 import { FileText, Info, BarChart2, Terminal, Paperclip } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { ContainerId } from '@/react/docker/containers/types';
 import { useAuthorizations } from '@/react/hooks/useUser';
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function ActionLinksRow({ containerId }: Props) {
+  const { t } = useTranslation();
   const { authorized: canLogs } = useAuthorizations(['DockerContainerLogs']);
   const { authorized: canInspect } = useAuthorizations([
     'DockerContainerInspect',
@@ -46,7 +48,7 @@ export function ActionLinksRow({ containerId }: Props) {
               color="link"
             >
               <Icon icon={FileText} className="lucide space-right" />
-              Logs
+              {t('docker.container.logs')}
             </Button>
           )}
           {canInspect && (
@@ -62,7 +64,7 @@ export function ActionLinksRow({ containerId }: Props) {
               color="link"
             >
               <Icon icon={Info} className="lucide space-right" />
-              Inspect
+              {t('docker.container.inspect')}
             </Button>
           )}
           {canStats && (
@@ -78,7 +80,7 @@ export function ActionLinksRow({ containerId }: Props) {
               color="link"
             >
               <Icon icon={BarChart2} className="lucide space-right" />
-              Stats
+              {t('docker.container.stats')}
             </Button>
           )}
           {canExec && (
@@ -94,7 +96,7 @@ export function ActionLinksRow({ containerId }: Props) {
               color="link"
             >
               <Icon icon={Terminal} className="lucide space-right" />
-              Console
+              {t('docker.container.console')}
             </Button>
           )}
           {canAttach && (
@@ -110,7 +112,7 @@ export function ActionLinksRow({ containerId }: Props) {
               color="link"
             >
               <Icon icon={Paperclip} className="lucide space-right" />
-              Attach
+              {t('docker.container.attach')}
             </Button>
           )}
         </ButtonGroup>

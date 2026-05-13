@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { CellContext } from '@tanstack/react-table';
 
@@ -12,7 +13,11 @@ import { multiple } from '@@/datatables/filter-types';
 import { columnHelper } from './helper';
 
 export const state = columnHelper.accessor('Status', {
-  header: 'State',
+  header: () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { t } = useTranslation();
+    return t('docker.container.state');
+  },
   id: 'state',
   cell: StatusCell,
   enableColumnFilter: true,
@@ -26,6 +31,7 @@ function StatusCell({
   getValue,
   row: { original: container },
 }: CellContext<ContainerListViewModel, ContainerStatus>) {
+  const { t } = useTranslation();
   const status = getValue();
 
   const hasHealthCheck = [
@@ -48,7 +54,7 @@ function StatusCell({
       className={clsx('label', `label-${statusClassName}`, {
         interactive: hasHealthCheck,
       })}
-      title={hasHealthCheck ? 'This container has a health check' : ''}
+      title={hasHealthCheck ? t('docker.container.containerHealthCheck') : ''}
     >
       {transformedStatus}
     </span>
